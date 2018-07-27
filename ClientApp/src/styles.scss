@@ -1,1 +1,72 @@
 /* You can add global styles to this file, and also import other style files */
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+html, body {
+  @extend .full-height;
+}
+
+::placeholder {
+    color: lighten(grey,30%)!important;
+    opacity: 1;
+}
+
+.full-height {
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+.page-title {
+  @extend .p-0;
+  @extend .mx-0;
+  @extend .my-4;
+}
+.tight {
+  padding: 0px!important;
+  margin: 0px!important;
+}
+.center-content {
+  @extend .d-flex;
+  @extend .align-items-center;
+  @extend .justify-content-center;
+}
+.center-aligned-row {
+  @extend .d-flex;
+  @extend .flex-row;
+  @extend .flex-nowrap;
+  @extend .align-items-center;
+  line-height: 0px;
+}
+.d-flex-row {
+  @extend .d-flex;
+  @extend .flex-row;
+  @extend .flex-nowrap;
+}
+.center-aligned-column {
+  @extend .d-flex;
+  @extend .flex-column;
+  @extend .flex-nowrap;
+  @extend .align-items-center;
+}
+.d-flex-column {
+  @extend .d-flex;
+  @extend .flex-column;
+  @extend .flex-nowrap;
+}
+.flex-1 {
+  flex: 1;
+}
+.y-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+/*.btn-link {
+  &:hover {
+    text-decoration: underline;
+  }
+  &, &:active, &:visited, &:focus {
+    text-decoration:none;
+  }
+}*/

@@ -1,0 +1,55 @@
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4>Add Asset</h4>
+    <button type="button"
+      class="close"
+      (click)="d('Cross click')">
+      <span>&times;</span>
+    </button>
+  </div>
+  <form (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="serial_number_textfield">
+          Serial Number
+        </label>
+        <input id="serial_number_textfield"
+          type="text"
+          class="form-control text-uppercase"
+          placeholder="Serial Number"
+          [(ngModel)]="serial_number"
+          name="serial_number_textfield">
+      </div>
+      <div class="form-group">
+        <label for="category_select">
+          Category
+        </label>
+        <select id="category_select"
+          class="mx-2"
+          [(ngModel)]="category"
+          name="category_select">
+          <option>
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="status_select">
+          Status
+        </label>
+        <select id="status_select"
+          class="mx-2"
+          [(ngModel)]="status"
+          name="status_select">
+          <option>
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit"
+        class="btn btn-outline-dark">
+        Add Asset
+      </button>
+    </div>
+  </form>
+</ng-template>
