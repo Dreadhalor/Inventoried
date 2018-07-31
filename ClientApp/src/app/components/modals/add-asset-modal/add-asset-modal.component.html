@@ -8,48 +8,83 @@
     </button>
   </div>
   <form (ngSubmit)="onSubmit()">
+    
     <div class="modal-body">
       <div class="form-group">
-        <label for="serial_number_textfield">
+        <label for="serialNumberTextfield">
           Serial Number
         </label>
-        <input id="serial_number_textfield"
+        <input id="serialNumberTextfield"
           type="text"
           class="form-control text-uppercase"
           placeholder="Serial Number"
-          [(ngModel)]="serial_number"
-          name="serial_number_textfield">
+          [(ngModel)]="serialNumber"
+          name="serialNumberTextfield">
       </div>
+
       <div class="form-group">
-        <label for="category_select">
+        <label for="categorySelect">
           Category
         </label>
-        <select id="category_select"
+        <select id="categorySelect"
           class="mx-2"
-          [(ngModel)]="category"
-          name="category_select">
-          <option>
-          </option>
+          [(ngModel)]="categoryId"
+          name="categorySelect">
+          <option [ngValue]="0"></option>
+          <!--option>
+          </option-->
         </select>
       </div>
+
       <div class="form-group">
-        <label for="status_select">
-          Status
+        <label for="manufacturerSelect">
+          Manufacturer
         </label>
-        <select id="status_select"
+        <select id="manufacturerSelect"
           class="mx-2"
-          [(ngModel)]="status"
-          name="status_select">
-          <option>
+          [(ngModel)]="manufacturerId"
+          name="manufacturerSelect">
+          <option [ngValue]="0"></option>
+          <!--option>
+          </option-->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="notesTextarea">
+          Notes
+        </label>
+        <textarea id="notesTextarea"
+          class="form-control"
+          rows="3"
+          [(ngModel)]="notes"
+          name="notesTextarea"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="assignableSelect">
+          Assignable
+        </label>
+        <select id="assignableSelect"
+          class="mx-2"
+          [(ngModel)]="assignable"
+          name="assignableSelect">
+          <option [ngValue]="true">
+            Yes
+          </option>
+          <option [ngValue]="false">
+            No
           </option>
         </select>
       </div>
     </div>
+      
     <div class="modal-footer">
       <button type="submit"
         class="btn btn-outline-dark">
         Add Asset
       </button>
     </div>
+
   </form>
 </ng-template>

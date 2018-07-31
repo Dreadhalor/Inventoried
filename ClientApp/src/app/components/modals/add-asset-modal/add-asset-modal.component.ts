@@ -8,9 +8,11 @@ import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class AddAssetModalComponent implements OnInit {
 
-  serial_number: string;
-  category: string;
-  status: string;
+  serialNumber: string = "";
+  categoryId: number = 0;
+  manufacturerId: number = 0;
+  notes: string = "";
+  assignable: boolean = true;
 
   modal: NgbModalRef = null;
   options = {
@@ -43,9 +45,18 @@ export class AddAssetModalComponent implements OnInit {
   }
 
   onSubmit(){
+    this.printValues();
     this.reset();
     this.modal.close();
     this.modal = null;
+  }
+
+  printValues(){
+    console.log(`Serial number: ${this.serialNumber}
+    Category: ${this.categoryId}
+    Manufacturer: ${this.manufacturerId}
+    Notes: ${this.notes}
+    Assignable: ${this.assignable}`);
   }
 
 }
