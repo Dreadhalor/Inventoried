@@ -1,3 +1,83 @@
-<p>
-  settings-card works!
-</p>
+<div class="card mx-2">
+  <div class="card-header center-aligned-row">
+    <h4>Asset {{title}}</h4>
+    <span class="ml-auto p-0 center-aligned-row">
+      <button *ngIf="editing_entries"
+        type="button"
+        class="btn btn-link edit-show"
+        (click)="cancelEditEntryButtonClicked()">
+        cancel
+      </button>
+      <button *ngIf="editing_entries"
+        type="button"
+        class="btn btn-link edit-show"
+        (click)="saveEditEntryButtonClicked()">
+        save
+      </button>
+      <button *ngIf="!editing_entries"
+        type="button"
+        class="btn btn-link edit-show"
+        (click)="editEntryButtonClicked()">
+        edit
+    </button>
+    </span>
+  </div>
+  <div *ngIf="entries.length > 0 || editing_entries"
+    class="card-body p-1">
+    <ul class="list-group list-group-flush">
+      <ng-container *ngIf="!editing_entries">
+        <li *ngFor="let entry of entries"
+          class="list-group-item">
+          {{entry.value}}
+        </li>
+      </ng-container>
+      <ng-container *ngIf="editing_entries">
+        <li *ngFor="let entry of placeholders"
+          class="list-group-item center-aligned-row ">
+          <button *ngIf="!isReadonly(entry)"
+            type="button"
+            class="btn btn-link cancel-add-btn py-0 pl-0 pr-2"
+            (click)="deleteEntryButtonClicked(entry.uuid)">
+            <i class="fas fa-times-circle"></i>
+          </button>
+          <input type="text"
+            class="form-control form-control-sm"
+            [readonly]="isReadonly(entry)"
+            [placeholder]="getEntry(entry.uuid).value"
+            [(ngModel)]="entry.value"
+            name="new_entry_textfield">
+        </li>
+      </ng-container>
+      <li *ngIf="editing_entries"
+        class="list-group-item center-aligned-row">
+        <button type="button"
+          class="btn btn-link py-0 pl-0 pr-2"
+          (click)="addingEntryButtonClicked()"
+          [hidden]="adding_entry">
+          <i class="fas fa-plus-circle"></i>
+        </button>
+        <button type="button"
+          class="btn btn-link cancel-add-btn py-0 pl-0 pr-2"
+          (click)="cancelAddingEntryButtonClicked()"
+          [hidden]="!adding_entry">
+          <i class="fas fa-times-circle"></i>
+        </button>
+        <input #entry
+          type="text"
+          class="form-control form-control-sm py-0"
+          placeholder="Entry name"
+          [(ngModel)]="entry_to_add"
+          name="new_entry_textfield"
+          (keydown)="newEntryKeydown($event)"
+          [hidden]="!adding_entry">
+        <button #check
+          type="button"
+          class="btn btn-link py-0 pl-2 pr-0"
+          [hidden]="!adding_entry"
+          (click)="addEntryConfirmButtonClicked()">
+          <i class="fas fa-check"></i>
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>

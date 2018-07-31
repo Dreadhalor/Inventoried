@@ -1,3 +1,4 @@
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -13,11 +14,13 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { DirectoryComponent } from './components/directory/directory.component';
 import { SettingsCardComponent } from './components/settings/settings-card/settings-card.component';
 
+import { InfoService } from './services/info/info.service';
+
 var routes: Routes = [
-  { path: '', redirectTo: 'browse-assets', pathMatch: 'full' },
   { path: 'browse-assets', component: BrowseAssetsComponent },
   { path: 'settings', component: SettingsComponent },
-  { path: 'directory', component: DirectoryComponent }
+  { path: 'directory', component: DirectoryComponent },
+  { path: '**', redirectTo: 'browse-assets', pathMatch: 'full' }
 ]
 
 @NgModule({
@@ -34,9 +37,12 @@ var routes: Routes = [
     BrowserModule,
     NgbModule.forRoot(),
     RouterModule.forRoot(routes),
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [
+    InfoService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

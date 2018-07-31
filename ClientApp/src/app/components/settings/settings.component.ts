@@ -1,6 +1,6 @@
-import { KeyValuePair } from './../../models/keyValuePair';
+import { KeyValuePair } from '../../models/keyValuePair';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { SettingsService } from '../../services/settings.service';
+import { InfoService } from './../../services/info/info.service';
 import { Globals } from '../../globals';
 
 @Component({
@@ -24,9 +24,9 @@ export class SettingsComponent implements OnInit {
   
 
   constructor(
-    private _ss: SettingsService
+    private _is: InfoService
   ) { }
-  get ss(){return this._ss;}
+  get is(){return this._is;}
 
   ngOnInit() {
   }
@@ -40,13 +40,13 @@ export class SettingsComponent implements OnInit {
   }
   editCategoryButtonClicked(){
     this.editing_categories = true;
-    this.category_placeholders = Globals.deepCopy(this.ss.asset_categories);
+    this.category_placeholders = Globals.deepCopy(this.is.asset_categories);
   }
   cancelEditCategoryButtonClicked(){
     this.resetCategoryEditing();
   }
   saveEditCategoryButtonClicked(){
-    this.ss.setAssetCategories(this.category_placeholders);
+    this.is.setAssetCategories(this.category_placeholders);
     this.resetCategoryEditing();
   }
   addingCategoryButtonClicked(){
@@ -59,17 +59,17 @@ export class SettingsComponent implements OnInit {
   addCategoryConfirmButtonClicked(){
     console.log("add category confirm button clicked");
     /*let category = new KeyValuePair(undefined,this.category_to_add);
-    let added = this.ss.addAssetCategory(category);
-    added.then((asset_categories) => {
-      if (asset_categories){
-        this.category_placeholders = Globals.deepCopy(asset_categories);
+    let added = this.is.addAisetCategory(category);
+    added.then((aiset_categories) => {
+      if (aiset_categories){
+        this.category_placeholders = Globals.deepCopy(aiset_categories);
         this.resetAddCategory();
         this.addingCategoryButtonClicked();
       }
     })*/
   }
   deleteCategoryButtonClicked(uuid){
-    /*this.ss.deleteAssetCategory(uuid).then((categories) => {
+    /*this.is.deleteAisetCategory(uuid).then((categories) => {
       if (categories) this.category_placeholders = Globals.deepCopy(categories);
     });*/
   }
@@ -93,7 +93,7 @@ export class SettingsComponent implements OnInit {
   addStatusConfirmButtonClicked(){
     console.log("add status fired");
     /*let status = new SettingsEntry(undefined,this.status_to_add);
-    this.ss.addAssetStatus(status);*/
+    this.is.addAssetStatus(status);*/
   }
 
 }

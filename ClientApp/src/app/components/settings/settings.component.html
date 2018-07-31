@@ -5,19 +5,10 @@
       <!-- Asset Categories -->
       <settings-card class="flex-1"
         [title]="'Categories'"
-        [entries]="ss.asset_categories"
-        (add)="ss.addAssetCategory($event)"
-        (delete)="ss.deleteAssetCategory($event)"
-        (edits)="ss.setAssetCategories($event)">
-      </settings-card>
-  
-      <!-- Asset Statuses -->
-      <settings-card class="flex-1"
-        [title]="'Statuses'"
-        [entries]="ss.asset_statuses"
-        (add)="ss.addAssetStatus($event)"
-        (delete)="ss.deleteAssetStatus($event)"
-        (edits)="ss.setAssetStatuses($event)">
+        [entries]="is.asset_categories"
+        (add)="is.addAssetCategory($event)"
+        (delete)="is.deleteAssetCategory($event)"
+        (edits)="is.setAssetCategories($event)">
       </settings-card>
   
     </div>

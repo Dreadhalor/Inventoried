@@ -1,16 +1,23 @@
-import { KeyValuePair } from './../models/keyValuePair';
+import { KeyValuePair } from './../../models/keyValuePair';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Globals } from '../globals';
+import { Globals } from '../../globals';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SettingsService {
+export class InfoService {
 
   loaded = false;
 
-  asset_categories: KeyValuePair[] = [];
+  _asset_categories: KeyValuePair[] = [];
+  get asset_categories(){
+    let test = new Subject<Object>().next(this._asset_categories);
+  }
+  set asset_categories(val: KeyValuePair[]){
+    this._asset_categories = val;
+  }
 
   constructor(
     private http: HttpClient
