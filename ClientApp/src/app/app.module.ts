@@ -3,9 +3,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule, Routes } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { TagInputModule } from 'ngx-chips';
 
-import { AppComponent } from './app.component';
+import { AppComponent } from './components/app/app.component';
 
 import { AddAssetModalComponent } from './components/modals/add-asset-modal/add-asset-modal.component';
 import { BrowseAssetsComponent } from './components/browse-assets/browse-assets.component';
@@ -38,7 +40,10 @@ var routes: Routes = [
     NgbModule.forRoot(),
     RouterModule.forRoot(routes),
     FormsModule,
-    HttpClientModule
+    ReactiveFormsModule,
+    HttpClientModule,
+    BrowserAnimationsModule,
+    TagInputModule
   ],
   providers: [
     InfoService

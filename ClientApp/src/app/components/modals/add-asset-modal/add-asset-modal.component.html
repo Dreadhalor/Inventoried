@@ -31,7 +31,7 @@
           class="mx-2"
           [(ngModel)]="categoryId"
           name="categorySelect">
-          <option [ngValue]="0">-------</option>
+          <option [ngValue]="0">- Select Category -</option>
           <option *ngFor="let category of is.asset_categories"
             [ngValue]="category.id">
             {{category.value}}
@@ -47,7 +47,7 @@
           class="mx-2"
           [(ngModel)]="manufacturerId"
           name="manufacturerSelect">
-          <option [ngValue]="0">-------</option>
+          <option [ngValue]="0">- Select Manufacturer -</option>
           <option *ngFor="let manufacturer of is.asset_manufacturers"
             [ngValue]="manufacturer.id">
             {{manufacturer.value}}
@@ -67,6 +67,19 @@
       </div>
 
       <div class="form-group">
+        <tag-input id="tagsInput"
+          [(ngModel)]="tags"
+          [secondaryPlaceholder]="'Tags'"
+          name="tags">
+          <tag-input-dropdown [showDropdownIfEmpty]="true"
+            [keepOpen]="false"
+            [autocompleteItems]="is.tagsAsJson"
+            [appendToBody]="false">
+          </tag-input-dropdown>
+        </tag-input>
+      </div>
+
+      <div class="form-group">
         <label for="activeSelect">
           Active
         </label>
@@ -75,7 +88,7 @@
           [(ngModel)]="active"
           name="activeSelect">
           <option [ngValue]="true">
-            Yes
+            Yes (Default)
           </option>
           <option [ngValue]="false">
             No

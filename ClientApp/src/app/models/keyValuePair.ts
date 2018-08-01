@@ -1,5 +1,8 @@
-import { UtilitiesService } from './../services/utilities/utilities.service';
-export class KeyValuePair {
+import { IAutocompleteModel } from './IAutocompleteModel';
+import { IKeyValuePair } from './IKeyValuePair';
+import { UtilitiesService } from '../services/utilities/utilities.service';
+
+export class KeyValuePair implements IKeyValuePair {
   constructor(
     private _id = UtilitiesService.uuid(),
     private _value
@@ -11,6 +14,17 @@ export class KeyValuePair {
 
   copy(){
     return new KeyValuePair(this.id,this.value);
+  }
+  toJson(){
+    let result: IAutocompleteModel = {
+      value: this.id,
+      display: this.value
+    };
+    return result;
+  }
+
+  static JsonToKVP(model: IAutocompleteModel){
+    return new KeyValuePair(model.value, model.display);
   }
 
 }

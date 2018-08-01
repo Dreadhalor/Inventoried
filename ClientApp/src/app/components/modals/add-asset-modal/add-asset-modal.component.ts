@@ -1,3 +1,4 @@
+import { KeyValuePair } from './../../../models/keyValuePair';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InfoService } from '../../../services/info/info.service';
@@ -11,10 +12,13 @@ import { Asset } from '../../../models/asset';
 })
 export class AddAssetModalComponent implements OnInit {
 
+  
+
   serialNumber: string = "";
   categoryId: number = 0;
   manufacturerId: number = 0;
   notes: string = "";
+  tags = [];
   active: boolean = true;
 
   modal: NgbModalRef = null;
@@ -25,7 +29,7 @@ export class AddAssetModalComponent implements OnInit {
       return true;
     }
   };
-
+  
   constructor(
     private ms: NgbModal,
     private is: InfoService,
@@ -54,6 +58,10 @@ export class AddAssetModalComponent implements OnInit {
     this.modal = this.ms.open(content, this.options);
   }
 
+  hello(ugh){
+    console.log(ugh);
+  }
+
   onSubmit(){
     let newAsset = new Asset(
       undefined,
@@ -62,6 +70,7 @@ export class AddAssetModalComponent implements OnInit {
       this.manufacturerId,
       this.notes,
       undefined,
+      this.tags.map(tag => KeyValuePair.JsonToKVP(tag)),
       this.active
     );
     this.assets.assets.push(newAsset);

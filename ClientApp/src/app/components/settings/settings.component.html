@@ -1,20 +1,38 @@
 <div class="full-height y-scroll px-5 pb-5">
   <h1 class="page-title">Settings</h1>
-  <div class="container-fluid px-0 mb-3 mt-4 d-flex-row align-items-start">
+  <div class="container-fluid px-0 mb-3 mt-4 d-flex-column align-items-start">
 
-    <!-- Asset Categories -->
-    <settings-card class="flex-1"
-      [title]="'Categories'"
-      [entries]="is.asset_categories"
-      (edits)="is.setAssetCategories($event)">
-    </settings-card>
+    <div class="d-flex-row container-fluid">
+      <!--Durable Good Categories -->
+      <settings-card class="flex-1"
+        [title]="'Durable Good Categories'"
+        [entries]="is.asset_categories"
+        (edits)="is.setAssetCategories($event)">
+      </settings-card>
 
-    <!-- Asset Manufacturers -->
-    <settings-card class="flex-1"
-      [title]="'Manufacturers'"
-      [entries]="is.asset_manufacturers"
-      (edits)="is.setAssetManufacturers($event)">
-    </settings-card>
+      <!-- Consumables Categories -->
+      <settings-card class="flex-1"
+        [title]="'Consumables Categories'"
+        [entries]="is.consumableCategories"
+        (edits)="is.setConsumableCategories($event)">
+      </settings-card>
+    </div>
 
+    <div class="d-flex-row container-fluid mt-4">
+      <!-- Manufacturers -->
+      <settings-card class="flex-1"
+        [title]="'Manufacturers'"
+        [entries]="is.asset_manufacturers"
+        (edits)="is.setAssetManufacturers($event)">
+      </settings-card>
+
+      <!-- Tags -->
+      <settings-card class="flex-1"
+        [title]="'Tags'"
+        [entries]="is.tags"
+        (edits)="is.setTags($event)">
+      </settings-card>
+    </div>
+    
   </div>
 </div>

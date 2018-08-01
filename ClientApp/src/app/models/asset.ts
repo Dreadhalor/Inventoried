@@ -9,6 +9,7 @@ export class Asset {
     private _manufacturerId = 0,
     private _notes: string = '',
     private _assignmentId = 0,
+    private _tags = [],
     private _active: boolean = true
   ){}
 
@@ -28,6 +29,9 @@ export class Asset {
 
   get assignmentId(){ return this._assignmentId; }
   set assignmentId(val){ this._assignmentId = val; }
+
+  get tags(){ return this._tags; }
+  set tags(val){ this._tags = val; }
 
   get active(){ return this._active; }
   set active(val){ this._active = val; }
