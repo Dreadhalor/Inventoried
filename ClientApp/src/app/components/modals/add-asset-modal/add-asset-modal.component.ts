@@ -1,5 +1,8 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { InfoService } from '../../../services/info/info.service';
+import { AssetService } from '../../../services/asset/asset.service';
+import { Asset } from '../../../models/asset';
 
 @Component({
   selector: 'add-asset-modal',
@@ -12,7 +15,7 @@ export class AddAssetModalComponent implements OnInit {
   categoryId: number = 0;
   manufacturerId: number = 0;
   notes: string = "";
-  assignable: boolean = true;
+  active: boolean = true;
 
   modal: NgbModalRef = null;
   options = {
@@ -24,7 +27,9 @@ export class AddAssetModalComponent implements OnInit {
   };
 
   constructor(
-    private ms: NgbModal
+    private ms: NgbModal,
+    private is: InfoService,
+    private assets: AssetService
   ) { }
 
   @ViewChild('content') content: ElementRef;
@@ -34,6 +39,11 @@ export class AddAssetModalComponent implements OnInit {
   }
 
   reset(){
+    this.serialNumber = "";
+    this.categoryId = 0;
+    this.manufacturerId = 0;
+    this.notes = "";
+    this.active = true;
   }
 
   open(asset){
@@ -45,18 +55,19 @@ export class AddAssetModalComponent implements OnInit {
   }
 
   onSubmit(){
-    this.printValues();
+    let newAsset = new Asset(
+      undefined,
+      this.serialNumber,
+      this.categoryId,
+      this.manufacturerId,
+      this.notes,
+      undefined,
+      this.active
+    );
+    this.assets.assets.push(newAsset);
     this.reset();
     this.modal.close();
     this.modal = null;
-  }
-
-  printValues(){
-    console.log(`Serial number: ${this.serialNumber}
-    Category: ${this.categoryId}
-    Manufacturer: ${this.manufacturerId}
-    Notes: ${this.notes}
-    Assignable: ${this.assignable}`);
   }
 
 }

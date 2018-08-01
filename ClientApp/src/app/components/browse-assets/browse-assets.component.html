@@ -1,13 +1,13 @@
 <div class="full-height px-5 pb-4 y-scroll">
   <div class="page-title center-aligned-row">
     <h1>Browse Assets</h1>
-    <div class="center-aligned-row ml-auto mr-2">
+    <div class="d-flex-row align-items-center ml-auto mr-2">
       <button type="button"
-        class="btn btn-link has-label-hover order-2 p-0"
+        class="btn btn-link has-label-hover order-2 center-aligned-row p-0"
         (click)="addAsset.open()">
         <i class="fas fa-plus-circle fa-2x"></i>
       </button>
-      <div class="label-hover order-1 mr-2">
+      <div class="label-hover order-1 mr-1 border-0">
           add asset
       </div>
     </div>
@@ -23,13 +23,31 @@
       <th scope="col">
         Manufacturer
       </th>
+      <th scope="col">
+        Notes
+      </th>
+    <th scope="col">
+        Active
+      </th>
     </thead>
     <tbody>
-      <!--tr>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr-->
+      <tr *ngFor="let asset of assets.assets">
+        <td>
+          {{asset.serialNumber}}
+        </td>
+        <td>
+          {{asset.categoryId}}
+        </td>
+        <td>
+          {{asset.manufacturerId}}
+        </td>
+        <td>
+          {{asset.notes}}
+        </td>
+        <td>
+          {{asset.active ? 'Yes' : 'No'}}
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>

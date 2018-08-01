@@ -1,4 +1,5 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
+import { AssetService } from '../../services/asset/asset.service';
 
 @Component({
   selector: 'browse-assets',
@@ -8,13 +9,10 @@ import { Component, OnInit, EventEmitter } from '@angular/core';
 export class BrowseAssetsComponent implements OnInit {
 
   constructor(
+    private assets: AssetService
   ) { }
 
   ngOnInit() {
-  }
-
-  stringify(thing){
-    return JSON.stringify(thing);
   }
 
 }

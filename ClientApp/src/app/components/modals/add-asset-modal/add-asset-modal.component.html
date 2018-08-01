@@ -10,6 +10,7 @@
   <form (ngSubmit)="onSubmit()">
     
     <div class="modal-body">
+
       <div class="form-group">
         <label for="serialNumberTextfield">
           Serial Number
@@ -30,9 +31,11 @@
           class="mx-2"
           [(ngModel)]="categoryId"
           name="categorySelect">
-          <option [ngValue]="0"></option>
-          <!--option>
-          </option-->
+          <option [ngValue]="0">-------</option>
+          <option *ngFor="let category of is.asset_categories"
+            [ngValue]="category.id">
+            {{category.value}}
+          </option>
         </select>
       </div>
 
@@ -44,9 +47,11 @@
           class="mx-2"
           [(ngModel)]="manufacturerId"
           name="manufacturerSelect">
-          <option [ngValue]="0"></option>
-          <!--option>
-          </option-->
+          <option [ngValue]="0">-------</option>
+          <option *ngFor="let manufacturer of is.asset_manufacturers"
+            [ngValue]="manufacturer.id">
+            {{manufacturer.value}}
+          </option>
         </select>
       </div>
 
@@ -62,13 +67,13 @@
       </div>
 
       <div class="form-group">
-        <label for="assignableSelect">
-          Assignable
+        <label for="activeSelect">
+          Active
         </label>
-        <select id="assignableSelect"
+        <select id="activeSelect"
           class="mx-2"
-          [(ngModel)]="assignable"
-          name="assignableSelect">
+          [(ngModel)]="active"
+          name="activeSelect">
           <option [ngValue]="true">
             Yes
           </option>
@@ -77,6 +82,7 @@
           </option>
         </select>
       </div>
+      
     </div>
       
     <div class="modal-footer">

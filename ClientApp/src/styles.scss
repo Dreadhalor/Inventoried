@@ -16,6 +16,9 @@ html, body {
   min-height: 100%;
   overflow: hidden;
 }
+.line-height-0 {
+  line-height: 0px;
+}
 .page-title {
   @extend .p-0;
   @extend .mx-0;
