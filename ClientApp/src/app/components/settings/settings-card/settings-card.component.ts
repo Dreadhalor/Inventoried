@@ -11,24 +11,21 @@ export class SettingsCardComponent implements OnInit {
 
   @ViewChild('entry') entry: ElementRef;
   @ViewChild('check') check: ElementRef;
-  placeholders: any[] = [];
   editing_entries = false;
   adding_entry = false;
   entry_to_add = '';
 
-  _entries;
+  _entries: KeyValuePair[];
   get entries(){
     return this._entries;
   }
   @Input() set entries(val){
     this._entries = val;
-    this.resetPlaceholders();
+    this.resetChanges();
   };
+  placeholders: KeyValuePair[] = [];
 
   @Input() title;
-
-  @Output() delete = new EventEmitter<any>();
-  @Output() add = new EventEmitter<any>();
   @Output() edits = new EventEmitter<any>();
 
   constructor() { }
@@ -36,15 +33,11 @@ export class SettingsCardComponent implements OnInit {
   ngOnInit() {
   }
 
-  getEntry(uuid){
+  getEntry(id){
     for (let i = 0; i < this.entries.length; i++){
-      if (this.entries[i].uuid == uuid) return this.entries[i];
+      if (this.entries[i].id == id) return this.entries[i];
     }
     return null;
-  }
-
-  resetPlaceholders(){
-    this.placeholders = Globals.deepCopy(this.entries);
   }
 
   newEntryKeydown(event){
@@ -56,11 +49,14 @@ export class SettingsCardComponent implements OnInit {
   }
   editEntryButtonClicked(){
     this.editing_entries = true;
+    this.resetChanges();
   }
   cancelEditEntryButtonClicked(){
     this.resetEntryEditing();
   }
   saveEditEntryButtonClicked(){
+    if (this.entry_to_add) this.addEntry(this.entry_to_add);
+    this.entry_to_add = '';
     this.edits.emit(this.placeholders);
     this.resetEntryEditing();
   }
@@ -69,19 +65,15 @@ export class SettingsCardComponent implements OnInit {
     setTimeout(() => {this.entry.nativeElement.focus()},0);
   }
   cancelAddingEntryButtonClicked(){
-    this.adding_entry = false;
+    this.resetAddEntry();
   }
   addEntryConfirmButtonClicked(){
-    /*let entry = new KeyValuePair(){
-      id: undefined,
-      value: this.entry_to_add
-    });
-    this.add.emit(entry);*/
+    this.addEntry(this.entry_to_add);
     this.resetAddEntry();
     this.addingEntryButtonClicked();
   }
-  deleteEntryButtonClicked(uuid){
-    this.delete.emit(uuid);
+  deleteEntryButtonClicked(id){
+    this.deleteEntry(id);
   }
   resetEntryEditing(){
     this.editing_entries = false;
@@ -92,8 +84,31 @@ export class SettingsCardComponent implements OnInit {
     this.entry_to_add = '';
   }
 
-  isReadonly(entry){
-    return entry.uuid == '0' || entry.uuid == '1';
+  getPlaceholder(id){
+    let placeholder = this.getEntry(id);
+    return (placeholder) ? placeholder.value : '';
+  }
+  isModifiedOrNew(id){
+    let placeholder = this.getEntry(id);
+    if (placeholder){
+      let val = this.placeholders.find(match => match.id == id);
+      if (val){
+        if (placeholder.value == val.value) return false;
+      }
+    }
+    return true;
+  }
+  addEntry(entry: string){
+    let newEntry = new KeyValuePair(undefined, entry);
+    this.placeholders.push(newEntry);
+  }
+  deleteEntry(id){
+    let index = this.placeholders.findIndex(match => match.id == id);
+    if (index >= 0) this.placeholders.splice(index,1);
+  }
+
+  resetChanges(){
+    this.placeholders = this.entries.map(entry => entry.copy());
   }
 
 }

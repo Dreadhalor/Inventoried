@@ -11,6 +11,7 @@ html, body {
 }
 
 .full-height {
+  display: block;
   height: 100%;
   min-height: 100%;
   overflow: hidden;
@@ -52,6 +53,9 @@ html, body {
   @extend .flex-column;
   @extend .flex-nowrap;
 }
+.flex-1 {
+  flex: 1;
+}
 .y-scroll {
   overflow-y: auto;
   overflow-x: hidden;
@@ -59,11 +63,3 @@ html, body {
 .overflow-hidden {
   overflow: hidden;
 }
-/*.btn-link {
-  &:hover {
-    text-decoration: underline;
-  }
-  &, &:active, &:visited, &:focus {
-    text-decoration:none;
-  }
-}*/

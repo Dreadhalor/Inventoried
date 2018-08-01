@@ -1,4 +1,4 @@
-export interface Assignment {
+export class Assignment {
   id: number;
   userId: string;
   assetId: number;

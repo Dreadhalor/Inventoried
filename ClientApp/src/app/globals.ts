@@ -24,6 +24,10 @@ export class Globals {
     return this._settings_route;
   }
 
+  public static triggerArrayChange(array: any[]){
+    array = array.slice(0);
+  }
+
   public static deepCopy(obj) {
     var copy;
     // Handle the 3 simple types, and null or undefined

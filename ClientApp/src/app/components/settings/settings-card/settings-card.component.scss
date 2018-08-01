@@ -1,0 +1,27 @@
+@import "../../../../styles";
+
+$cancel-color: red;
+
+.cancel-add-btn {
+  color: $cancel-color;
+  &:hover {
+    color: darken($cancel-color,20%);
+  }
+}
+
+.edit-show {
+  display: none;
+  line-height: 0px;
+}
+.card {
+  &:hover {
+    .edit-show {
+      display: block;
+    }
+  }
+}
+
+.new-item {
+  border-left: 5px solid blue!important;
+  margin: 0px;
+}

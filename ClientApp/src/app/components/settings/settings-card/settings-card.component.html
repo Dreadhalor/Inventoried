@@ -23,7 +23,7 @@
     </span>
   </div>
   <div *ngIf="entries.length > 0 || editing_entries"
-    class="card-body p-1">
+    class="card-body p-0">
     <ul class="list-group list-group-flush">
       <ng-container *ngIf="!editing_entries">
         <li *ngFor="let entry of entries"
@@ -33,23 +33,23 @@
       </ng-container>
       <ng-container *ngIf="editing_entries">
         <li *ngFor="let entry of placeholders"
-          class="list-group-item center-aligned-row ">
-          <button *ngIf="!isReadonly(entry)"
-            type="button"
+          class="list-group-item center-aligned-row"
+          [ngClass]="{'new-item': isModifiedOrNew(entry.id)}">
+          <button type="button"
             class="btn btn-link cancel-add-btn py-0 pl-0 pr-2"
-            (click)="deleteEntryButtonClicked(entry.uuid)">
+            (click)="deleteEntryButtonClicked(entry.id)">
             <i class="fas fa-times-circle"></i>
           </button>
           <input type="text"
             class="form-control form-control-sm"
-            [readonly]="isReadonly(entry)"
-            [placeholder]="getEntry(entry.uuid).value"
+            [placeholder]="getPlaceholder(entry.id)"
             [(ngModel)]="entry.value"
             name="new_entry_textfield">
         </li>
       </ng-container>
       <li *ngIf="editing_entries"
-        class="list-group-item center-aligned-row">
+        class="list-group-item center-aligned-row"
+        [ngClass]="{'new-item': entry_to_add}">
         <button type="button"
           class="btn btn-link py-0 pl-0 pr-2"
           (click)="addingEntryButtonClicked()"
