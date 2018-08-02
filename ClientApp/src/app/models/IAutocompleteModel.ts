@@ -1,4 +1,4 @@
-export interface IAutocompleteModel {
+export interface IAutoCompleteModel {
   value: any;
   display: string;
 }

@@ -96,7 +96,10 @@ export class InfoService {
   _tags: KeyValuePair[] = InfoService.initTags.map(val => new KeyValuePair(undefined, val));
   get tags(){ return this._tags; }
   set tags(val: KeyValuePair[]){ this._tags = val; }
-  get tagsAsJson(){ return this._tags.map(pair => pair.toJson()); }
+  
+  tagsAsJson(){
+    return this._tags.map(pair => pair.toACM());
+  }
   
   setTags(tags: KeyValuePair[]){
     this.tags = tags;

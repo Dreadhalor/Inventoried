@@ -11,4 +11,8 @@ export class AssetService {
   set assets(val: Asset[]){ this._assets = val; }
 
   constructor() { }
+
+  addAsset(asset: Asset){
+    this.assets.push(asset);
+  }
 }

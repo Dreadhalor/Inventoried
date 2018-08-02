@@ -15,6 +15,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DirectoryComponent } from './components/directory/directory.component';
 import { SettingsCardComponent } from './components/settings/settings-card/settings-card.component';
+import { EditAssetModalComponent } from './components/modals/asset-edit-modal/edit-asset-modal.component';
 
 import { InfoService } from './services/info/info.service';
 
@@ -33,7 +34,8 @@ var routes: Routes = [
     NavbarComponent,
     SettingsComponent,
     DirectoryComponent,
-    SettingsCardComponent
+    SettingsCardComponent,
+    EditAssetModalComponent
   ],
   imports: [
     BrowserModule,

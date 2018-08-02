@@ -1,9 +1,10 @@
-import { KeyValuePair } from './../../../models/keyValuePair';
+import { KeyValuePair } from '../../../models/keyValuePair';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InfoService } from '../../../services/info/info.service';
 import { AssetService } from '../../../services/asset/asset.service';
 import { Asset } from '../../../models/asset';
+import { IAutoCompleteModel } from '../../../models/IAutocompleteModel';
 
 @Component({
   selector: 'add-asset-modal',
@@ -18,7 +19,7 @@ export class AddAssetModalComponent implements OnInit {
   categoryId: number = 0;
   manufacturerId: number = 0;
   notes: string = "";
-  tags = [];
+  tags: IAutoCompleteModel[] = [];
   active: boolean = true;
 
   modal: NgbModalRef = null;
@@ -47,6 +48,7 @@ export class AddAssetModalComponent implements OnInit {
     this.categoryId = 0;
     this.manufacturerId = 0;
     this.notes = "";
+    this.tags = [];
     this.active = true;
   }
 
@@ -58,10 +60,6 @@ export class AddAssetModalComponent implements OnInit {
     this.modal = this.ms.open(content, this.options);
   }
 
-  hello(ugh){
-    console.log(ugh);
-  }
-
   onSubmit(){
     let newAsset = new Asset(
       undefined,
@@ -70,10 +68,10 @@ export class AddAssetModalComponent implements OnInit {
       this.manufacturerId,
       this.notes,
       undefined,
-      this.tags.map(tag => KeyValuePair.JsonToKVP(tag)),
+      this.tags.map(tag => KeyValuePair.ACMToKVP(tag)),
       this.active
     );
-    this.assets.assets.push(newAsset);
+    this.assets.addAsset(newAsset);
     this.reset();
     this.modal.close();
     this.modal = null;

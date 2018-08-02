@@ -1,4 +1,4 @@
-import { IAutocompleteModel } from './IAutocompleteModel';
+import { IAutoCompleteModel } from './IAutoCompleteModel';
 import { IKeyValuePair } from './IKeyValuePair';
 import { UtilitiesService } from '../services/utilities/utilities.service';
 
@@ -9,21 +9,23 @@ export class KeyValuePair implements IKeyValuePair {
   ){}
 
   get id(){ return this._id; }
+  
   get value(){ return this._value; }
   set value(val){ this._value = val; }
 
-  copy(){
+  copy(): KeyValuePair {
     return new KeyValuePair(this.id,this.value);
   }
-  toJson(){
-    let result: IAutocompleteModel = {
+
+  toACM(){
+    let result: IAutoCompleteModel = {
       value: this.id,
       display: this.value
     };
     return result;
   }
 
-  static JsonToKVP(model: IAutocompleteModel){
+  static ACMToKVP(model: IAutoCompleteModel){
     return new KeyValuePair(model.value, model.display);
   }
 

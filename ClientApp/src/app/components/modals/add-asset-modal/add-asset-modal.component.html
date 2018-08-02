@@ -28,7 +28,7 @@
           Category
         </label>
         <select id="categorySelect"
-          class="mx-2"
+          class="form-control"
           [(ngModel)]="categoryId"
           name="categorySelect">
           <option [ngValue]="0">- Select Category -</option>
@@ -44,7 +44,7 @@
           Manufacturer
         </label>
         <select id="manufacturerSelect"
-          class="mx-2"
+          class="form-control"
           [(ngModel)]="manufacturerId"
           name="manufacturerSelect">
           <option [ngValue]="0">- Select Manufacturer -</option>
@@ -63,6 +63,7 @@
           class="form-control"
           rows="3"
           [(ngModel)]="notes"
+          [placeholder]="'8GB of RAM, 1TB storage, etc..'"
           name="notesTextarea"></textarea>
       </div>
 
@@ -73,7 +74,7 @@
           name="tags">
           <tag-input-dropdown [showDropdownIfEmpty]="true"
             [keepOpen]="false"
-            [autocompleteItems]="is.tagsAsJson"
+            [autocompleteItems]="is.tagsAsJson()"
             [appendToBody]="false">
           </tag-input-dropdown>
         </tag-input>
@@ -84,7 +85,7 @@
           Active
         </label>
         <select id="activeSelect"
-          class="mx-2"
+          class="form-control"
           [(ngModel)]="active"
           name="activeSelect">
           <option [ngValue]="true">
