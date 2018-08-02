@@ -4,7 +4,8 @@ import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InfoService } from '../../../services/info/info.service';
 import { AssetService } from '../../../services/asset/asset.service';
 import { Asset } from '../../../models/asset';
-import { IAutoCompleteModel } from '../../../models/IAutocompleteModel';
+import { IAutoCompleteModel } from '../../../models/IAutoCompleteModel';
+import { MDCFloatingLabel } from '@material/floating-label';
 
 @Component({
   selector: 'add-asset-modal',

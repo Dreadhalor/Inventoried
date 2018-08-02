@@ -11,24 +11,21 @@
     
     <div class="modal-body">
 
-      <div class="form-group">
-        <label for="serialNumberTextfield">
-          Serial Number
-        </label>
-        <input id="serialNumberTextfield"
-          type="text"
-          class="form-control text-uppercase"
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Serial Number</mat-label>
+        <input matInput
           placeholder="Serial Number"
-          [(ngModel)]="serialNumber"
-          name="serialNumberTextfield">
-      </div>
+          class="test">
+        <mat-hint>*required</mat-hint>
+      </mat-form-field>
 
       <div class="form-group">
         <label for="categorySelect">
           Category
         </label>
         <select id="categorySelect"
-          class="form-control"
+          class="form-control form-control-sm"
           [(ngModel)]="categoryId"
           name="categorySelect">
           <option [ngValue]="0">- Select Category -</option>
@@ -44,7 +41,7 @@
           Manufacturer
         </label>
         <select id="manufacturerSelect"
-          class="form-control"
+          class="form-control form-control-sm"
           [(ngModel)]="manufacturerId"
           name="manufacturerSelect">
           <option [ngValue]="0">- Select Manufacturer -</option>
@@ -60,7 +57,7 @@
           Notes
         </label>
         <textarea id="notesTextarea"
-          class="form-control"
+          class="form-control form-control-sm"
           rows="3"
           [(ngModel)]="notes"
           [placeholder]="'8GB of RAM, 1TB storage, etc..'"
@@ -85,7 +82,7 @@
           Active
         </label>
         <select id="activeSelect"
-          class="form-control"
+          class="form-control form-control-sm"
           [(ngModel)]="active"
           name="activeSelect">
           <option [ngValue]="true">
@@ -96,6 +93,10 @@
           </option>
         </select>
       </div>
+
+      <mat-form-field>
+        <input matInput placeholder="Favorite food" value="Sushi">
+      </mat-form-field>
       
     </div>
       

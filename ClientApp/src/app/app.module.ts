@@ -7,6 +7,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TagInputModule } from 'ngx-chips';
 
+import { MatInputModule } from '@angular/material/input';
+
 import { AppComponent } from './components/app/app.component';
 
 import { AddAssetModalComponent } from './components/modals/add-asset-modal/add-asset-modal.component';
@@ -45,7 +47,9 @@ var routes: Routes = [
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    TagInputModule
+    TagInputModule,
+    //Material components
+    MatInputModule
   ],
   providers: [
     InfoService
