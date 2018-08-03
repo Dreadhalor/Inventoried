@@ -105,14 +105,14 @@
     (click)="editButtonPressed()">
     Edit
   </button>
-  <button *ngIf="default"
+  <button *ngIf="default && !durable.assignment"
     class="option-button"
     mat-stroked-button
     color="basic"
     (click)="checkoutButtonPressed()">
     Check out
   </button>
-  <button *ngIf="default"
+  <button *ngIf="default && durable.assignment"
     class="option-button"
     mat-stroked-button
     color="basic"

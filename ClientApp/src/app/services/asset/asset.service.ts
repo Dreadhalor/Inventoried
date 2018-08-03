@@ -25,7 +25,12 @@ export class AssetService {
   set consumables(val: Consumable[]){ this._consumables = val; }
 
   public addAssetTabIndex = 0;
-  public browseAssetsTabIndex = 0;
+  private _browseAssetsTabIndex = 0;
+  get browseAssetsTabIndex(){ return this._browseAssetsTabIndex; }
+  set browseAssetsTabIndex(val: number){
+    this.addAssetTabIndex = val;
+    this._browseAssetsTabIndex = val;
+  }
 
   constructor(
     private infoService: InfoService

@@ -9,12 +9,20 @@ export class InfoService {
 
   loaded = false;
 
-  static initCategories = [
+  static initDurablesCategories = [
     "Monitor",
     "Laptop",
     "Projector",
     "Desktop",
     "Tablet"
+  ]
+
+  static initConsumablesCategories = [
+    "Cable",
+    "Mouse",
+    "Keyboard",
+    "Surge Protector",
+    "Extension Cord"
   ]
 
   static initManufacturers = [
@@ -48,7 +56,7 @@ export class InfoService {
   }
 
   //Durable good categories
-  _durablesCategories: KeyValuePair[] = InfoService.initCategories.map((val, index) => new KeyValuePair(index + 1, val));
+  _durablesCategories: KeyValuePair[] = InfoService.initDurablesCategories.map((val, index) => new KeyValuePair(index + 1, val));
   get durablesCategories(){ return this._durablesCategories; }
   set durablesCategories(val: KeyValuePair[]){ this._durablesCategories = val; }
 
@@ -78,7 +86,7 @@ export class InfoService {
   }
   
   //Consumables categories
-  _consumablesCategories: KeyValuePair[] = []
+  _consumablesCategories: KeyValuePair[] = InfoService.initConsumablesCategories.map((val, index) => new KeyValuePair(index + 1, val));
   get consumablesCategories(){ return this._consumablesCategories; }
   set consumablesCategories(val: KeyValuePair[]){ this._consumablesCategories = val; }
   
