@@ -2,7 +2,7 @@ import { InfoService } from '../services/info/info.service';
 import { KeyValuePair } from './keyValuePair';
 import { UtilitiesService } from "../services/utilities/utilities.service";
 
-export class Asset {
+export class Durable {
 
   private infoService: InfoService
   
@@ -70,8 +70,8 @@ export class Asset {
   get active(){ return this._active; }
   set active(val){ this._active = val; }
 
-  copy(): Asset {
-    let result = new Asset(
+  copy(): Durable {
+    let result = new Durable(
       this.id,
       this.serialNumber,
       this.categoryId,

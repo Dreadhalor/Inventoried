@@ -9,17 +9,21 @@ import { TagInputModule } from 'ngx-chips';
 
 import { AppComponent } from './components/app/app.component';
 
-import { AddAssetModalComponent } from './components/modals/add-asset-modal/add-asset-modal.component';
+import { AddAssetComponent } from './components/modals/add-asset/add-asset.component';
 import { BrowseAssetsComponent } from './components/browse-assets/browse-assets.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DirectoryComponent } from './components/directory/directory.component';
 import { SettingsCardComponent } from './components/settings/settings-card/settings-card.component';
-import { EditAssetModalComponent } from './components/modals/asset-edit-modal/edit-asset-modal.component';
+import { EditDurableComponent } from './components/modals/edit-durable/edit-durable';
 
 import { MaterialsModule } from './modules/materials.module';
 
 import { InfoService } from './services/info/info.service';
+import { BrowseDurablesComponent } from './components/browse-assets/browse-durables/browse-durables.component';
+import { BrowseConsumablesComponent } from './components/browse-assets/browse-consumables/browse-consumables.component';
+import { AddDurableComponent } from './components/modals/add-asset/add-durable/add-durable.component';
+import { AddConsumableComponent } from './components/modals/add-asset/add-consumable/add-consumable.component';
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
@@ -31,18 +35,22 @@ var routes: Routes = [
 @NgModule({
   entryComponents: [
     AppComponent,
-    AddAssetModalComponent,
-    EditAssetModalComponent
+    AddAssetComponent,
+    EditDurableComponent
   ],
   declarations: [
     AppComponent,
-    AddAssetModalComponent,
+    AddAssetComponent,
     BrowseAssetsComponent,
     NavbarComponent,
     SettingsComponent,
     DirectoryComponent,
     SettingsCardComponent,
-    EditAssetModalComponent
+    EditDurableComponent,
+    BrowseDurablesComponent,
+    BrowseConsumablesComponent,
+    AddDurableComponent,
+    AddConsumableComponent
   ],
   imports: [
     BrowserModule,

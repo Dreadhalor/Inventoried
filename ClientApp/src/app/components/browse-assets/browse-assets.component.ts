@@ -1,11 +1,9 @@
-import { Asset } from '../../models/asset';
 import { InfoService } from '../../services/info/info.service';
 import { Globals } from '../../globals';
-import { AddAssetModalComponent } from '../modals/add-asset-modal/add-asset-modal.component';
+import { AddAssetComponent } from '../modals/add-asset/add-asset.component';
 import { Component, OnInit } from '@angular/core';
 import { AssetService } from '../../services/asset/asset.service';
 import { MatDialog } from '@angular/material';
-import { EditAssetModalComponent } from '../modals/asset-edit-modal/edit-asset-modal.component';
 
 @Component({
   selector: 'browse-assets',
@@ -24,14 +22,7 @@ export class BrowseAssetsComponent implements OnInit {
   }
 
   openAddAsset(){
-    const dialogRef = this.dialog.open(AddAssetModalComponent, Globals.dialogConfig);
-  }
-  openEditAsset(asset: Asset){
-    const dialogRef = this.dialog.open(EditAssetModalComponent, {
-      width: Globals.dialogConfig.width,
-      maxWidth: Globals.dialogConfig.maxWidth,
-      data: asset
-    });
+    const dialogRef = this.dialog.open(AddAssetComponent, Globals.dialogConfig);
   }
 
 }

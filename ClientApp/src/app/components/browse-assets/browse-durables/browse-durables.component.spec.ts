@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditAssetModalComponent } from './edit-asset-modal.component';
+import { BrowseDurablesComponent } from './browse-durables.component';
 
-describe('AssetEditModalComponent', () => {
-  let component: EditAssetModalComponent;
-  let fixture: ComponentFixture<EditAssetModalComponent>;
+describe('BrowseDurablesComponent', () => {
+  let component: BrowseDurablesComponent;
+  let fixture: ComponentFixture<BrowseDurablesComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EditAssetModalComponent ]
+      declarations: [ BrowseDurablesComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EditAssetModalComponent);
+    fixture = TestBed.createComponent(BrowseDurablesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

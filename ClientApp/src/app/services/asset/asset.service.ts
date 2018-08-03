@@ -1,39 +1,55 @@
 import { InfoService } from '../info/info.service';
 import { Injectable } from '@angular/core';
-import { Asset } from '../../models/asset';
+import { Durable } from '../../models/durable';
+import { Consumable } from '../../models/consumable';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AssetService {
 
-  public static initAssets: Asset[] = [
-    new Asset(undefined, 'sdfewagw', 3, 2, 'This is a thing', undefined, undefined, undefined),
-    new Asset(undefined, 'g34h6765', 1, 4, 'Hello, world!', undefined, undefined, undefined),
-    new Asset(undefined, 'e5yhgfhg', 5, 1, 'Ughhhhhh', undefined, undefined, undefined),
-    new Asset(undefined, '87fgh49y', 2, 5, 'Ooga booga shoeshine', undefined, undefined, undefined),
-    new Asset(undefined, 'df6890gh', 4, 3, 'Two households, both alike in dignity, In fair Verona, where we lay our scene, From ancient grudge break to new mutiny, Where civil blood makes civil hands unclean.', undefined, undefined, undefined),
+  public static initDurables: Durable[] = [
+    new Durable(undefined, 'sdfewagw', 3, 2, 'This is a thing', undefined, undefined, undefined),
+    new Durable(undefined, 'g34h6765', 1, 4, 'Hello, world!', undefined, undefined, undefined),
+    new Durable(undefined, 'e5yhgfhg', 5, 1, 'Ughhhhhh', undefined, undefined, undefined),
+    new Durable(undefined, '87fgh49y', 2, 5, 'Ooga booga shoeshine', undefined, undefined, undefined),
+    new Durable(undefined, 'df6890gh', 4, 3, 'Two households, both alike in dignity, In fair Verona, where we lay our scene, From ancient grudge break to new mutiny, Where civil blood makes civil hands unclean.', undefined, undefined, undefined),
   ]
 
-  _assets: Asset[] = [];
-  get assets(){ return this._assets; }
-  set assets(val: Asset[]){ this._assets = val; }
+  _durables: Durable[] = [];
+  get durables(){ return this._durables; }
+  set durables(val: Durable[]){ this._durables = val; }
+
+  _consumables: Consumable[] = [];
+  get consumables(){ return this._consumables; }
+  set consumables(val: Consumable[]){ this._consumables = val; }
+
+  public addAssetTabIndex = 0;
+  public browseAssetsTabIndex = 0;
 
   constructor(
     private infoService: InfoService
   ) {
-    AssetService.initAssets.forEach(asset => {
-      this.addAsset(asset);
+    AssetService.initDurables.forEach(durable => {
+      this.addDurable(durable);
     })
   }
 
-  addAsset(asset: Asset){
-    asset.injectService(this.infoService);
-    this.assets.push(asset);
+  addDurable(durable: Durable){
+    durable.injectService(this.infoService);
+    this.durables.push(durable);
   }
-  saveAsset(asset: Asset){
-    console.log(asset);
-    let index = this.assets.findIndex(match => match.id == asset.id);
-    if (index >= 0) this.assets[index] = asset;
+  saveDurable(durable: Durable){
+    let index = this.durables.findIndex(match => match.id == durable.id);
+    if (index >= 0) this.durables[index] = durable;
+  }
+
+  addConsumable(consumable: Consumable){
+    consumable.injectService(this.infoService);
+    this.consumables.push(consumable);
+  }
+  saveConsumable(consumable: Consumable){
+    let index = this.consumables.findIndex(match => match.id == consumable.id);
+    if (index >= 0) this.consumables[index] = consumable;
   }
 }

@@ -1,0 +1,38 @@
+<h4 class="mat-dialog-title">Add Asset</h4>
+<mat-dialog-content>
+
+  <mat-tab-group [(selectedIndex)]="assets.addAssetTabIndex">
+
+    <mat-tab label="Durable">
+      <add-durable #durable></add-durable>
+    </mat-tab>
+
+    <mat-tab label="Consumable">
+      <add-consumable #consumable></add-consumable>
+    </mat-tab>
+
+  </mat-tab-group>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button class="mr-auto"
+    mat-stroked-button
+    color="basic"
+    mat-dialog-close>
+    Cancel
+  </button>
+  <button *ngIf="assets.addAssetTabIndex == 0"
+    mat-stroked-button
+    color="basic"
+    mat-dialog-close
+    (click)="durableSubmitButtonPressed(durable)">
+    Add Asset
+  </button>
+  <button *ngIf="assets.addAssetTabIndex == 1"
+    mat-stroked-button
+    color="basic"
+    mat-dialog-close
+    (click)="consumableSubmitButtonPressed(consumable)">
+    Add Consumable
+  </button>
+</mat-dialog-actions>

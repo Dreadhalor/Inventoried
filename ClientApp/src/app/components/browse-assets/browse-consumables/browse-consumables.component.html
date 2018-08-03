@@ -1,0 +1,40 @@
+<table class="table table-striped table-hover">
+  <thead>
+    <th scope="col">
+      Label
+    </th>
+    <th scope="col">
+      Category
+    </th>
+    <th scope="col">
+      Manufacturer
+    </th>
+    <th scope="col">
+      Notes
+    </th>
+    <th scope="col">
+      Tags
+    </th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let consumable of assets.consumables">
+      <td>
+        {{consumable.serialNumber}}
+      </td>
+      <td>
+        {{consumable.categoryVal}}
+      </td>
+      <td>
+        {{consumable.manufacturerVal}}
+      </td>
+      <td>
+        {{consumable.notes}}
+      </td>
+      <td>
+        <p *ngFor="let tag of consumable.tags">
+          {{tag.id}} -- {{tag.value}}
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>

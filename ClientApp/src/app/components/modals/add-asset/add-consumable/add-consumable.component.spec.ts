@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddAssetModalComponent } from './add-asset-modal.component';
+import { AddConsumableComponent } from './add-consumable.component';
 
-describe('AddAssetModalComponent', () => {
-  let component: AddAssetModalComponent;
-  let fixture: ComponentFixture<AddAssetModalComponent>;
+describe('AddConsumableComponent', () => {
+  let component: AddConsumableComponent;
+  let fixture: ComponentFixture<AddConsumableComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AddAssetModalComponent ]
+      declarations: [ AddConsumableComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AddAssetModalComponent);
+    fixture = TestBed.createComponent(AddConsumableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

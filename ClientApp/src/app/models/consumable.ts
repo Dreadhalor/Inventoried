@@ -1,7 +1,6 @@
 import { InfoService } from '../services/info/info.service';
 import { KeyValuePair } from './keyValuePair';
 import { UtilitiesService } from "../services/utilities/utilities.service";
-import { Asset } from './asset';
 
 export class Consumable {
 
@@ -20,7 +19,6 @@ export class Consumable {
   injectService(service: InfoService){ this.infoService = service; }
 
   get id(){ return this._id; }
-
   
   public get label() : string {
     return this._label;
@@ -29,13 +27,11 @@ export class Consumable {
   public set label(val : string) {
     this.label = val;
   }
-  
-  
 
   get category(){
     let result = null;
     if (this.categoryId){
-      result = this.infoService.getDurablesCategory(this.categoryId);
+      result = this.infoService.getConsumablesCategory(this.categoryId);
       if (!result) this.categoryId = 0;
     }
     return result;
@@ -89,6 +85,7 @@ export class Consumable {
 
   repair(){
     this._id = (this.id) ? this.id : UtilitiesService.uuid();
+    this.label = (this.label) ? this.label : '';
     this.categoryId = (this.categoryId) ? this.categoryId : 0;
     this.manufacturerId = (this.manufacturerId) ? this.manufacturerId : 0;
     this.notes = (this.notes) ? this.notes : '';
