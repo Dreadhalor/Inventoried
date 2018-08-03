@@ -6,15 +6,15 @@
       <!--Durable Good Categories -->
       <settings-card class="flex-1"
         [title]="'Durable Good Categories'"
-        [entries]="is.asset_categories"
-        (edits)="is.setAssetCategories($event)">
+        [entries]="is.durablesCategories"
+        (edits)="is.setDurablesCategories($event)">
       </settings-card>
 
       <!-- Consumables Categories -->
       <settings-card class="flex-1"
         [title]="'Consumables Categories'"
-        [entries]="is.consumableCategories"
-        (edits)="is.setConsumableCategories($event)">
+        [entries]="is.consumablesCategories"
+        (edits)="is.setConsumablesCategories($event)">
       </settings-card>
     </div>
 
@@ -22,8 +22,8 @@
       <!-- Manufacturers -->
       <settings-card class="flex-1"
         [title]="'Manufacturers'"
-        [entries]="is.asset_manufacturers"
-        (edits)="is.setAssetManufacturers($event)">
+        [entries]="is.manufacturers"
+        (edits)="is.setManufacturers($event)">
       </settings-card>
 
       <!-- Tags -->

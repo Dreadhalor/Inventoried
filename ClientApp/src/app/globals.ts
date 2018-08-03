@@ -1,5 +1,11 @@
 export class Globals {
 
+  public static dialogWidth = '500px';
+  public static dialogConfig = {
+    width: Globals.dialogWidth,
+    maxWidth: Globals.dialogWidth
+  }
+
   private static _title = 'Inventoried';
   static get title(){
     return this._title;

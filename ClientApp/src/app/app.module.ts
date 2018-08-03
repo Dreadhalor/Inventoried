@@ -7,8 +7,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TagInputModule } from 'ngx-chips';
 
-import { MatInputModule } from '@angular/material/input';
-
 import { AppComponent } from './components/app/app.component';
 
 import { AddAssetModalComponent } from './components/modals/add-asset-modal/add-asset-modal.component';
@@ -18,6 +16,8 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { DirectoryComponent } from './components/directory/directory.component';
 import { SettingsCardComponent } from './components/settings/settings-card/settings-card.component';
 import { EditAssetModalComponent } from './components/modals/asset-edit-modal/edit-asset-modal.component';
+
+import { MaterialsModule } from './modules/materials.module';
 
 import { InfoService } from './services/info/info.service';
 
@@ -29,6 +29,11 @@ var routes: Routes = [
 ]
 
 @NgModule({
+  entryComponents: [
+    AppComponent,
+    AddAssetModalComponent,
+    EditAssetModalComponent
+  ],
   declarations: [
     AppComponent,
     AddAssetModalComponent,
@@ -48,8 +53,7 @@ var routes: Routes = [
     HttpClientModule,
     BrowserAnimationsModule,
     TagInputModule,
-    //Material components
-    MatInputModule
+    MaterialsModule //Angular Material modules
   ],
   providers: [
     InfoService

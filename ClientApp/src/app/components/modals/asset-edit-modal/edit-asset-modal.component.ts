@@ -1,8 +1,9 @@
 import { InfoService } from '../../../services/info/info.service';
 import { Asset } from '../../../models/asset';
-import { Component, OnInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
+import { MAT_DIALOG_DATA } from '@angular/material';
+import { KeyValuePair } from '../../../models/keyValuePair';
 
 @Component({
   selector: 'edit-asset-modal',
@@ -13,23 +14,16 @@ export class EditAssetModalComponent implements OnInit {
 
   asset: Asset;
   editedAsset: Asset;
-  
-  modal: NgbModalRef = null;
-  options = {
-    centered: true,
-    beforeDismiss: () => {
-      this.reset(false);
-      return true;
-    }
-  };
 
   constructor(
     private is: InfoService,
     private assets: AssetService,
-    private ms: NgbModal
-  ) { }
-
-  @ViewChild('content') content: ElementRef;
+    @Inject(MAT_DIALOG_DATA) private data: Asset
+  ) {
+    this.asset = data;
+    this.editedAsset = data.copy();
+    this.tags = this.editedAsset.tags.map(pair => pair.toACM());
+  }
 
   @Output() open_checkout = new EventEmitter<any>();
 
@@ -39,28 +33,10 @@ export class EditAssetModalComponent implements OnInit {
   ngOnInit() {
   }
 
-  reset(reload: boolean){
-    this.state = assetModalState.default;
-  }
   save(){
-    //this.assets.saveAsset(this.asset);
-  }
-
-  open(asset: Asset){
-    this.asset = asset;
-    this.editedAsset = asset.copy();
-    this.tags = this.editedAsset.tags.map(pair => pair.toACM());
-    this.show(this.content);
-  }
-
-  show(content) {
-    this.modal = this.ms.open(content, this.options);
-  }
-
-  onSubmit(){
-    this.reset(false);
-    this.modal.close();
-    this.modal = null;
+    this.editedAsset.tags = this.tags.map(tag => KeyValuePair.ACMToKVP(tag)),
+    this.editedAsset.repair();
+    this.assets.saveAsset(this.editedAsset);
   }
 
   editButtonPressed(){
@@ -68,16 +44,12 @@ export class EditAssetModalComponent implements OnInit {
   }
   cancelButtonPressed(){
     this.state = assetModalState.default;
-    this.reset(true);
   }
   saveButtonPressed(){
     this.save();
     this.state = assetModalState.default;
   }
   checkoutButtonPressed(){
-    this.reset(false);
-    this.modal.close();
-    this.modal = null;
     /*this.open_checkout.emit({
       asset_uuid: this.asset.uuid
     });*/

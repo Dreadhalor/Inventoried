@@ -1,72 +1,75 @@
-<ng-template #content let-c="close" let-d="dismiss">
-  <div class="modal-header">
-    <h4>Add Asset</h4>
-    <button type="button"
-      class="close"
-      (click)="d('Cross click')">
-      <span>&times;</span>
-    </button>
-  </div>
-  <form (ngSubmit)="onSubmit()">
-    
-    <div class="modal-body">
+<h4 class="mat-dialog-title">Add Asset</h4>
+<mat-dialog-content>
+
+  <mat-tab-group #tg>
+
+    <mat-tab label="Durable Good">
 
       <mat-form-field appearance="outline"
         class="w-100">
         <mat-label>Serial Number</mat-label>
         <input matInput
           placeholder="Serial Number"
-          class="test">
+          [(ngModel)]="serialNumber"
+          name="serialNumberTextfield">
         <mat-hint>*required</mat-hint>
       </mat-form-field>
 
-      <div class="form-group">
-        <label for="categorySelect">
-          Category
-        </label>
-        <select id="categorySelect"
-          class="form-control form-control-sm"
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Category</mat-label>
+        <mat-select placeholder="Category"
           [(ngModel)]="categoryId"
           name="categorySelect">
-          <option [ngValue]="0">- Select Category -</option>
-          <option *ngFor="let category of is.asset_categories"
-            [ngValue]="category.id">
+          <mat-option></mat-option>
+          <mat-option *ngFor="let category of is.durablesCategories"
+            [value]="category.id">
             {{category.value}}
-          </option>
-        </select>
-      </div>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-      <div class="form-group">
-        <label for="manufacturerSelect">
-          Manufacturer
-        </label>
-        <select id="manufacturerSelect"
-          class="form-control form-control-sm"
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Manufacturer</mat-label>
+        <mat-select placeholder="Manufacturer"
           [(ngModel)]="manufacturerId"
           name="manufacturerSelect">
-          <option [ngValue]="0">- Select Manufacturer -</option>
-          <option *ngFor="let manufacturer of is.asset_manufacturers"
-            [ngValue]="manufacturer.id">
+          <mat-option></mat-option>
+          <mat-option *ngFor="let manufacturer of is.manufacturers"
+            [value]="manufacturer.id">
             {{manufacturer.value}}
-          </option>
-        </select>
-      </div>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-      <div class="form-group">
-        <label for="notesTextarea">
-          Notes
-        </label>
-        <textarea id="notesTextarea"
-          class="form-control form-control-sm"
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Notes</mat-label>
+        <textarea matInput
+          placeholder="Notes"
           rows="3"
           [(ngModel)]="notes"
-          [placeholder]="'8GB of RAM, 1TB storage, etc..'"
           name="notesTextarea"></textarea>
-      </div>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Active</mat-label>
+        <mat-select placeholder="Active"
+          [(ngModel)]="active"
+          name="activeSelect">
+          <mat-option [value]="true">
+            Yes (Default)
+          </mat-option>
+          <mat-option [value]="false">
+            No
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
       <div class="form-group">
-        <tag-input id="tagsInput"
-          [(ngModel)]="tags"
+        <tag-input [(ngModel)]="tags"
           [secondaryPlaceholder]="'Tags'"
           name="tags">
           <tag-input-dropdown [showDropdownIfEmpty]="true"
@@ -77,35 +80,109 @@
         </tag-input>
       </div>
 
-      <div class="form-group">
-        <label for="activeSelect">
-          Active
-        </label>
-        <select id="activeSelect"
-          class="form-control form-control-sm"
+    </mat-tab>
+
+    <mat-tab label="Consumable">
+
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Serial Number</mat-label>
+        <input matInput
+          placeholder="Serial Number"
+          [(ngModel)]="serialNumber"
+          name="serialNumberTextfield">
+        <mat-hint>*required</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Category</mat-label>
+        <mat-select placeholder="Category"
+          [(ngModel)]="categoryId"
+          name="categorySelect">
+          <mat-option></mat-option>
+          <mat-option *ngFor="let category of is.durablesCategories"
+            [value]="category.id">
+            {{category.value}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Manufacturer</mat-label>
+        <mat-select placeholder="Manufacturer"
+          [(ngModel)]="manufacturerId"
+          name="manufacturerSelect">
+          <mat-option></mat-option>
+          <mat-option *ngFor="let manufacturer of is.manufacturers"
+            [value]="manufacturer.id">
+            {{manufacturer.value}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Notes</mat-label>
+        <textarea matInput
+          placeholder="Notes"
+          rows="3"
+          [(ngModel)]="notes"
+          name="notesTextarea"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline"
+        class="w-100">
+        <mat-label>Active</mat-label>
+        <mat-select placeholder="Active"
           [(ngModel)]="active"
           name="activeSelect">
-          <option [ngValue]="true">
+          <mat-option [value]="true">
             Yes (Default)
-          </option>
-          <option [ngValue]="false">
+          </mat-option>
+          <mat-option [value]="false">
             No
-          </option>
-        </select>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="form-group">
+        <tag-input [(ngModel)]="tags"
+          [secondaryPlaceholder]="'Tags'"
+          name="tags">
+          <tag-input-dropdown [showDropdownIfEmpty]="true"
+            [keepOpen]="false"
+            [autocompleteItems]="is.tagsAsJson()"
+            [appendToBody]="false">
+          </tag-input-dropdown>
+        </tag-input>
       </div>
 
-      <mat-form-field>
-        <input matInput placeholder="Favorite food" value="Sushi">
-      </mat-form-field>
-      
-    </div>
-      
-    <div class="modal-footer">
-      <button type="submit"
-        class="btn btn-outline-dark">
-        Add Asset
-      </button>
-    </div>
+    </mat-tab>
 
-  </form>
-</ng-template>
+  </mat-tab-group>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button class="mr-auto"
+    mat-stroked-button
+    color="basic"
+    mat-dialog-close>
+    Cancel
+  </button>
+  <button *ngIf="tg.selectedIndex == 0"
+    mat-stroked-button
+    color="basic"
+    mat-dialog-close
+    (click)="durableSubmitButtonPressed()">
+    Add Asset
+  </button>
+  <button *ngIf="tg.selectedIndex == 1"
+    mat-stroked-button
+    color="basic"
+    mat-dialog-close
+    (click)="consumableSubmitButtonPressed()">
+    Add Consumable
+  </button>
+</mat-dialog-actions>

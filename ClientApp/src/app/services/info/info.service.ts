@@ -34,13 +34,13 @@ export class InfoService {
   ]
 
   constructor(
-    private http: HttpClient
+    //private http: HttpClient
   ) {
     /*http.get(
       Globals.request_prefix + Globals.settings_route
     ).subscribe((res: any) => {
       if (res.success){
-        this.asset_categories = res.result.asset_categories;
+        this.durablesCategories = res.result.durablesCategories;
       }
       this.loaded = true;
     })*/
@@ -48,52 +48,52 @@ export class InfoService {
   }
 
   //Durable good categories
-  _asset_categories: KeyValuePair[] = InfoService.initCategories.map(val => new KeyValuePair(undefined, val));
-  get asset_categories(){ return this._asset_categories; }
-  set asset_categories(val: KeyValuePair[]){ this._asset_categories = val; }
+  _durablesCategories: KeyValuePair[] = InfoService.initCategories.map((val, index) => new KeyValuePair(index + 1, val));
+  get durablesCategories(){ return this._durablesCategories; }
+  set durablesCategories(val: KeyValuePair[]){ this._durablesCategories = val; }
 
-  setAssetCategories(categories: KeyValuePair[]){
-    this.asset_categories = categories;
+  setDurablesCategories(categories: KeyValuePair[]){
+    this.durablesCategories = categories;
   }
-  getAssetCategory(id){
-    for (let i = 0; i < this.asset_categories.length; i++){
-      if (this.asset_categories[i].id == id) return this.asset_categories[i];
+  getDurablesCategory(id){
+    for (let i = 0; i < this.durablesCategories.length; i++){
+      if (this.durablesCategories[i].id == id) return this.durablesCategories[i];
     }
     return null;
   }
 
   //Manufacturers
-  _asset_manufacturers: KeyValuePair[] = InfoService.initManufacturers.map(val => new KeyValuePair(undefined, val));
-  get asset_manufacturers(){ return this._asset_manufacturers; }
-  set asset_manufacturers(val: KeyValuePair[]){ this._asset_manufacturers = val; }
+  _manufacturers: KeyValuePair[] = InfoService.initManufacturers.map((val, index) => new KeyValuePair(index + 1, val));
+  get manufacturers(){ return this._manufacturers; }
+  set manufacturers(val: KeyValuePair[]){ this._manufacturers = val; }
 
-  setAssetManufacturers(manufacturers: KeyValuePair[]){
-    this.asset_manufacturers = manufacturers;
+  setManufacturers(manufacturers: KeyValuePair[]){
+    this.manufacturers = manufacturers;
   }
-  getAssetManufacturer(id){
-    for (let i = 0; i < this.asset_manufacturers.length; i++){
-      if (this.asset_manufacturers[i].id == id) return this.asset_manufacturers[i];
+  getManufacturer(id){
+    for (let i = 0; i < this.manufacturers.length; i++){
+      if (this.manufacturers[i].id == id) return this.manufacturers[i];
     }
     return null;
   }
   
   //Consumables categories
-  _consumableCategories: KeyValuePair[] = []
-  get consumableCategories(){ return this._consumableCategories; }
-  set consumableCategories(val: KeyValuePair[]){ this._consumableCategories = val; }
+  _consumablesCategories: KeyValuePair[] = []
+  get consumablesCategories(){ return this._consumablesCategories; }
+  set consumablesCategories(val: KeyValuePair[]){ this._consumablesCategories = val; }
   
-  setConsumableCategories(categories: KeyValuePair[]){
-    this.consumableCategories = categories;
+  setConsumablesCategories(categories: KeyValuePair[]){
+    this.consumablesCategories = categories;
   }
-  getConsumableCategories(id){
-    for (let i = 0; i < this.consumableCategories.length; i++){
-      if (this.consumableCategories[i].id == id) return this.consumableCategories[i];
+  getConsumablesCategory(id){
+    for (let i = 0; i < this.consumablesCategories.length; i++){
+      if (this.consumablesCategories[i].id == id) return this.consumablesCategories[i];
     }
     return null;
   }
 
   //Tags
-  _tags: KeyValuePair[] = InfoService.initTags.map(val => new KeyValuePair(undefined, val));
+  _tags: KeyValuePair[] = InfoService.initTags.map((val, index) => new KeyValuePair(index + 1, val));
   get tags(){ return this._tags; }
   set tags(val: KeyValuePair[]){ this._tags = val; }
   

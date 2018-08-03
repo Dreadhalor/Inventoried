@@ -1,30 +1,36 @@
 import { InfoService } from '../services/info/info.service';
 import { KeyValuePair } from './keyValuePair';
 import { UtilitiesService } from "../services/utilities/utilities.service";
+import { Asset } from './asset';
 
-export class Asset {
+export class Consumable {
 
   private infoService: InfoService
   
   constructor(
     private _id = UtilitiesService.uuid(),
-    private _serialNumber: string = '',
+    private _label = '',
     private _categoryId = 0,
     private _manufacturerId = 0,
     private _notes: string = '',
-    private _assignmentId = 0,
-    private _tags: KeyValuePair[] = [],
-    private _active: boolean = true
-  ){
-    if (_serialNumber) this.serialNumber = _serialNumber.toUpperCase();
-  }
+    private _assignmentIds = [],
+    private _tags: KeyValuePair[] = []
+  ){}
 
   injectService(service: InfoService){ this.infoService = service; }
 
   get id(){ return this._id; }
 
-  get serialNumber(){ return this._serialNumber; }
-  set serialNumber(val: string){ this._serialNumber = val.toUpperCase(); }
+  
+  public get label() : string {
+    return this._label;
+  }
+  
+  public set label(val : string) {
+    this.label = val;
+  }
+  
+  
 
   get category(){
     let result = null;
@@ -61,25 +67,21 @@ export class Asset {
   get notes(){ return this._notes; }
   set notes(val){ this._notes = val; }
 
-  get assignmentId(){ return this._assignmentId; }
-  set assignmentId(val){ this._assignmentId = val; }
+  get assignmentIds(){ return this._assignmentIds; }
+  set assignmentIds(val){ this._assignmentIds = val; }
 
   get tags(){ return this._tags; }
   set tags(val){ this._tags = val; }
 
-  get active(){ return this._active; }
-  set active(val){ this._active = val; }
-
-  copy(): Asset {
-    let result = new Asset(
+  copy(): Consumable {
+    let result = new Consumable(
       this.id,
-      this.serialNumber,
+      this.label,
       this.categoryId,
       this.manufacturerId,
       this.notes,
-      this.assignmentId,
-      this.tags,
-      this.active
+      this.assignmentIds,
+      this.tags
     );
     result.injectService(this.infoService);
     return result;
@@ -87,11 +89,10 @@ export class Asset {
 
   repair(){
     this._id = (this.id) ? this.id : UtilitiesService.uuid();
-    this.serialNumber = (this.serialNumber) ? this.serialNumber : '';
     this.categoryId = (this.categoryId) ? this.categoryId : 0;
     this.manufacturerId = (this.manufacturerId) ? this.manufacturerId : 0;
     this.notes = (this.notes) ? this.notes : '';
-    this.assignmentId = (this.assignmentId) ? this.assignmentId : 0;
+    this.assignmentIds = (this.assignmentIds) ? this.assignmentIds : [];
     this.tags = (this.tags) ? this.tags : [];
   }
 

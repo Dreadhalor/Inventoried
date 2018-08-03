@@ -4,7 +4,7 @@ import { UtilitiesService } from '../services/utilities/utilities.service';
 
 export class KeyValuePair implements IKeyValuePair {
   constructor(
-    private _id = UtilitiesService.uuid(),
+    private _id: any = UtilitiesService.uuid(),
     private _value
   ){}
 
