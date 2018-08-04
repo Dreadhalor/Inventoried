@@ -22,19 +22,16 @@ export class EditDurableComponent implements OnInit {
   ) {
     this.durable = data;
     this.editedDurable = data.copy();
-    this.tags = this.editedDurable.tags.map(pair => pair.toACM());
   }
 
   @Output() open_checkout = new EventEmitter<any>();
 
   state: durableModalState = durableModalState.default;
-  tags = [];
 
   ngOnInit() {
   }
 
   save(){
-    this.editedDurable.tags = this.tags.map(tag => KeyValuePair.ACMToKVP(tag)),
     this.editedDurable.repair();
     this.assets.saveDurable(this.editedDurable);
   }

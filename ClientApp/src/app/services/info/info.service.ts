@@ -35,10 +35,10 @@ export class InfoService {
 
   static initTags = [
     "Bluetooth",
-    "Poor condition",
+    "Fragile",
     "New",
-    "Bulky",
-    "Black"
+    "Heavy",
+    "Wired"
   ]
 
   constructor(
@@ -105,17 +105,20 @@ export class InfoService {
   get tags(){ return this._tags; }
   set tags(val: KeyValuePair[]){ this._tags = val; }
   
-  tagsAsJson(){
-    return this._tags.map(pair => pair.toACM());
-  }
-  
   setTags(tags: KeyValuePair[]){
     this.tags = tags;
   }
-  getTags(id){
+  getTag(id){
     for (let i = 0; i < this.tags.length; i++){
       if (this.tags[i].id == id) return this.tags[i];
     }
     return null;
+  }
+
+  tagsAsJson(){
+    return this._tags.map(pair => pair.toACM());
+  }
+  tagStrings(){
+    return this._tags.map(pair => pair.value);
   }
 }

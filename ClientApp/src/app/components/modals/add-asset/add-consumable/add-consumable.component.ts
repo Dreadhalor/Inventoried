@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { KeyValuePair } from '../../../../models/keyValuePair';
-import { IAutoCompleteModel } from '../../../../models/IAutoCompleteModel';
 import { InfoService } from '../../../../services/info/info.service';
 import { Consumable } from '../../../../models/consumable';
 
@@ -15,7 +14,7 @@ export class AddConsumableComponent implements OnInit {
   categoryId: number = 0;
   manufacturerId: number = 0;
   notes: string = "";
-  tags: IAutoCompleteModel[] = [];
+  tagIds: any[] = [];
 
   constructor(
     private is: InfoService
@@ -32,7 +31,7 @@ export class AddConsumableComponent implements OnInit {
       this.manufacturerId,
       this.notes,
       undefined,
-      this.tags.map(tag => KeyValuePair.ACMToKVP(tag))
+      this.tagIds
     );
   }
 

@@ -4,9 +4,11 @@ import {
   MatSelectModule,
   MatDialogModule,
   MatButtonModule,
-  MatTabsModule
+  MatTabsModule,
+  MatChipsModule,
+  MatIconModule,
+  MatAutocompleteModule
 } from '@angular/material';
-
 
 @NgModule({
   imports: [
@@ -14,14 +16,20 @@ import {
     MatSelectModule,
     MatDialogModule,
     MatButtonModule,
-    MatTabsModule
+    MatTabsModule,
+    MatChipsModule,
+    MatIconModule,
+    MatAutocompleteModule
   ],
   exports: [
     MatInputModule,
     MatSelectModule,
     MatDialogModule,
     MatButtonModule,
-    MatTabsModule
+    MatTabsModule,
+    MatChipsModule,
+    MatIconModule,
+    MatAutocompleteModule
   ]
 })
 export class MaterialsModule { }

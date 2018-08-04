@@ -1,0 +1,28 @@
+<mat-form-field class="w-100">
+  <mat-chip-list #chipList>
+    <mat-chip *ngFor="let item of items"
+      [selectable]="true"
+      [removable]="true"
+      (removed)="remove(item)">
+      {{item.value}}
+      <mat-icon matChipRemove>
+        cancel
+      </mat-icon>
+    </mat-chip>
+    <input #itemInput
+      placeholder="Tags"
+      [matChipInputFor]="chipList"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      [matAutocomplete]="auto"
+      (matChipInputTokenEnd)="add($event)"
+      (click)="showAutoComplete()">
+  </mat-chip-list>
+  <mat-autocomplete #auto="matAutocomplete"
+    autoActiveFirstOption
+    (optionSelected)="selected($event)">
+    <mat-option *ngFor="let item of filterNonMatches(filterDupes(dictionary),itemInput.value)"
+      [value]="item.id">
+      {{item.value}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>

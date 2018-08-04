@@ -5,7 +5,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TagInputModule } from 'ngx-chips';
 
 import { AppComponent } from './components/app/app.component';
 
@@ -24,6 +23,7 @@ import { BrowseDurablesComponent } from './components/browse-assets/browse-durab
 import { BrowseConsumablesComponent } from './components/browse-assets/browse-consumables/browse-consumables.component';
 import { AddDurableComponent } from './components/modals/add-asset/add-durable/add-durable.component';
 import { AddConsumableComponent } from './components/modals/add-asset/add-consumable/add-consumable.component';
+import { TagFieldComponent } from './components/utilities/tag-field/tag-field.component';
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
@@ -50,7 +50,8 @@ var routes: Routes = [
     BrowseDurablesComponent,
     BrowseConsumablesComponent,
     AddDurableComponent,
-    AddConsumableComponent
+    AddConsumableComponent,
+    TagFieldComponent
   ],
   imports: [
     BrowserModule,
@@ -60,8 +61,7 @@ var routes: Routes = [
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    TagInputModule,
-    MaterialsModule //Angular Material modules
+    MaterialsModule //Angular Material modules,
   ],
   providers: [
     InfoService

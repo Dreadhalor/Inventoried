@@ -1,6 +1,7 @@
 import { InfoService } from '../services/info/info.service';
 import { KeyValuePair } from './keyValuePair';
 import { UtilitiesService } from "../services/utilities/utilities.service";
+import { Globals } from '../globals';
 
 export class Consumable {
 
@@ -13,7 +14,7 @@ export class Consumable {
     private _manufacturerId = 0,
     private _notes: string = '',
     private _assignmentIds = [],
-    private _tags: KeyValuePair[] = []
+    private _tagIds: any[] = []
   ){}
 
   injectService(service: InfoService){ this.infoService = service; }
@@ -66,8 +67,20 @@ export class Consumable {
   get assignmentIds(){ return this._assignmentIds; }
   set assignmentIds(val){ this._assignmentIds = val; }
 
-  get tags(){ return this._tags; }
-  set tags(val){ this._tags = val; }
+  get tagIds(){ return this._tagIds; }
+  get tags(){
+    let result: KeyValuePair[] = [];
+    if (this.tagIds){
+      for (let i = this.tagIds.length; i >= 0; i--){
+        let tag = this.infoService.getTag(this.tagIds[i]);
+        if (tag){
+          result.unshift(tag);
+        } else this.tagIds.splice(i,1);
+      }
+    } else this.repair();
+    return result;
+  }
+  set tagIds(val){ this._tagIds = val; }
 
   copy(): Consumable {
     let result = new Consumable(
@@ -76,8 +89,8 @@ export class Consumable {
       this.categoryId,
       this.manufacturerId,
       this.notes,
-      this.assignmentIds,
-      this.tags
+      Globals.deepCopy(this.assignmentIds),
+      Globals.deepCopy(this.tagIds)
     );
     result.injectService(this.infoService);
     return result;
@@ -90,7 +103,7 @@ export class Consumable {
     this.manufacturerId = (this.manufacturerId) ? this.manufacturerId : 0;
     this.notes = (this.notes) ? this.notes : '';
     this.assignmentIds = (this.assignmentIds) ? this.assignmentIds : [];
-    this.tags = (this.tags) ? this.tags : [];
+    this.tagIds = (this.tagIds) ? this.tagIds : [];
   }
 
 }

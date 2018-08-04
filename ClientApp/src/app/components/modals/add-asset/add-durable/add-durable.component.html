@@ -2,6 +2,7 @@
   class="w-100">
   <mat-label>Serial Number</mat-label>
   <input matInput
+    spellcheck="false"
     placeholder="Serial Number"
     [(ngModel)]="serialNumber"
     name="serialNumberTextfield"
@@ -62,14 +63,7 @@
   </mat-select>
 </mat-form-field>
 
-<div class="form-group">
-  <tag-input secondaryPlaceholder="Tags"
-    [(ngModel)]="tags"
-    name="tags">
-    <tag-input-dropdown [showDropdownIfEmpty]="true"
-      [keepOpen]="false"
-      [autocompleteItems]="is.tagsAsJson()"
-      [appendToBody]="false">
-    </tag-input-dropdown>
-  </tag-input>
-</div>
+<tag-field
+  [dictionary]="is.tags"
+  [(itemIds)]="tagIds">
+</tag-field>

@@ -1,7 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { IAutoCompleteModel } from '../../../../models/IAutoCompleteModel';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Durable } from '../../../../models/durable';
-import { KeyValuePair } from '../../../../models/keyValuePair';
 import { InfoService } from '../../../../services/info/info.service';
 
 @Component({
@@ -11,11 +9,13 @@ import { InfoService } from '../../../../services/info/info.service';
 })
 export class AddDurableComponent implements OnInit {
 
+  @ViewChild('firstFocus') firstFocus: ElementRef;
+
   serialNumber: string = "";
   categoryId: number = 0;
   manufacturerId: number = 0;
   notes: string = "";
-  tags: IAutoCompleteModel[] = [];
+  tagIds: any[] = [];
   active: boolean = true;
 
   constructor(
@@ -33,7 +33,7 @@ export class AddDurableComponent implements OnInit {
       this.manufacturerId,
       this.notes,
       undefined,
-      this.tags.map(tag => KeyValuePair.ACMToKVP(tag)),
+      this.tagIds,
       this.active
     );
   }

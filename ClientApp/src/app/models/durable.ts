@@ -1,6 +1,7 @@
 import { InfoService } from '../services/info/info.service';
 import { KeyValuePair } from './keyValuePair';
 import { UtilitiesService } from "../services/utilities/utilities.service";
+import { Globals } from '../globals';
 
 export class Durable {
 
@@ -13,7 +14,7 @@ export class Durable {
     private _manufacturerId = 0,
     private _notes: string = '',
     private _assignmentId = 0,
-    private _tags: KeyValuePair[] = [],
+    private _tagIds = [],
     private _active: boolean = true
   ){
     if (_serialNumber) this.serialNumber = _serialNumber.toUpperCase();
@@ -64,8 +65,20 @@ export class Durable {
   get assignmentId(){ return this._assignmentId; }
   set assignmentId(val){ this._assignmentId = val; }
 
-  get tags(){ return this._tags; }
-  set tags(val){ this._tags = val; }
+  get tagIds(){ return this._tagIds; }
+  get tags(){
+    let result: KeyValuePair[] = [];
+    if (this.tagIds){
+      for (let i = this.tagIds.length; i >= 0; i--){
+        let tag = this.infoService.getTag(this.tagIds[i]);
+        if (tag){
+          result.unshift(tag);
+        } else this.tagIds.splice(i,1);
+      }
+    } else this.repair();
+    return result;
+  }
+  set tagIds(val){ this._tagIds = val; }
 
   get active(){ return this._active; }
   set active(val){ this._active = val; }
@@ -78,7 +91,7 @@ export class Durable {
       this.manufacturerId,
       this.notes,
       this.assignmentId,
-      this.tags,
+      Globals.deepCopy(this.tagIds),
       this.active
     );
     result.injectService(this.infoService);
@@ -92,7 +105,7 @@ export class Durable {
     this.manufacturerId = (this.manufacturerId) ? this.manufacturerId : 0;
     this.notes = (this.notes) ? this.notes : '';
     this.assignmentId = (this.assignmentId) ? this.assignmentId : 0;
-    this.tags = (this.tags) ? this.tags : [];
+    this.tagIds = (this.tagIds) ? this.tagIds : [];
   }
 
 }
