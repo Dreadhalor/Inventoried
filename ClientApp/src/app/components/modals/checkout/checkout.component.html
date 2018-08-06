@@ -1,0 +1,24 @@
+<h4 class="mat-dialog-title">
+  Check out
+</h4>
+<mat-dialog-content>
+  <durable-select></durable-select>
+  <br>
+  <div class="d-flex-row justify-content-center">
+    <range-datepicker
+      [(fromDate)]="pickedFromDate"
+      [(toDate)]="pickedToDate">
+    </range-datepicker>
+  </div>
+  <pre>From: {{ pickedFromDate | json }} </pre>
+  <pre>To: {{ pickedToDate | json }} </pre>
+  
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button
+    color="basic"
+    mat-dialog-close>
+    Check out
+  </button>
+</mat-dialog-actions>

@@ -15,7 +15,7 @@ export class BrowseAssetsComponent implements OnInit {
   constructor(
     private assets: AssetService,
     private is: InfoService,
-    public dialog: MatDialog
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {

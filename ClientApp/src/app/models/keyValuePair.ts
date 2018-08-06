@@ -1,4 +1,3 @@
-import { IAutoCompleteModel } from './IAutoCompleteModel';
 import { IKeyValuePair } from './IKeyValuePair';
 import { UtilitiesService } from '../services/utilities/utilities.service';
 
@@ -15,18 +14,6 @@ export class KeyValuePair implements IKeyValuePair {
 
   copy(): KeyValuePair {
     return new KeyValuePair(this.id,this.value);
-  }
-
-  toACM(){
-    let result: IAutoCompleteModel = {
-      value: this.id,
-      display: this.value
-    };
-    return result;
-  }
-
-  static ACMToKVP(model: IAutoCompleteModel){
-    return new KeyValuePair(model.value, model.display);
   }
 
 }

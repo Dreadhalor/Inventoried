@@ -114,11 +114,4 @@ export class InfoService {
     }
     return null;
   }
-
-  tagsAsJson(){
-    return this._tags.map(pair => pair.toACM());
-  }
-  tagStrings(){
-    return this._tags.map(pair => pair.value);
-  }
 }

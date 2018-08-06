@@ -1,10 +1,11 @@
-<h4 class="mat-dialog-title">Add Asset</h4>
+<h4 class="mat-dialog-title">
+  Add Asset
+</h4>
 <mat-dialog-content>
 
   <mat-tab-group [(selectedIndex)]="assets.addAssetTabIndex">
 
-    <mat-tab label="Durable"
-      class="overflow-hidden">
+    <mat-tab label="Durable">
       <add-durable #durable></add-durable>
     </mat-tab>
 
@@ -27,7 +28,7 @@
     color="basic"
     mat-dialog-close
     (click)="durableSubmitButtonPressed(durable)">
-    Add Asset
+    Add Durable
   </button>
   <button *ngIf="assets.addAssetTabIndex == 1"
     mat-stroked-button

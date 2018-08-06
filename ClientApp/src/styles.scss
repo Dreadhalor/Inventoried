@@ -11,12 +11,6 @@ html, body {
     opacity: 1;
 }
 
-//Fix for tag dropdown position in modal
-.ng2-dropdown-menu {
-  top: inherit !important;
-  left: inherit !important;
-}
-
 .full-height {
   display: block;
   height: 100%;
@@ -74,6 +68,12 @@ html, body {
   overflow: hidden;
 }
 
-.mat-tab-body-content {
-  overflow: hidden!important;
+.tight {
+  margin: 0px;
+  padding: 0px;
+}
+.popover-tight {
+  .popover-body {
+    @extend .tight;
+  }
 }

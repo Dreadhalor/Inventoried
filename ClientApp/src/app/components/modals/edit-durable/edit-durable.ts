@@ -1,9 +1,10 @@
 import { InfoService } from '../../../services/info/info.service';
 import { Durable } from '../../../models/durable';
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
-import { MAT_DIALOG_DATA } from '@angular/material';
-import { KeyValuePair } from '../../../models/keyValuePair';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material';
+import { Globals } from '../../../globals';
+import { CheckoutComponent } from '../checkout/checkout.component';
 
 @Component({
   selector: 'edit-durable',
@@ -18,15 +19,19 @@ export class EditDurableComponent implements OnInit {
   constructor(
     private is: InfoService,
     private assets: AssetService,
+    private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) private data: Durable
   ) {
-    this.durable = data;
-    this.editedDurable = data.copy();
+    this.refreshDurables(data.id);
   }
 
-  @Output() open_checkout = new EventEmitter<any>();
-
-  state: durableModalState = durableModalState.default;
+  _state: durableModalState = durableModalState.default;
+  get state(){ return this._state; }
+  set state(val: durableModalState){
+    if (val == durableModalState.default
+      && this.durable) this.refreshDurables(this.durable.id);
+    this._state = val;
+  }
 
   ngOnInit() {
   }
@@ -34,6 +39,11 @@ export class EditDurableComponent implements OnInit {
   save(){
     this.editedDurable.repair();
     this.assets.saveDurable(this.editedDurable);
+    this.refreshDurables(this.durable.id);
+  }
+  refreshDurables(id){
+    this.durable = this.assets.getDurable(id);
+    if (this.durable) this.editedDurable = this.durable.copy();
   }
 
   editButtonPressed(){
@@ -47,9 +57,10 @@ export class EditDurableComponent implements OnInit {
     this.state = durableModalState.default;
   }
   checkoutButtonPressed(){
-    /*this.open_checkout.emit({
-      asset_uuid: this.asset.uuid
-    });*/
+    this.openCheckout();
+  }
+  openCheckout(){
+    const dialogRef = this.dialog.open(CheckoutComponent, Globals.dialogConfig);
   }
   checkinButtonPressed(){
     //this.durables.checkin(this.asset.uuid);

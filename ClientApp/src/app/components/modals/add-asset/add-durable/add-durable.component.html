@@ -1,14 +1,9 @@
-<mat-form-field appearance="outline"
-  class="w-100">
-  <mat-label>Serial Number</mat-label>
-  <input matInput
-    spellcheck="false"
-    placeholder="Serial Number"
-    [(ngModel)]="serialNumber"
-    name="serialNumberTextfield"
-    class="text-uppercase">
-  <mat-hint>*required</mat-hint>
-</mat-form-field>
+<input-text
+  label="Serial Number"
+  placeholder="Serial Number"
+  [(value)]="serialNumber"
+  hint="required">
+</input-text>
 
 <mat-form-field appearance="outline"
   class="w-100">

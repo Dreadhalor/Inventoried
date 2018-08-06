@@ -24,6 +24,10 @@ import { BrowseConsumablesComponent } from './components/browse-assets/browse-co
 import { AddDurableComponent } from './components/modals/add-asset/add-durable/add-durable.component';
 import { AddConsumableComponent } from './components/modals/add-asset/add-consumable/add-consumable.component';
 import { TagFieldComponent } from './components/utilities/tag-field/tag-field.component';
+import { CheckoutComponent } from './components/modals/checkout/checkout.component';
+import { DurableSelectComponent } from './components/utilities/durable-select/durable-select.component';
+import { RangeDatepickerComponent } from './components/utilities/range-datepicker/range-datepicker.component';
+import { InputTextComponent } from './components/utilities/input-text/input-text.component';
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
@@ -36,7 +40,8 @@ var routes: Routes = [
   entryComponents: [
     AppComponent,
     AddAssetComponent,
-    EditDurableComponent
+    EditDurableComponent,
+    CheckoutComponent
   ],
   declarations: [
     AppComponent,
@@ -51,7 +56,11 @@ var routes: Routes = [
     BrowseConsumablesComponent,
     AddDurableComponent,
     AddConsumableComponent,
-    TagFieldComponent
+    TagFieldComponent,
+    CheckoutComponent,
+    DurableSelectComponent,
+    RangeDatepickerComponent,
+    InputTextComponent
   ],
   imports: [
     BrowserModule,

@@ -2,8 +2,6 @@ import { KeyValuePair } from '../../../models/keyValuePair';
 import { Component, OnInit } from '@angular/core';
 import { InfoService } from '../../../services/info/info.service';
 import { AssetService } from '../../../services/asset/asset.service';
-import { Durable } from '../../../models/durable';
-import { IAutoCompleteModel } from '../../../models/IAutoCompleteModel';
 
 @Component({
   selector: 'add-asset',

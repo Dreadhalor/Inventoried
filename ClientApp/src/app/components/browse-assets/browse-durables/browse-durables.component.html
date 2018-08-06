@@ -36,11 +36,11 @@
       </td>
       <td>
         <p *ngFor="let tag of durable.tags">
-          {{tag.id}} -- {{tag.value}}
+          {{tag.value}}
         </p>
       </td>
       <td>
-        {{durable.active ? 'Yes' : 'No'}}
+        {{durable.activeVal}}
       </td>
     </tr>
   </tbody>

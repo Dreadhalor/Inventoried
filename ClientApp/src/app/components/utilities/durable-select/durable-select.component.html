@@ -1,0 +1,43 @@
+<mat-form-field>
+  <mat-label>Asset</mat-label>
+  <mat-select [(ngModel)]="durableId"
+    name="assetSelect"
+    #popover="ngbPopover"
+    [ngbPopover]="getPopoverContent()"
+    triggers="mouseenter:mouseleave"
+    placement="bottom"
+    container="body"
+    (click)="popover.close()">
+    <mat-option *ngFor="let durable of assets.durables"
+      [value]="durable.id">
+      {{durable.categoryVal}} {{durable.serialNumber}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<ng-template #popoverContent>
+  <ng-container *ngIf="durable">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item p-1">
+        Serial Number: {{durable.serialNumber}}
+      </li>
+      <li class="list-group-item p-1">
+        Category: {{durable.categoryVal}}
+      </li>
+      <li class="list-group-item p-1">
+        Manufacturer: {{durable.manufacturerVal}}
+      </li>
+      <li class="list-group-item p-1">
+        Notes: {{durable.notes}}
+      </li>
+      <li class="list-group-item p-1">
+        Active: {{durable.activeVal}}
+      </li>
+      <li class="list-group-item p-1">
+        Tags: <ng-container *ngFor="let tag of durable.tags; let last = last;">
+          {{tag.value}}<ng-container *ngIf="!last">,</ng-container>
+          </ng-container>
+      </li>
+    </ul>
+  </ng-container>
+</ng-template>

@@ -81,6 +81,7 @@ export class Durable {
   set tagIds(val){ this._tagIds = val; }
 
   get active(){ return this._active; }
+  get activeVal(){ return (this._active) ? 'Yes' : 'No'; }
   set active(val){ this._active = val; }
 
   copy(): Durable {

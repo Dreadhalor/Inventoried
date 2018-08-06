@@ -1,0 +1,11 @@
+<mat-form-field appearance="outline"
+  class="w-100">
+  <mat-label>{{label}}</mat-label>
+  <input matInput
+    spellcheck="false"
+    [placeholder]="placeholder"
+    [(ngModel)]="value"
+    name="value"
+    class="text-uppercase">
+  <mat-hint>{{hint}}</mat-hint>
+</mat-form-field>

@@ -19,8 +19,15 @@ export class TagFieldComponent implements OnInit {
   @ViewChild('auto', { read: MatAutocomplete }) auto: MatAutocomplete;
   @ViewChild('itemInput', { read: MatAutocompleteTrigger }) trigger: MatAutocompleteTrigger;
   
-  @Input() itemIds: any[] = [];
+  _itemIds: any[] = [];
+  @Input()
+  get itemIds(): any[] {return this._itemIds}
+  set itemIds(val){
+    this._itemIds = val;
+    this.itemIdsChange.emit(val);
+  }
   @Output() itemIdsChange:EventEmitter<any[]> = new EventEmitter<any[]>();
+
   get items(){
     let result: KeyValuePair[] = [];
     if (this.itemIds){
