@@ -1,37 +1,36 @@
-<div [ngClass]="{'center-aligned-row': !deletable()}">
-  <div class="d-flex-row flex-1">
-    <ul *ngIf="deletable()"
-      class="list-group center-aligned-column">
-      <li *ngFor="let row of rows; let i = index;"
-        class="list-group-item flex-1 center-aligned-row border-0 py-0 px-0 mr-1">
-        <button type="button"
-          class="btn btn-link center-aligned-row cancel-add-btn p-0 m-0"
-          (click)="minusButtonClicked()">
-          <i class="fas fas fa-times-circle"></i>
-        </button>
-      </li>
-    </ul>  
-    <ul class="list-group flex-1">
-      <li *ngFor="let row of rows; let i = index"
-        class="list-group-item center-aligned-row py-0 px-0">
-        <div class="input-group input-group-sm border-0">
-          <div class="input-group-prepend border-0">
-            <span class="input-group-text border-0">{{i + 1}}</span>
-          </div>
-          <input type="text"
-            class="form-control border-0"
-            [placeholder]="'Serial Number ' + (i + 1)">
-        </div>
-      </li>
-    </ul>
-  </div>
-  <button type="button"
-    class="btn btn-link center-aligned-row p-0"
-    [ngClass]="{
-      'my-auto ml-1 mr-0': !deletable(),
-      'mx-auto mt-1 mb-0': deletable()
-    }"
-    (click)="plusButtonClicked()">
-    <i class="fas fas fa-plus-circle"></i>
-  </button>
-</div>
+<ul class="list-group">
+  <li *ngFor="let row of rows; let i = index;"
+    class="list-group-item center-aligned-row border-0 py-0 px-0"
+    style="background-color: transparent">
+    <button *ngIf="deletable()"
+      type="button"
+      class="btn btn-link cancel-add-btn center-aligned-row p-0 ml-0 mr-1"
+      (click)="minusButtonClicked()">
+      <i class="fas fas fa-times-circle"></i>
+    </button>
+    <div class="input-group input-group-sm"
+      [ngClass]="{
+        'first': first(i),
+        'middle': middle(i),
+        'penultimate': penultimate(i),
+        'last': last(i)
+      }">
+      <div class="input-group-prepend border-0">
+        <span class="input-group-text border-0">{{i + 1}}</span>
+      </div>
+      <input type="text"
+        class="form-control border-0"
+        [placeholder]="placeholder + ' ' + (i + 1)"
+        [ngClass]="{
+          'text-uppercase': uppercase
+        }">
+    </div>
+    <button *ngIf="last(i)"
+      type="button"
+      class="btn btn-link center-aligned-row p-0 ml-1 mr-0"
+      style="border:transparent"
+      (click)="plusButtonClicked()">
+      <i class="fas fas fa-plus-circle"></i>
+    </button>
+  </li>
+</ul>

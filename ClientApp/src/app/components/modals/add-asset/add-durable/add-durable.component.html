@@ -1,11 +1,15 @@
-<input-text
+<!--nput-text
   label="Serial Number"
   placeholder="Serial Number"
   [(value)]="serialNumber"
   hint="required">
-</input-text>
+</input-text-->
 
-<multiple-input-text></multiple-input-text>
+<multiple-input-text
+  placeholder="Serial Number"
+  [uppercase]="true"
+  [rowMinimum]="1">
+</multiple-input-text>
 
 <mat-form-field appearance="outline"
   class="w-100">
