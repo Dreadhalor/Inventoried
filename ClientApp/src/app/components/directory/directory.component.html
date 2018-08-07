@@ -1,3 +1,33 @@
-<p>
-  directory works!
-</p>
+<div class="full-height px-5 pb-4 y-scroll">
+
+  <h1 class="page-title">
+    User Directory
+  </h1>
+
+  <table class="table table-striped table-hover">
+    <thead>
+      <th scope="col">
+        Email
+      </th>
+      <th scope="col">
+        Assignments
+      </th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of us.users">
+        <td>
+          {{user.email}}
+        </td>
+        <td>
+          <button *ngFor="let assignmentId of user.assignmentIds"
+            type="button"
+            class="btn btn-link btn-sm"
+            (click)="openEditDurable(assignments.getAsset(assignmentId))">
+            {{assignments.getAssetText(assignmentId)}}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

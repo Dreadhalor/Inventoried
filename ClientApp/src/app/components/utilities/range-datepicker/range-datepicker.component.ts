@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { NgbDateStruct, NgbCalendar, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 
 const equals = (one: NgbDateStruct, two: NgbDateStruct) =>
   one && two && two.year === one.year && two.month === one.month && two.day === one.day;
@@ -44,6 +44,8 @@ export class RangeDatepickerComponent implements OnInit {
     this.fromDateChange.emit(val);
   }
   @Output() fromDateChange: EventEmitter<NgbDateStruct> = new EventEmitter<NgbDateStruct>();
+
+  @ViewChild('dp'/*, { read: NgbDatepicker }*/) dp: ElementRef;
 
   ngOnInit() {
   }

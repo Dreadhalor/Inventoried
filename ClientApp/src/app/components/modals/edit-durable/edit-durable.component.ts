@@ -1,3 +1,4 @@
+import { AssignmentService } from '../../../services/assignment/assignment.service';
 import { InfoService } from '../../../services/info/info.service';
 import { Durable } from '../../../models/durable';
 import { Component, OnInit, Inject } from '@angular/core';
@@ -19,6 +20,7 @@ export class EditDurableComponent implements OnInit {
   constructor(
     private is: InfoService,
     private assets: AssetService,
+    private assignments: AssignmentService,
     private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) private data: Durable
   ) {
@@ -60,10 +62,12 @@ export class EditDurableComponent implements OnInit {
     this.openCheckout();
   }
   openCheckout(){
-    const dialogRef = this.dialog.open(CheckoutComponent, Globals.dialogConfig);
+    let options = Globals.dialogConfig;
+    Object.assign(options,{data: {durableId: this.durable.id}});
+    const dialogRef = this.dialog.open(CheckoutComponent, options);
   }
   checkinButtonPressed(){
-    //this.durables.checkin(this.asset.uuid);
+    this.assignments.checkin(this.editedDurable.assignmentId);
   }
 
   get default(){

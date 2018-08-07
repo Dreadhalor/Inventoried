@@ -64,6 +64,8 @@ export class Durable {
 
   get assignmentId(){ return this._assignmentId; }
   set assignmentId(val){ this._assignmentId = val; }
+  get available(){ return !!this.assignmentId; }
+  get availableVal(){ return (this.assignmentId) ? 'Checked out' : 'Available'; }
 
   get tagIds(){ return this._tagIds; }
   get tags(){
@@ -97,6 +99,13 @@ export class Durable {
     );
     result.injectService(this.infoService);
     return result;
+  }
+
+  assign(assignmentId){
+    this.assignmentId = assignmentId;
+  }
+  unassign(assignmentId){
+    if (this.assignmentId == assignmentId) this.assignmentId = 0;
   }
 
   repair(){

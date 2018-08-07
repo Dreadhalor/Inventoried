@@ -1,14 +1,5 @@
 @import "../../../../styles";
 
-$cancel-color: red;
-
-.cancel-add-btn {
-  color: $cancel-color;
-  &:hover {
-    color: darken($cancel-color,20%);
-  }
-}
-
 .edit-show {
   display: none;
   line-height: 0px;

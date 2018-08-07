@@ -1,0 +1,35 @@
+<mat-form-field>
+  <mat-label>User</mat-label>
+  <mat-select [(ngModel)]="userId"
+    name="userSelect"
+    #popover="ngbPopover"
+    [ngbPopover]="getPopoverContent()"
+    triggers="mouseenter:mouseleave"
+    placement="bottom"
+    container="body"
+    (click)="popover.close()">
+    <mat-option *ngFor="let user of us.users"
+      [value]="user.id">
+      {{user.email}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<ng-template #popoverContent>
+  <ng-container *ngIf="user">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item p-1">
+        Email: {{user.email}}
+      </li>
+      <li class="list-group-item p-1">
+        Assignments:
+        <ul class="list-group list-group-flush">
+          <li *ngFor="let assignmentId of user.assignmentIds"
+            class="list-group-item py-0 border-0">
+            {{assignments.getAssetText(assignmentId)}}
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </ng-container>
+</ng-template>

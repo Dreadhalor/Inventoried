@@ -16,6 +16,9 @@
       Tags
     </th>
     <th scope="col">
+      Availability
+    </th>
+    <th scope="col">
       Active
     </th>
   </thead>
@@ -38,6 +41,9 @@
         <p *ngFor="let tag of durable.tags">
           {{tag.value}}
         </p>
+      </td>
+      <td>
+        {{durable.availableVal}}
       </td>
       <td>
         {{durable.activeVal}}

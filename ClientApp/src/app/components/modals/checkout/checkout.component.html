@@ -2,7 +2,19 @@
   Check out
 </h4>
 <mat-dialog-content>
-  <durable-select></durable-select>
+  <div class="d-flex-row">
+    <durable-select [(durableId)]="durableId"
+      shouldFilter="true">
+    </durable-select>
+    <user-select [(userId)]="userId"
+      class="ml-auto"></user-select>
+  </div>
+  <div class="text-center">
+    <p>From: <ng-container *ngIf="pickedFromDate">{{ fromString }}</ng-container></p>
+    <p>To: <ng-container *ngIf="pickedToDate">{{ toString }}</ng-container></p>
+    <strong *ngIf="pickedFromDate && pickedToDate">Duration: {{duration}} day(s)</strong>
+  </div>
+  
   <br>
   <div class="d-flex-row justify-content-center">
     <range-datepicker
@@ -10,15 +22,15 @@
       [(toDate)]="pickedToDate">
     </range-datepicker>
   </div>
-  <pre>From: {{ pickedFromDate | json }} </pre>
-  <pre>To: {{ pickedToDate | json }} </pre>
-  
 
 </mat-dialog-content>
+
 <mat-dialog-actions align="end">
   <button mat-stroked-button
     color="basic"
-    mat-dialog-close>
+    mat-dialog-close
+    (click)="checkoutButtonClicked()"
+    [disabled]="!readyToCheckout()">
     Check out
   </button>
 </mat-dialog-actions>

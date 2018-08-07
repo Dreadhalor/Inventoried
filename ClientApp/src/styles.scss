@@ -26,8 +26,13 @@ html, body {
   @extend .my-4;
 }
 .tight {
-  padding: 0px!important;
   margin: 0px!important;
+  padding: 0px!important;
+}
+.popover-tight {
+  .popover-body {
+    @extend .tight;
+  }
 }
 .center-content {
   @extend .d-flex;
@@ -68,12 +73,11 @@ html, body {
   overflow: hidden;
 }
 
-.tight {
-  margin: 0px;
-  padding: 0px;
-}
-.popover-tight {
-  .popover-body {
-    @extend .tight;
+
+$cancel-color: red;
+.cancel-add-btn {
+  color: $cancel-color!important;
+  &:hover {
+    color: darken($cancel-color,20%)!important;
   }
 }

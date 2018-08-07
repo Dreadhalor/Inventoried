@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
 import { MatDialog } from '@angular/material';
 import { Durable } from '../../../models/durable';
-import { EditDurableComponent } from '../../modals/edit-durable/edit-durable';
+import { EditDurableComponent } from '../../modals/edit-durable/edit-durable.component';
 import { Globals } from '../../../globals';
 
 @Component({
@@ -14,7 +14,7 @@ export class BrowseDurablesComponent implements OnInit {
 
   constructor(
     private assets: AssetService,
-    public dialog: MatDialog
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {

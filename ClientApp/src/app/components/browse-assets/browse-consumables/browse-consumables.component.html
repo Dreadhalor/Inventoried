@@ -19,7 +19,7 @@
   <tbody>
     <tr *ngFor="let consumable of assets.consumables">
       <td>
-        {{consumable.serialNumber}}
+        {{consumable.label}}
       </td>
       <td>
         {{consumable.categoryVal}}
@@ -32,7 +32,7 @@
       </td>
       <td>
         <p *ngFor="let tag of consumable.tags">
-          {{tag.id}} -- {{tag.value}}
+          {{tag.value}}
         </p>
       </td>
     </tr>

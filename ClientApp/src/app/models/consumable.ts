@@ -10,6 +10,7 @@ export class Consumable {
   constructor(
     private _id = UtilitiesService.uuid(),
     private _label = '',
+    private _quantity = 0,
     private _categoryId = 0,
     private _manufacturerId = 0,
     private _notes: string = '',
@@ -24,10 +25,18 @@ export class Consumable {
   public get label() : string {
     return this._label;
   }
-  
   public set label(val : string) {
     this.label = val;
   }
+
+  
+  public get quantity() : number {
+    return this._quantity;
+  }
+  public set quantity(v : number) {
+    this._quantity = v;
+  }
+  
 
   get category(){
     let result = null;
@@ -86,6 +95,7 @@ export class Consumable {
     let result = new Consumable(
       this.id,
       this.label,
+      this.quantity,
       this.categoryId,
       this.manufacturerId,
       this.notes,
@@ -99,6 +109,7 @@ export class Consumable {
   repair(){
     this._id = (this.id) ? this.id : UtilitiesService.uuid();
     this.label = (this.label) ? this.label : '';
+    this.quantity = (this.quantity) ? this.quantity : 0;
     this.categoryId = (this.categoryId) ? this.categoryId : 0;
     this.manufacturerId = (this.manufacturerId) ? this.manufacturerId : 0;
     this.notes = (this.notes) ? this.notes : '';

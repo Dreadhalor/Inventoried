@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, Input } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
+import { Durable } from '../../../models/durable';
 
 @Component({
   selector: 'durable-select',
@@ -10,7 +11,19 @@ export class DurableSelectComponent implements OnInit {
 
   @ViewChild('popoverContent') popoverContent: ElementRef;
 
-  durableId;
+  _durableId;
+  @Input() get durableId(){ return this._durableId; }
+  @Output() durableIdChange = new EventEmitter<any>();
+  set durableId(val){
+    this._durableId = val;
+    this.durableIdChange.emit(val);
+  }
+
+  @Input() shouldFilter = false;
+
+  get durables(){
+    return this.filterByAvailable(this.assets.durables);
+  }
 
   get durable(){
     return this.assets.getDurable(this.durableId);
@@ -26,6 +39,11 @@ export class DurableSelectComponent implements OnInit {
   getPopoverContent(){
     if (this.durableId) return this.popoverContent;
     return null;
+  }
+
+  filterByAvailable(toFilter: Durable[]){
+    if (this.shouldFilter) return toFilter.filter(durable => !durable.available);
+    return toFilter;
   }
 
 }

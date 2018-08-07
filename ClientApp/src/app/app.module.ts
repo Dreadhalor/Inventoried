@@ -14,12 +14,13 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DirectoryComponent } from './components/directory/directory.component';
 import { SettingsCardComponent } from './components/settings/settings-card/settings-card.component';
-import { EditDurableComponent } from './components/modals/edit-durable/edit-durable';
+import { EditDurableComponent } from './components/modals/edit-durable/edit-durable.component';
 
 import { MaterialsModule } from './modules/materials.module';
 
 import { InfoService } from './services/info/info.service';
 import { BrowseDurablesComponent } from './components/browse-assets/browse-durables/browse-durables.component';
+import { AssignmentService } from './services/assignment/assignment.service';
 import { BrowseConsumablesComponent } from './components/browse-assets/browse-consumables/browse-consumables.component';
 import { AddDurableComponent } from './components/modals/add-asset/add-durable/add-durable.component';
 import { AddConsumableComponent } from './components/modals/add-asset/add-consumable/add-consumable.component';
@@ -28,6 +29,9 @@ import { CheckoutComponent } from './components/modals/checkout/checkout.compone
 import { DurableSelectComponent } from './components/utilities/durable-select/durable-select.component';
 import { RangeDatepickerComponent } from './components/utilities/range-datepicker/range-datepicker.component';
 import { InputTextComponent } from './components/utilities/input-text/input-text.component';
+import { UserSelectComponent } from './components/utilities/user-select/user-select.component';
+import { MultipleInputTextComponent } from './components/utilities/multiple-input-text/multiple-input-text.component';
+
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
@@ -60,7 +64,9 @@ var routes: Routes = [
     CheckoutComponent,
     DurableSelectComponent,
     RangeDatepickerComponent,
-    InputTextComponent
+    InputTextComponent,
+    UserSelectComponent,
+    MultipleInputTextComponent
   ],
   imports: [
     BrowserModule,
@@ -73,7 +79,8 @@ var routes: Routes = [
     MaterialsModule //Angular Material modules,
   ],
   providers: [
-    InfoService
+    InfoService,
+    AssignmentService
   ],
   bootstrap: [AppComponent]
 })

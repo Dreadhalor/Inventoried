@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditDurableComponent } from './edit-durable.component';
+import { UserSelectComponent } from './user-select.component';
 
-describe('AssetEditModalComponent', () => {
-  let component: EditDurableComponent;
-  let fixture: ComponentFixture<EditDurableComponent>;
+describe('UserSelectComponent', () => {
+  let component: UserSelectComponent;
+  let fixture: ComponentFixture<UserSelectComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EditDurableComponent ]
+      declarations: [ UserSelectComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EditDurableComponent);
+    fixture = TestBed.createComponent(UserSelectComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

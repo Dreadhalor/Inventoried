@@ -4,6 +4,7 @@ import { AddAssetComponent } from '../modals/add-asset/add-asset.component';
 import { Component, OnInit } from '@angular/core';
 import { AssetService } from '../../services/asset/asset.service';
 import { MatDialog } from '@angular/material';
+import { AssignmentService } from '../../services/assignment/assignment.service';
 
 @Component({
   selector: 'browse-assets',
@@ -15,6 +16,7 @@ export class BrowseAssetsComponent implements OnInit {
   constructor(
     private assets: AssetService,
     private is: InfoService,
+    private assignments: AssignmentService,
     private dialog: MatDialog
   ) { }
 

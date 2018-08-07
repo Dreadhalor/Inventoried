@@ -1,3 +1,4 @@
+import { Assignment } from '../../models/assignment';
 import { InfoService } from '../info/info.service';
 import { Injectable } from '@angular/core';
 import { Durable } from '../../models/durable';
@@ -9,11 +10,11 @@ import { Consumable } from '../../models/consumable';
 export class AssetService {
 
   public static initDurables: Durable[] = [
-    new Durable(undefined, 'sdfewagw', 3, 2, 'This is a thing', undefined, [1,3,4], undefined),
-    new Durable(undefined, 'g34h6765', 1, 4, 'Hello, world!', undefined, [2,3], undefined),
-    new Durable(undefined, 'e5yhgfhg', 5, 1, 'Ughhhhhh', undefined, [5,3], undefined),
-    new Durable(undefined, '87fgh49y', 2, 5, 'Ooga booga shoeshine', undefined, [2], undefined),
-    new Durable(undefined, 'df6890gh', 4, 3, 'Two households, both alike in dignity, In fair Verona, where we lay our scene, From ancient grudge break to new mutiny, Where civil blood makes civil hands unclean.', undefined, [2,1,4], undefined),
+    new Durable('1', 'sdfewagw', 3, 2, 'This is a thing', undefined, [1,3,4], undefined),
+    new Durable('2', 'g34h6765', 1, 4, 'Hello, world!', undefined, [2,3], undefined),
+    new Durable('3', 'e5yhgfhg', 5, 1, 'Ughhhhhh', undefined, [5,3], undefined),
+    new Durable('4', '87fgh49y', 2, 5, 'Ooga booga shoeshine', undefined, [2], undefined),
+    new Durable('5', 'df6890gh', 4, 3, 'Two households, both alike in dignity, In fair Verona, where we lay our scene, From ancient grudge break to new mutiny, Where civil blood makes civil hands unclean.', undefined, [2,1,4], undefined),
   ]
 
   _durables: Durable[] = [];
@@ -32,6 +33,8 @@ export class AssetService {
     this._browseAssetsTabIndex = val;
   }
 
+  pendingAssignments = [];
+
   constructor(
     private infoService: InfoService
   ) {
@@ -46,6 +49,11 @@ export class AssetService {
 
   addDurable(durable: Durable){
     durable.injectService(this.infoService);
+    let assignmentIndex = this.pendingAssignments.findIndex(match => match.assetId == durable.id);
+    if (assignmentIndex >= 0){
+      durable.assign(this.pendingAssignments[assignmentIndex].id);
+      this.pendingAssignments.splice(assignmentIndex,1);
+    }
     this.durables.push(durable);
   }
   saveDurable(durable: Durable){
@@ -60,5 +68,21 @@ export class AssetService {
   saveConsumable(consumable: Consumable){
     let index = this.consumables.findIndex(match => match.id == consumable.id);
     if (index >= 0) this.consumables[index] = consumable;
+  }
+
+  assign(assignment: Assignment){
+    if (assignment){
+      let asset = this.getDurable(assignment.assetId);
+      if (asset) asset.assign(assignment.id);
+      else this.pendingAssignments.push(assignment);
+    }
+  }
+  unassign(assignment: Assignment){
+    if (assignment){
+      let asset = this.getDurable(assignment.assetId);
+      if (asset) asset.unassign(assignment.id);
+      let assignmentIndex = this.pendingAssignments.findIndex(match => match.id == assignment.id);
+      if (assignmentIndex >= 0) this.pendingAssignments.splice(assignmentIndex,1);
+    }
   }
 }

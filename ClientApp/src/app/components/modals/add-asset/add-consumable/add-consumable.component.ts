@@ -11,6 +11,7 @@ import { Consumable } from '../../../../models/consumable';
 export class AddConsumableComponent implements OnInit {
 
   label: string = "";
+  quantity: number = 0;
   categoryId: number = 0;
   manufacturerId: number = 0;
   notes: string = "";
@@ -27,6 +28,7 @@ export class AddConsumableComponent implements OnInit {
     return new Consumable(
       undefined,
       this.label,
+      this.quantity,
       this.categoryId,
       this.manufacturerId,
       this.notes,
