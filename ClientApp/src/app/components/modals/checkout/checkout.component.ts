@@ -1,16 +1,9 @@
-import { AssignmentService } from '../../../services/assignment/assignment.service';
+import { AssignmentService } from 'src/app/services/assignment/assignment.service';
 import { Component, OnInit, Inject } from '@angular/core';
-import { AssetService } from '../../../services/asset/asset.service';
+import { AssetService } from 'src/app/services/asset/asset.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MAT_DIALOG_DATA } from '@angular/material';
-import { Durable } from '../../../models/durable';
-import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition
-} from '@angular/animations';
+import { Durable } from 'src/app/models/durable';
 
 import * as moment from 'moment';
 
@@ -18,22 +11,11 @@ import * as moment from 'moment';
   selector: 'checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
-  animations: [
-    trigger('heroState', [
-      state('inactive', style({
-        backgroundColor: '#eee',
-        transform: 'scale(1)'
-      })),
-      state('active',   style({
-        backgroundColor: '#cfd8dc',
-        transform: 'scale(1.1)'
-      })),
-      transition('inactive => active', animate('100ms ease-in')),
-      transition('active => inactive', animate('100ms ease-out'))
-    ])
-  ]
 })
 export class CheckoutComponent implements OnInit {
+
+  tabIndex: number = 0;
+  setTabIndex(v: number){ this.tabIndex = v; }
 
   pickedFromDate: NgbDateStruct;
   pickedToDate: NgbDateStruct;
@@ -42,18 +24,21 @@ export class CheckoutComponent implements OnInit {
 
   userId;
   durableId;
+  consumableId;
   consumableIds = [];
-
-  state;
-  toggleState() {
-    this.state = this.state === 'active' ? 'inactive' : 'active';
-  }
 
   get from(){ return moment(this.momentFormat(this.pickedFromDate)); }
   get fromString(){ return this.from.format(this.dayStringFormat); }
   get to(){ return moment(this.momentFormat(this.pickedToDate)); }
   get toString(){ return this.to.format(this.dayStringFormat); }
   get duration(){ return this.to.diff(this.from,'days'); }
+  get selectedAssetType(){
+    switch(this.tabIndex){
+      case 0: return 'Durable';
+      case 1: return 'Consumable';
+      default: return '';
+    }
+  }
 
   constructor(
     private assets: AssetService,
@@ -64,15 +49,6 @@ export class CheckoutComponent implements OnInit {
   ngOnInit() {
     this.userId = this.data.userId;
     this.durableId = this.data.durableId;
-  }
-
-  getSelectedCheckoutType(){
-    if (this.durableId) return 'Durable';
-    else return 'Consumable'
-  }
-  getUnselectedCheckoutType(){
-    if (this.durableId) return 'Consumable';
-    else return 'Durable'
   }
 
   momentFormat(date: NgbDateStruct){

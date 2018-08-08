@@ -1,7 +1,7 @@
-import { KeyValuePair } from '../../../models/keyValuePair';
+import { KeyValuePair } from 'src/app/models/keyValuePair';
 import { Component, OnInit } from '@angular/core';
-import { InfoService } from '../../../services/info/info.service';
-import { AssetService } from '../../../services/asset/asset.service';
+import { InfoService } from 'src/app/services/info/info.service';
+import { AssetService } from 'src/app/services/asset/asset.service';
 
 @Component({
   selector: 'add-asset',

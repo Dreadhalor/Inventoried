@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material';
-import { CheckoutComponent } from '../checkout/checkout.component';
-import { Globals } from '../../../globals';
-import { Consumable } from '../../../models/consumable';
-import { AssignmentService } from '../../../services/assignment/assignment.service';
-import { AssetService } from '../../../services/asset/asset.service';
-import { InfoService } from '../../../services/info/info.service';
+import { CheckoutComponent } from 'src/app/components/modals/checkout/checkout.component';
+import { Globals } from 'src/app/globals';
+import { Consumable } from 'src/app/models/consumable';
+import { AssignmentService } from 'src/app/services/assignment/assignment.service';
+import { AssetService } from 'src/app/services/asset/asset.service';
+import { InfoService } from 'src/app/services/info/info.service';
 
 @Component({
   selector: 'edit-consumable',

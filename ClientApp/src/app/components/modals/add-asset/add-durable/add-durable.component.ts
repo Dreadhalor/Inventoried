@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Durable } from '../../../../models/durable';
-import { InfoService } from '../../../../services/info/info.service';
-import { NgSelectComponent } from '../../../../../../node_modules/@ng-select/ng-select';
+import { Durable } from 'src/app/models/durable';
+import { InfoService } from 'src/app/services/info/info.service';
 
 @Component({
   selector: 'add-durable',

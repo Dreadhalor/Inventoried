@@ -1,22 +1,27 @@
-<h4 class="mat-dialog-title" style="white-space: pre">
-  Check out
-    <span>{{getSelectedCheckoutType()}}</span> 
-    <span style="opacity:0.3">{{getUnselectedCheckoutType()}}</span>
+<h4 class="mat-dialog-title">
+  Check out {{selectedAssetType}}
 </h4>
 <mat-dialog-content>
-    <div class="no-header">
-        <mat-tab-group #mtg>
-          <mat-tab label="Tab 1">Content 1</mat-tab>
-          <mat-tab label="Tab 2">Content 2</mat-tab>
-        </mat-tab-group>
+  <mat-tab-group [(selectedIndex)]="tabIndex">
+    <mat-tab label="Durable">
+      <div class="d-flex-row">
+        <durable-select [(durableId)]="durableId"
+          shouldFilter="true">
+        </durable-select>
+        <user-select [(userId)]="userId"
+          class="ml-auto"></user-select>
       </div>
-  <div class="d-flex-row">
-    <durable-select [(durableId)]="durableId"
-      shouldFilter="true">
-    </durable-select>
-    <user-select [(userId)]="userId"
-      class="ml-auto"></user-select>
-  </div>
+    </mat-tab>
+    <mat-tab label="Consumable">
+      <div class="d-flex-row">
+        <consumable-select [(consumableId)]="consumableId"
+          shouldFilter="true">
+        </consumable-select>
+        <user-select [(userId)]="userId"
+          class="ml-auto"></user-select>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
   <div class="text-center">
     <p>From: <ng-container *ngIf="pickedFromDate">{{ fromString }}</ng-container></p>
     <p>To: <ng-container *ngIf="pickedToDate">{{ toString }}</ng-container></p>

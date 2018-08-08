@@ -1,4 +1,4 @@
-import { KeyValuePair } from '../../models/keyValuePair';
+import { KeyValuePair } from 'src/app/models/keyValuePair';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 

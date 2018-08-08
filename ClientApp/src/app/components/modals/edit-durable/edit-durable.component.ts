@@ -1,11 +1,11 @@
-import { AssignmentService } from '../../../services/assignment/assignment.service';
-import { InfoService } from '../../../services/info/info.service';
-import { Durable } from '../../../models/durable';
+import { AssignmentService } from 'src/app/services/assignment/assignment.service';
+import { InfoService } from 'src/app/services/info/info.service';
+import { Durable } from 'src/app/models/durable';
 import { Component, OnInit, Inject } from '@angular/core';
-import { AssetService } from '../../../services/asset/asset.service';
+import { AssetService } from 'src/app/services/asset/asset.service';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material';
-import { Globals } from '../../../globals';
-import { CheckoutComponent } from '../checkout/checkout.component';
+import { Globals } from 'src/app/globals';
+import { CheckoutComponent } from 'src/app/components/modals/checkout/checkout.component';
 
 @Component({
   selector: 'edit-durable',

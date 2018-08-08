@@ -1,7 +1,6 @@
-import { AssignmentService } from '../../../services/assignment/assignment.service';
-import { UserService } from '../../../services/user/user.service';
+import { AssignmentService } from 'src/app/services/assignment/assignment.service';
+import { UserService } from 'src/app/services/user/user.service';
 import { Component, OnInit, ElementRef, ViewChild, EventEmitter, Output, Input } from '@angular/core';
-import { User } from '../../../models/user';
 
 @Component({
   selector: 'user-select',

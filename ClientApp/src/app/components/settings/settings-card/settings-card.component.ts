@@ -1,6 +1,5 @@
-import { KeyValuePair } from '../../../models/keyValuePair';
+import { KeyValuePair } from 'src/app/models/keyValuePair';
 import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, Input } from '@angular/core';
-import { Globals } from '../../../globals';
 
 @Component({
   selector: 'settings-card',

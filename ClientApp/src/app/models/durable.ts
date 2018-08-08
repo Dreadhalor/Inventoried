@@ -1,7 +1,7 @@
-import { InfoService } from '../services/info/info.service';
+import { InfoService } from 'src/app/services/info/info.service';
 import { KeyValuePair } from './keyValuePair';
-import { UtilitiesService } from "../services/utilities/utilities.service";
-import { Globals } from '../globals';
+import { UtilitiesService } from "src/app/services/utilities/utilities.service";
+import { Globals } from 'src/app/globals';
 
 export class Durable {
 

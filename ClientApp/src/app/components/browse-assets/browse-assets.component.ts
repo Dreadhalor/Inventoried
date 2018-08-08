@@ -1,10 +1,10 @@
-import { InfoService } from '../../services/info/info.service';
-import { Globals } from '../../globals';
+import { InfoService } from 'src/app/services/info/info.service';
+import { Globals } from 'src/app/globals';
 import { AddAssetComponent } from '../modals/add-asset/add-asset.component';
 import { Component, OnInit } from '@angular/core';
-import { AssetService } from '../../services/asset/asset.service';
+import { AssetService } from 'src/app/services/asset/asset.service';
 import { MatDialog } from '@angular/material';
-import { AssignmentService } from '../../services/assignment/assignment.service';
+import { AssignmentService } from 'src/app/services/assignment/assignment.service';
 
 @Component({
   selector: 'browse-assets',

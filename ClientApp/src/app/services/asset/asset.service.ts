@@ -1,8 +1,8 @@
-import { Assignment } from '../../models/assignment';
-import { InfoService } from '../info/info.service';
+import { Assignment } from 'src/app/models/assignment';
+import { InfoService } from 'src/app/services/info/info.service';
 import { Injectable } from '@angular/core';
-import { Durable } from '../../models/durable';
-import { Consumable } from '../../models/consumable';
+import { Durable } from 'src/app/models/durable';
+import { Consumable } from 'src/app/models/consumable';
 
 @Injectable({
   providedIn: 'root'

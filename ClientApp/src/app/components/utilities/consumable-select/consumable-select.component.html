@@ -1,0 +1,40 @@
+<mat-form-field>
+  <mat-label>Consumable</mat-label>
+  <mat-select [(ngModel)]="consumableId"
+    name="assetSelect"
+    #popover="ngbPopover"
+    [ngbPopover]="getPopoverContent()"
+    triggers="mouseenter:mouseleave"
+    placement="bottom"
+    container="body"
+    (click)="popover.close()">
+    <mat-option *ngFor="let consumable of consumables"
+      [value]="consumable.id">
+      {{consumable.categoryVal}} {{consumable.label}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<ng-template #popoverContent>
+  <ng-container *ngIf="consumable">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item p-1">
+        Label: {{consumable.label}}
+      </li>
+      <li class="list-group-item p-1">
+        Category: {{consumable.categoryVal}}
+      </li>
+      <li class="list-group-item p-1">
+        Manufacturer: {{consumable.manufacturerVal}}
+      </li>
+      <li class="list-group-item p-1">
+        Notes: {{consumable.notes}}
+      </li>
+      <li class="list-group-item p-1">
+        Tags: <ng-container *ngFor="let tag of consumable.tags; let last = last;">
+          {{tag.value}}<ng-container *ngIf="!last">,</ng-container>
+          </ng-container>
+      </li>
+    </ul>
+  </ng-container>
+</ng-template>

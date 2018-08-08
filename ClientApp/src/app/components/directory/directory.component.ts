@@ -1,11 +1,11 @@
-import { AssignmentService } from '../../services/assignment/assignment.service';
+import { AssignmentService } from 'src/app/services/assignment/assignment.service';
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../services/user/user.service';
-import { Globals } from '../../globals';
-import { Durable } from '../../models/durable';
+import { UserService } from 'src/app/services/user/user.service';
+import { Globals } from 'src/app/globals';
+import { Durable } from 'src/app/models/durable';
 import { MatDialog } from '@angular/material';
-import { EditDurableComponent } from '../modals/edit-durable/edit-durable.component';
-import { AssetService } from '../../services/asset/asset.service';
+import { EditDurableComponent } from 'src/app/components/modals/edit-durable/edit-durable.component';
+import { AssetService } from 'src/app/services/asset/asset.service';
 
 @Component({
   selector: 'directory',
