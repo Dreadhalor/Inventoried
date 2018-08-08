@@ -4,23 +4,25 @@
     style="background-color: transparent">
     <button *ngIf="deletable()"
       type="button"
+      tabindex="-1"
       class="btn btn-link cancel-add-btn center-aligned-row p-0 ml-0 mr-1"
       (click)="minusButtonClicked()">
       <i class="fas fas fa-times-circle"></i>
     </button>
-    <div class="input-group input-group-sm"
+    <div class="input-group"
       [ngClass]="{
         'first': first(i),
         'middle': middle(i),
         'penultimate': penultimate(i),
         'last': last(i)
       }">
-      <div class="input-group-prepend border-0">
-        <span class="input-group-text border-0">{{i + 1}}</span>
+      <div *ngIf="rowCount > 1"
+        class="input-group-prepend border-right-only">
+        <span class="input-group-text border-right-only bg-transparent">{{i + 1}}</span>
       </div>
       <input type="text"
         class="form-control border-0"
-        [placeholder]="placeholder + ' ' + (i + 1)"
+        [placeholder]="getPlaceholderText(i+1)"
         [ngClass]="{
           'text-uppercase': uppercase
         }">

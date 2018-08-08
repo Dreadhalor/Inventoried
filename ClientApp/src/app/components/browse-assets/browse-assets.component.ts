@@ -9,7 +9,7 @@ import { AssignmentService } from '../../services/assignment/assignment.service'
 @Component({
   selector: 'browse-assets',
   templateUrl: './browse-assets.component.html',
-  styleUrls: ['./browse-assets.component.scss']
+  styleUrls: ['./browse-assets.component.scss'],
 })
 export class BrowseAssetsComponent implements OnInit {
 

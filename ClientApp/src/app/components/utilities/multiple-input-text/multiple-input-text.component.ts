@@ -28,6 +28,12 @@ export class MultipleInputTextComponent implements OnInit {
 
   deletable(){ return this.rowCount > this.rowMinimum; }
 
+  getPlaceholderText(indexPlusOne){
+    let text = this.placeholder;
+    if (this.rowCount > 1) text += ' ' + indexPlusOne;
+    return text;
+  }
+
   minusButtonClicked(){
     this.rowCount--;
   }

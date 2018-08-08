@@ -15,9 +15,16 @@
     <th scope="col">
       Tags
     </th>
+    <th scope="col">
+      Checked Out
+    </th>
+    <th scope="col">
+      Owned
+    </th>
   </thead>
   <tbody>
-    <tr *ngFor="let consumable of assets.consumables">
+    <tr *ngFor="let consumable of assets.consumables"
+      (click)="openEditConsumable(consumable)">
       <td>
         {{consumable.label}}
       </td>
@@ -34,6 +41,12 @@
         <p *ngFor="let tag of consumable.tags">
           {{tag.value}}
         </p>
+      </td>
+      <td>
+        {{consumable.checkedOut}}
+      </td>
+      <td>
+        {{consumable.quantity}}
       </td>
     </tr>
   </tbody>

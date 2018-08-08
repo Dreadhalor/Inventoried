@@ -4,13 +4,34 @@ import { AssetService } from '../../../services/asset/asset.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MAT_DIALOG_DATA } from '@angular/material';
 import { Durable } from '../../../models/durable';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
 
 import * as moment from 'moment';
 
 @Component({
   selector: 'checkout',
   templateUrl: './checkout.component.html',
-  styleUrls: ['./checkout.component.scss']
+  styleUrls: ['./checkout.component.scss'],
+  animations: [
+    trigger('heroState', [
+      state('inactive', style({
+        backgroundColor: '#eee',
+        transform: 'scale(1)'
+      })),
+      state('active',   style({
+        backgroundColor: '#cfd8dc',
+        transform: 'scale(1.1)'
+      })),
+      transition('inactive => active', animate('100ms ease-in')),
+      transition('active => inactive', animate('100ms ease-out'))
+    ])
+  ]
 })
 export class CheckoutComponent implements OnInit {
 
@@ -21,6 +42,12 @@ export class CheckoutComponent implements OnInit {
 
   userId;
   durableId;
+  consumableIds = [];
+
+  state;
+  toggleState() {
+    this.state = this.state === 'active' ? 'inactive' : 'active';
+  }
 
   get from(){ return moment(this.momentFormat(this.pickedFromDate)); }
   get fromString(){ return this.from.format(this.dayStringFormat); }
@@ -37,6 +64,15 @@ export class CheckoutComponent implements OnInit {
   ngOnInit() {
     this.userId = this.data.userId;
     this.durableId = this.data.durableId;
+  }
+
+  getSelectedCheckoutType(){
+    if (this.durableId) return 'Durable';
+    else return 'Consumable'
+  }
+  getUnselectedCheckoutType(){
+    if (this.durableId) return 'Consumable';
+    else return 'Durable'
   }
 
   momentFormat(date: NgbDateStruct){

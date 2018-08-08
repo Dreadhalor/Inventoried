@@ -1,0 +1,13 @@
+<div class="d-flex-row padding-override"
+  style="position:relative">
+  <ng-select #select
+    [items]="items"
+    (clear)="blur(select)"
+    class="p-0 m-0 flex-1"
+    bindLabel="value"
+    bindValue="id"
+    [placeholder]="placeholder"
+    [(ngModel)]="value">
+  </ng-select>
+  <div class="overlay"></div>
+</div>

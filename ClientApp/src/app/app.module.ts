@@ -32,6 +32,10 @@ import { InputTextComponent } from './components/utilities/input-text/input-text
 import { UserSelectComponent } from './components/utilities/user-select/user-select.component';
 import { MultipleInputTextComponent } from './components/utilities/multiple-input-text/multiple-input-text.component';
 
+import { NgSelectModule } from '@ng-select/ng-select';
+import { CustomSelectComponent } from './components/utilities/custom-select/custom-select.component';
+import { EditConsumableComponent } from './components/modals/edit-consumable/edit-consumable.component';
+
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
@@ -45,7 +49,8 @@ var routes: Routes = [
     AppComponent,
     AddAssetComponent,
     EditDurableComponent,
-    CheckoutComponent
+    CheckoutComponent,
+    EditConsumableComponent,
   ],
   declarations: [
     AppComponent,
@@ -66,7 +71,9 @@ var routes: Routes = [
     RangeDatepickerComponent,
     InputTextComponent,
     UserSelectComponent,
-    MultipleInputTextComponent
+    MultipleInputTextComponent,
+    CustomSelectComponent,
+    EditConsumableComponent
   ],
   imports: [
     BrowserModule,
@@ -76,7 +83,8 @@ var routes: Routes = [
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    MaterialsModule //Angular Material modules,
+    MaterialsModule, //Angular Material modules,
+    NgSelectModule
   ],
   providers: [
     InfoService,

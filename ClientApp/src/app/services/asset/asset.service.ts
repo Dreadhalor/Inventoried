@@ -46,6 +46,9 @@ export class AssetService {
   getDurable(id){
     return this.durables.find(match => match.id == id);
   }
+  getConsumable(id){
+    return this.consumables.find(match => match.id == id);
+  }
 
   addDurable(durable: Durable){
     durable.injectService(this.infoService);

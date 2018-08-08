@@ -1,4 +1,4 @@
-@import '../../../styles';
+@import '../../../../styles';
 
 .input-group-text {
   border-radius: 0px!important;
@@ -6,6 +6,32 @@
 
 $radius: $border-radius;
 $border: solid 1px $border-color;
+
+/*.input-group-prepend {
+  border-top: 0px;
+  border-left: 0px;
+  border-right: $border!important;
+  border-bottom: 0px;
+}
+.input-group-text {
+  background-color: transparent;
+}*/
+
+.border-right-only {
+  @extend .border-right;
+  @extend .border-left-0;
+  @extend .border-top-0;
+  @extend .border-bottom-0;
+}
+
+.outline-class {
+  background-color: transparent;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  border-bottom: 1px solid black;
+  border-radius: 0px;
+}
 
 
 .shared-properties {

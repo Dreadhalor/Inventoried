@@ -5,13 +5,15 @@
   hint="required">
 </input-text-->
 
-<multiple-input-text
-  placeholder="Serial Number"
-  [uppercase]="true"
-  [rowMinimum]="1">
-</multiple-input-text>
+<div class="pt-2 border-0">
+  <multiple-input-text
+    placeholder="Serial Number"
+    [uppercase]="true"
+    [rowMinimum]="1">
+  </multiple-input-text>
+</div>
 
-<mat-form-field appearance="outline"
+<!--mat-form-field appearance="outline"
   class="w-100">
   <mat-label>Category</mat-label>
   <mat-select placeholder="Category"
@@ -23,9 +25,19 @@
       {{category.value}}
     </mat-option>
   </mat-select>
-</mat-form-field>
+</mat-form-field-->
 
-<mat-form-field appearance="outline"
+<custom-select [items]="is.durablesCategories"
+  placeholder="Category"
+  [(value)]="categoryId">
+</custom-select>
+
+<custom-select [items]="is.manufacturers"
+  placeholder="Manufacturer"
+  [(value)]="manufacturerId">
+</custom-select>
+
+<!--mat-form-field appearance="outline"
   class="w-100">
   <mat-label>Manufacturer</mat-label>
   <mat-select placeholder="Manufacturer"
@@ -37,7 +49,7 @@
       {{manufacturer.value}}
     </mat-option>
   </mat-select>
-</mat-form-field>
+</mat-form-field-->
 
 <mat-form-field appearance="outline"
   class="w-100">

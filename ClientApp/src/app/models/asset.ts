@@ -1,52 +1,29 @@
-import { InfoService } from '../services/info/info.service';
+/*import { InfoService } from '../services/info/info.service';
 import { KeyValuePair } from './keyValuePair';
 import { UtilitiesService } from "../services/utilities/utilities.service";
 import { Globals } from '../globals';
 
-export class Consumable {
+export class Asset {
 
   private infoService: InfoService
   
   constructor(
     private _id = UtilitiesService.uuid(),
-    private _label = '',
-    private _quantity = 0,
     private _categoryId = 0,
     private _manufacturerId = 0,
     private _notes: string = '',
-    private _assignmentIds = [],
-    private _tagIds: any[] = []
+    private _tagIds = []
   ){}
+  
 
   injectService(service: InfoService){ this.infoService = service; }
 
   get id(){ return this._id; }
-  
-  public get label() : string {
-    return this._label;
-  }
-  public set label(val : string) {
-    this._label = val;
-  }
-
-  
-  public get quantity() : number {
-    return this._quantity;
-  }
-  public set quantity(v : number) {
-    this._quantity = v;
-  }
-
-  public get checkedOut() : number {
-    return this.assignmentIds.length;
-  }
-  
-  
 
   get category(){
     let result = null;
     if (this.categoryId){
-      result = this.infoService.getConsumablesCategory(this.categoryId);
+      result = this.infoService.getDurablesCategory(this.categoryId);
       if (!result) this.categoryId = 0;
     }
     return result;
@@ -78,8 +55,10 @@ export class Consumable {
   get notes(){ return this._notes; }
   set notes(val){ this._notes = val; }
 
-  get assignmentIds(){ return this._assignmentIds; }
-  set assignmentIds(val){ this._assignmentIds = val; }
+  get assignmentId(){ return this._assignmentId; }
+  set assignmentId(val){ this._assignmentId = val; }
+  get available(){ return !!this.assignmentId; }
+  get availableVal(){ return (this.assignmentId) ? 'Checked out' : 'Available'; }
 
   get tagIds(){ return this._tagIds; }
   get tags(){
@@ -96,30 +75,40 @@ export class Consumable {
   }
   set tagIds(val){ this._tagIds = val; }
 
-  copy(): Consumable {
-    let result = new Consumable(
+  get active(){ return this._active; }
+  get activeVal(){ return (this._active) ? 'Yes' : 'No'; }
+  set active(val){ this._active = val; }
+
+  copy(): Durable {
+    let result = new Durable(
       this.id,
-      this.label,
-      this.quantity,
+      this.serialNumber,
       this.categoryId,
       this.manufacturerId,
       this.notes,
-      Globals.deepCopy(this.assignmentIds),
-      Globals.deepCopy(this.tagIds)
+      this.assignmentId,
+      Globals.deepCopy(this.tagIds),
+      this.active
     );
     result.injectService(this.infoService);
     return result;
   }
 
+  assign(assignmentId){
+    this.assignmentId = assignmentId;
+  }
+  unassign(assignmentId){
+    if (this.assignmentId == assignmentId) this.assignmentId = 0;
+  }
+
   repair(){
     this._id = (this.id) ? this.id : UtilitiesService.uuid();
-    this.label = (this.label) ? this.label : '';
-    this.quantity = (this.quantity) ? this.quantity : 0;
+    this.serialNumber = (this.serialNumber) ? this.serialNumber : '';
     this.categoryId = (this.categoryId) ? this.categoryId : 0;
     this.manufacturerId = (this.manufacturerId) ? this.manufacturerId : 0;
     this.notes = (this.notes) ? this.notes : '';
-    this.assignmentIds = (this.assignmentIds) ? this.assignmentIds : [];
+    this.assignmentId = (this.assignmentId) ? this.assignmentId : 0;
     this.tagIds = (this.tagIds) ? this.tagIds : [];
   }
 
-}
+}*/

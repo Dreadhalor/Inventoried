@@ -1,6 +1,9 @@
+import { Consumable } from '../../../models/consumable';
 import { Component, OnInit } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
 import { MatDialog } from '@angular/material';
+import { Globals } from '../../../globals';
+import { EditConsumableComponent } from '../../modals/edit-consumable/edit-consumable.component';
 
 @Component({
   selector: 'browse-consumables',
@@ -15,6 +18,12 @@ export class BrowseConsumablesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+  }
+
+  openEditConsumable(consumable: Consumable){
+    let options = Globals.dialogConfig;
+    Object.assign(options,{data: consumable});
+    const dialogRef = this.dialog.open(EditConsumableComponent, options);
   }
 
 }

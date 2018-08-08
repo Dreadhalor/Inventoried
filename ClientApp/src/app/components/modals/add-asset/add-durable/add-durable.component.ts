@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Durable } from '../../../../models/durable';
 import { InfoService } from '../../../../services/info/info.service';
+import { NgSelectComponent } from '../../../../../../node_modules/@ng-select/ng-select';
 
 @Component({
   selector: 'add-durable',
@@ -9,11 +10,9 @@ import { InfoService } from '../../../../services/info/info.service';
 })
 export class AddDurableComponent implements OnInit {
 
-  @ViewChild('firstFocus') firstFocus: ElementRef;
-
   serialNumber: string = "";
-  categoryId: number = 0;
-  manufacturerId: number = 0;
+  categoryId: number;
+  manufacturerId: number;
   notes: string = "";
   tagIds: any[] = [];
   active: boolean = true;
