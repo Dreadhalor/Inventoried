@@ -12,7 +12,11 @@ export class TagFieldComponent implements OnInit {
 
   constructor() { }
 
-  @Input() dictionary: KeyValuePair[] = [];
+  @Input() dictionary: any[] = [];
+  @Input() rowTitles: string[] = null;
+  @Input() bindValue;
+  @Input() bindLabel;
+  @Input() placeholder = 'Tags';
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   @ViewChild('itemInput') itemInput: ElementRef;
@@ -29,13 +33,25 @@ export class TagFieldComponent implements OnInit {
   @Output() itemIdsChange:EventEmitter<any[]> = new EventEmitter<any[]>();
 
   get items(){
-    let result: KeyValuePair[] = [];
+    let result = [];
     if (this.itemIds){
       for (let i = this.itemIds.length; i >= 0; i--){
-        let item = this.dictionary.find(match => match.id == this.itemIds[i]);
-        if (item){
-          result.unshift(item);
-        } else this.itemIds.splice(i,1);
+        let item;
+        if (this.rowTitles){
+          let found = false;
+          for (let j = 0; j < this.rowTitles.length; j++){
+            item = this.dictionary[j].find(match => match[this.bindValue] == this.itemIds[i]);
+            if (item){
+              result.unshift(item);
+              found = true;
+            }
+          } if (!found) this.itemIds.splice(i,1);
+        } else {
+          item = this.dictionary.find(match => match[this.bindValue] == this.itemIds[i]);
+          if (item){
+            result.unshift(item);
+          } else this.itemIds.splice(i,1);
+        }
       }
     } else this.itemIds = [];
     return result;
@@ -46,15 +62,15 @@ export class TagFieldComponent implements OnInit {
 
   add(event: MatChipInputEvent): void {
     const inputField = event.input;
-    const value = event.value.trim();
+    const value = event[this.bindLabel].trim();
 
-    let possibleItems: KeyValuePair[] = this.filterDupes(this.dictionary);
-    let item = possibleItems.find(match => match.value == value);
-    if (item) this.itemIds.push(item.id);
+    let possibleItems: any[] = this.filterDupes(this.dictionary);
+    let item = possibleItems.find(match => match[this.bindLabel] == value);
+    if (item) this.itemIds.push(item[this.bindValue]);
 
     // If successful, reset the input value
     if (inputField && item) {
-      inputField.value = '';
+      inputField[this.bindLabel] = '';
       this.hideAutoComplete();
     }
   }
@@ -65,21 +81,21 @@ export class TagFieldComponent implements OnInit {
   }
 
   remove(item): void {
-    const index = this.itemIds.indexOf(item.id);
+    const index = this.itemIds.indexOf(item[this.bindValue]);
 
     if (index >= 0) {
       this.itemIds.splice(index, 1);
     }
   }
 
-  filterDupes(dictionary: KeyValuePair[]){
+  filterDupes(dictionary: any[]){
     return dictionary.filter(
-      pair => !this.itemIds.find(match => match == pair.id)
+      item => !this.itemIds.find(match => match == item[this.bindValue])
     );
   }
-  filterNonMatches(dictionary: KeyValuePair[], filter: string){
+  filterNonMatches(dictionary: any[], filter: string){
     let lowercase = filter.toLowerCase();
-    return dictionary.filter(pair => pair.value.toLowerCase().includes(lowercase));
+    return dictionary.filter(item => item[this.bindLabel].toLowerCase().includes(lowercase));
   }
   showAutoComplete(){
     this.trigger.openPanel();

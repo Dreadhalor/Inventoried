@@ -11,10 +11,10 @@ export class AddConsumableComponent implements OnInit {
 
   label: string = "";
   quantity: number = 0;
-  categoryId: number = 0;
-  manufacturerId: number = 0;
+  categoryId: string = '0';
+  manufacturerId: string = '0';
   notes: string = "";
-  tagIds: any[] = [];
+  tagIds: string[] = [];
 
   constructor(
     private is: InfoService
@@ -24,16 +24,16 @@ export class AddConsumableComponent implements OnInit {
   }
 
   makeConsumable(){
-    return new Consumable(
-      undefined,
-      this.label,
-      this.quantity,
-      this.categoryId,
-      this.manufacturerId,
-      this.notes,
-      undefined,
-      this.tagIds
-    );
+    return new Consumable({
+      id: undefined,
+      label: this.label,
+      quantity: this.quantity,
+      categoryId: this.categoryId,
+      manufacturerId: this.manufacturerId,
+      notes: this.notes,
+      assignmentIds: undefined,
+      tagIds: this.tagIds
+    });
   }
 
 }

@@ -56,7 +56,7 @@ export class InfoService {
   }
 
   //Durable good categories
-  _durablesCategories: KeyValuePair[] = InfoService.initDurablesCategories.map((val, index) => new KeyValuePair(index + 1, val));
+  _durablesCategories: KeyValuePair[] = InfoService.initDurablesCategories.map((val, index) => new KeyValuePair((index + 1).toString(), val));
   get durablesCategories(){ return this._durablesCategories; }
   set durablesCategories(val: KeyValuePair[]){ this._durablesCategories = val; }
 
@@ -71,7 +71,7 @@ export class InfoService {
   }
 
   //Manufacturers
-  _manufacturers: KeyValuePair[] = InfoService.initManufacturers.map((val, index) => new KeyValuePair(index + 1, val));
+  _manufacturers: KeyValuePair[] = InfoService.initManufacturers.map((val, index) => new KeyValuePair((index + 1).toString(), val));
   get manufacturers(){ return this._manufacturers; }
   set manufacturers(val: KeyValuePair[]){ this._manufacturers = val; }
 
@@ -86,7 +86,7 @@ export class InfoService {
   }
   
   //Consumables categories
-  _consumablesCategories: KeyValuePair[] = InfoService.initConsumablesCategories.map((val, index) => new KeyValuePair(index + 1, val));
+  _consumablesCategories: KeyValuePair[] = InfoService.initConsumablesCategories.map((val, index) => new KeyValuePair((index + 1).toString(), val));
   get consumablesCategories(){ return this._consumablesCategories; }
   set consumablesCategories(val: KeyValuePair[]){ this._consumablesCategories = val; }
   
@@ -101,7 +101,7 @@ export class InfoService {
   }
 
   //Tags
-  _tags: KeyValuePair[] = InfoService.initTags.map((val, index) => new KeyValuePair(index + 1, val));
+  _tags: KeyValuePair[] = InfoService.initTags.map((val, index) => new KeyValuePair((index + 1).toString(), val));
   get tags(){ return this._tags; }
   set tags(val: KeyValuePair[]){ this._tags = val; }
   

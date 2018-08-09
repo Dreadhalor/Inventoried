@@ -12,6 +12,9 @@ export class CustomSelectComponent implements OnInit {
 
   @Input() items: any[];
   @Input() placeholder: string;
+  @Input() appearance: string;
+  @Input() bindLabel: string;
+  @Input() bindValue: string;
 
   inputElement;
 

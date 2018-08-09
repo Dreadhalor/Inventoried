@@ -1,5 +1,5 @@
 <h4 class="mat-dialog-title">
-  Consumable: {{consumable.categoryVal}} {{consumable.serialNumber}}
+  Consumable: {{consumable.label}}
 </h4>
 <mat-dialog-content>
   <ng-container *ngIf="default">
@@ -57,7 +57,7 @@
       <mat-select placeholder="Category"
         [(ngModel)]="editedConsumable.categoryId"
         name="categorySelect">
-        <mat-option></mat-option>
+        <mat-option>- None -</mat-option>
         <mat-option *ngFor="let category of is.consumablesCategories"
           [value]="category.id">
           {{category.value}}
@@ -71,7 +71,7 @@
       <mat-select placeholder="Manufacturer"
         [(ngModel)]="editedConsumable.manufacturerId"
         name="manufacturerSelect">
-        <mat-option></mat-option>
+        <mat-option>- None -</mat-option>
         <mat-option *ngFor="let manufacturer of is.manufacturers"
           [value]="manufacturer.id">
           {{manufacturer.value}}
@@ -91,6 +91,8 @@
 
     <tag-field
       [dictionary]="is.tags"
+      bindValue="id"
+      bindLabel="value"
       [(itemIds)]="editedConsumable.tagIds">
     </tag-field>
   </ng-container>

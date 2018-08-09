@@ -25,7 +25,7 @@
   <mat-select placeholder="Category"
     [(ngModel)]="categoryId"
     name="categorySelect">
-    <mat-option></mat-option>
+    <mat-option>- None -</mat-option>
     <mat-option *ngFor="let category of is.consumablesCategories"
       [value]="category.id">
       {{category.value}}
@@ -39,7 +39,7 @@
   <mat-select placeholder="Manufacturer"
     [(ngModel)]="manufacturerId"
     name="manufacturerSelect">
-    <mat-option></mat-option>
+    <mat-option>- None -</mat-option>
     <mat-option *ngFor="let manufacturer of is.manufacturers"
       [value]="manufacturer.id">
       {{manufacturer.value}}
@@ -59,5 +59,7 @@
 
 <tag-field
   [dictionary]="is.tags"
+  bindValue="id"
+  bindLabel="value"
   [(itemIds)]="tagIds">
 </tag-field>

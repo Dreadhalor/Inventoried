@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Durable } from 'src/app/models/durable';
 import { InfoService } from 'src/app/services/info/info.service';
 
@@ -10,10 +10,10 @@ import { InfoService } from 'src/app/services/info/info.service';
 export class AddDurableComponent implements OnInit {
 
   serialNumber: string = "";
-  categoryId: number;
-  manufacturerId: number;
+  categoryId: string;
+  manufacturerId: string;
   notes: string = "";
-  tagIds: any[] = [];
+  tagIds: string[] = [];
   active: boolean = true;
 
   constructor(
@@ -24,16 +24,16 @@ export class AddDurableComponent implements OnInit {
   }
 
   makeDurable(){
-    return new Durable(
-      undefined,
-      this.serialNumber,
-      this.categoryId,
-      this.manufacturerId,
-      this.notes,
-      undefined,
-      this.tagIds,
-      this.active
-    );
+    return new Durable({
+      id: undefined,
+      serialNumber: this.serialNumber,
+      categoryId: this.categoryId,
+      manufacturerId: this.manufacturerId,
+      notes: this.notes,
+      assignmentId: undefined,
+      tagIds: this.tagIds,
+      active: this.active
+    });
   }
 
 }

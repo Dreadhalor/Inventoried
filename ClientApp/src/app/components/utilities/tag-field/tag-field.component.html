@@ -4,13 +4,13 @@
       [selectable]="true"
       [removable]="true"
       (removed)="remove(item)">
-      {{item.value}}
+      {{item[bindLabel]}}
       <mat-icon matChipRemove>
         cancel
       </mat-icon>
     </mat-chip>
     <input #itemInput
-      placeholder="Tags"
+      [placeholder]="placeholder"
       [matChipInputFor]="chipList"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       [matAutocomplete]="auto"
@@ -20,9 +20,23 @@
   <mat-autocomplete #auto="matAutocomplete"
     autoActiveFirstOption
     (optionSelected)="selected($event)">
-    <mat-option *ngFor="let item of filterNonMatches(filterDupes(dictionary),itemInput.value)"
-      [value]="item.id">
-      {{item.value}}
-    </mat-option>
+
+    <ng-container *ngIf="!rowTitles">
+      <mat-option *ngFor="let item of filterNonMatches(filterDupes(dictionary),itemInput.value)"
+        [value]="item[bindValue]">
+        {{item[bindLabel]}}
+      </mat-option>
+    </ng-container>
+
+    <ng-container *ngIf="rowTitles">
+      <mat-optgroup *ngFor="let row of dictionary; let i = index;"
+        [label]="rowTitles[i]">
+        <mat-option *ngFor="let item of filterNonMatches(filterDupes(row),itemInput.value)"
+          [value]="item[bindValue]">
+          {{item[bindLabel]}}
+        </mat-option>
+      </mat-optgroup>
+    </ng-container>
+
   </mat-autocomplete>
 </mat-form-field>

@@ -1,0 +1,58 @@
+<!--mat-form-field>
+  <input #input
+    matInput
+    type="text"
+    placeholder="Asset"
+    required
+    [matAutocomplete]="auto">
+  <mat-autocomplete #auto="matAutocomplete">
+    <mat-optgroup label="Durables">
+      <mat-option *ngFor="let durable of filterNonMatches(durables,input.value)"
+      [value]="durable.id">
+        {{durable.name}}
+      </mat-option>
+    </mat-optgroup>
+    <mat-optgroup label="Consumables">
+      <mat-option *ngFor="let consumable of filterNonMatches(consumables,input.value)"
+      [value]="consumable.id">
+        {{consumable.name}}
+      </mat-option>
+    </mat-optgroup>
+  </mat-autocomplete>
+</mat-form-field-->
+
+<tag-field
+  [dictionary]="allAssets"
+  [rowTitles]="rowTitles"
+  bindLabel="name"
+  bindValue="id"
+  placeholder="Assets"
+  [(itemIds)]="assetIds">
+</tag-field>
+
+<!--ng-template #popoverContent>
+  <ng-container *ngIf="durable">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item p-1">
+        Serial Number: {{durable.serialNumber}}
+      </li>
+      <li class="list-group-item p-1">
+        Category: {{durable.categoryVal}}
+      </li>
+      <li class="list-group-item p-1">
+        Manufacturer: {{durable.manufacturerVal}}
+      </li>
+      <li class="list-group-item p-1">
+        Notes: {{durable.notes}}
+      </li>
+      <li class="list-group-item p-1">
+        Active: {{durable.activeVal}}
+      </li>
+      <li class="list-group-item p-1">
+        Tags: <ng-container *ngFor="let tag of durable.tags; let last = last;">
+          {{tag.value}}<ng-container *ngIf="!last">,</ng-container>
+          </ng-container>
+      </li>
+    </ul>
+  </ng-container>
+</ng-template-->

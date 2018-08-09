@@ -10,7 +10,7 @@
     (click)="popover.close()">
     <mat-option *ngFor="let durable of durables"
       [value]="durable.id">
-      {{durable.categoryVal}} {{durable.serialNumber}}
+      {{durable.name}}
     </mat-option>
   </mat-select>
 </mat-form-field>

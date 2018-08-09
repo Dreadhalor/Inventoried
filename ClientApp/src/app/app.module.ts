@@ -1,5 +1,5 @@
-import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule, Routes } from '@angular/router';
@@ -36,6 +36,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { CustomSelectComponent } from 'src/app/components/utilities/custom-select/custom-select.component';
 import { EditConsumableComponent } from 'src/app/components/modals/edit-consumable/edit-consumable.component';
 import { ConsumableSelectComponent } from 'src/app/components/utilities/consumable-select/consumable-select.component';
+import { AssetSelectComponent } from 'src/app/components/utilities/asset-select/asset-select.component';
 
 
 var routes: Routes = [
@@ -75,7 +76,8 @@ var routes: Routes = [
     MultipleInputTextComponent,
     CustomSelectComponent,
     EditConsumableComponent,
-    ConsumableSelectComponent
+    ConsumableSelectComponent,
+    AssetSelectComponent
   ],
   imports: [
     BrowserModule,

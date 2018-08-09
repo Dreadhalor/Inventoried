@@ -1,3 +1,5 @@
+import { Asset } from 'src/app/models/asset';
+import { Globals } from 'src/app/globals';
 import { Assignment } from 'src/app/models/assignment';
 import { InfoService } from 'src/app/services/info/info.service';
 import { Injectable } from '@angular/core';
@@ -8,14 +10,6 @@ import { Consumable } from 'src/app/models/consumable';
   providedIn: 'root'
 })
 export class AssetService {
-
-  public static initDurables: Durable[] = [
-    new Durable('1', 'sdfewagw', 3, 2, 'This is a thing', undefined, [1,3,4], undefined),
-    new Durable('2', 'g34h6765', 1, 4, 'Hello, world!', undefined, [2,3], undefined),
-    new Durable('3', 'e5yhgfhg', 5, 1, 'Ughhhhhh', undefined, [5,3], undefined),
-    new Durable('4', '87fgh49y', 2, 5, 'Ooga booga shoeshine', undefined, [2], undefined),
-    new Durable('5', 'df6890gh', 4, 3, 'Two households, both alike in dignity, In fair Verona, where we lay our scene, From ancient grudge break to new mutiny, Where civil blood makes civil hands unclean.', undefined, [2,1,4], undefined),
-  ]
 
   _durables: Durable[] = [];
   get durables(){ return this._durables; }
@@ -38,11 +32,20 @@ export class AssetService {
   constructor(
     private infoService: InfoService
   ) {
-    AssetService.initDurables.forEach(durable => {
-      this.addDurable(durable);
+    Globals.initDurables.forEach(idurable => {
+      this.addDurable(new Durable(idurable));
+    })
+    Globals.initConsumables.forEach(iconsumable => {
+      this.addConsumable(new Consumable(iconsumable));
     })
   }
 
+  getAsset(id){
+    let asset: Asset = this.getDurable(id);
+    if (asset) return asset;
+    asset = this.getConsumable(id);
+    if (asset) return asset;
+  }
   getDurable(id){
     return this.durables.find(match => match.id == id);
   }

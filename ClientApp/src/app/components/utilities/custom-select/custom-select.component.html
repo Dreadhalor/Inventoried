@@ -1,13 +1,17 @@
-<div class="d-flex-row padding-override"
+<div class="d-flex-row"
+  [ngClass]="{
+    'padding-override' : appearance=='outline'
+  }"
   style="position:relative">
   <ng-select #select
     [items]="items"
     (clear)="blur(select)"
     class="p-0 m-0 flex-1"
-    bindLabel="value"
-    bindValue="id"
+    [bindLabel]="bindLabel"
+    [bindValue]="bindValue"
     [placeholder]="placeholder"
     [(ngModel)]="value">
   </ng-select>
-  <div class="overlay"></div>
+  <div *ngIf="appearance=='outline'"
+    class="overlay"></div>
 </div>

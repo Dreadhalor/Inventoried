@@ -22,6 +22,7 @@ export class CheckoutComponent implements OnInit {
   dayStringFormat: string = 'dddd, MMMM Do YYYY';
   dateStringFormat: string = 'MMMM Do YYYY';
 
+  assetIds: string[] = [];
   userId;
   durableId;
   consumableId;

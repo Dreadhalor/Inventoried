@@ -5,9 +5,8 @@
   <mat-tab-group [(selectedIndex)]="tabIndex">
     <mat-tab label="Durable">
       <div class="d-flex-row">
-        <durable-select [(durableId)]="durableId"
-          shouldFilter="true">
-        </durable-select>
+        <asset-select>
+        </asset-select>
         <user-select [(userId)]="userId"
           class="ml-auto"></user-select>
       </div>
