@@ -28,7 +28,12 @@
     color="basic"
     mat-dialog-close
     (click)="durableSubmitButtonPressed(durable)">
-    Add Durable
+    <ng-container *ngIf="durable.serialNumbers.length <= 1">
+      Add Durable
+    </ng-container>
+    <ng-container *ngIf="durable.serialNumbers.length > 1">
+      Add {{durable.serialNumbers.length}} Durables
+    </ng-container>
   </button>
   <button *ngIf="assets.addAssetTabIndex == 1"
     mat-stroked-button

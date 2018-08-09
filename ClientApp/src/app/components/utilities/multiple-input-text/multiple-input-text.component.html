@@ -22,6 +22,8 @@
       </div>
       <input type="text"
         class="form-control border-0"
+        [(ngModel)]="entries[i]"
+        name="entry"
         [placeholder]="getPlaceholderText(i+1)"
         [ngClass]="{
           'text-uppercase': uppercase

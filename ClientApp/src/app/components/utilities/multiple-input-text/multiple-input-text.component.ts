@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'multiple-input-text',
@@ -14,6 +14,15 @@ export class MultipleInputTextComponent implements OnInit {
 
   @Input() placeholder = '';
   @Input() uppercase = false;
+
+  private _entries : string[];
+  @Input() get entries() : any { return this._entries; }
+  @Output() entriesChange = new EventEmitter<any>();
+  set entries(v : any) {
+    this._entries = v;
+    this.entriesChange.emit(v);
+  }
+  
 
   constructor() { }
 

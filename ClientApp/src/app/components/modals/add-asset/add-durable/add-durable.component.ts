@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Durable } from 'src/app/models/durable';
 import { InfoService } from 'src/app/services/info/info.service';
+import { Globals } from 'src/app/globals';
 
 @Component({
   selector: 'add-durable',
@@ -9,7 +10,7 @@ import { InfoService } from 'src/app/services/info/info.service';
 })
 export class AddDurableComponent implements OnInit {
 
-  serialNumber: string = "";
+  serialNumbers: string[] = [];
   categoryId: string;
   manufacturerId: string;
   notes: string = "";
@@ -23,17 +24,23 @@ export class AddDurableComponent implements OnInit {
   ngOnInit() {
   }
 
-  makeDurable(){
-    return new Durable({
+  makeDurables(){
+    let durables: Durable[] = [];
+    let values = {
       id: undefined,
-      serialNumber: this.serialNumber,
       categoryId: this.categoryId,
       manufacturerId: this.manufacturerId,
       notes: this.notes,
       assignmentId: undefined,
       tagIds: this.tagIds,
       active: this.active
-    });
+    }
+    this.serialNumbers.forEach(serialNumber => {
+      let params = Globals.deepCopy(values);
+      params.serialNumber = serialNumber;
+      durables.push(new Durable(params));
+    })
+    return durables;
   }
 
 }

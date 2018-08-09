@@ -2,6 +2,8 @@ import { KeyValuePair } from 'src/app/models/keyValuePair';
 import { Component, OnInit } from '@angular/core';
 import { InfoService } from 'src/app/services/info/info.service';
 import { AssetService } from 'src/app/services/asset/asset.service';
+import { AddConsumableComponent } from 'src/app/components/modals/add-asset/add-consumable/add-consumable.component';
+import { AddDurableComponent } from 'src/app/components/modals/add-asset/add-durable/add-durable.component';
 
 @Component({
   selector: 'add-asset',
@@ -18,11 +20,12 @@ export class AddAssetComponent implements OnInit {
   ngOnInit() {
   }
 
-  durableSubmitButtonPressed(durableForm){
-    this.assets.addDurable(durableForm.makeDurable());
+  durableSubmitButtonPressed(durableForm: AddDurableComponent){
+    let durables = durableForm.makeDurables();
+    durables.forEach(durable => this.assets.addDurable(durable));
   }
 
-  consumableSubmitButtonPressed(consumableForm){
+  consumableSubmitButtonPressed(consumableForm: AddConsumableComponent){
     this.assets.addConsumable(consumableForm.makeConsumable());
   }
 
