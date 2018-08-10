@@ -8,46 +8,45 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 export class MultipleInputTextComponent implements OnInit {
 
   @Input() rowMinimum: number;
-  rowCount: number;
-  
-  get rows(){ return new Array(this.rowCount); }
 
   @Input() placeholder = '';
   @Input() uppercase = false;
 
-  private _entries : string[];
+  private _entries : string[] = [];
   @Input() get entries() : any { return this._entries; }
   @Output() entriesChange = new EventEmitter<any>();
   set entries(v : any) {
     this._entries = v;
     this.entriesChange.emit(v);
   }
+
+  getRows(){ return new Array(this.entries.length); }
   
 
   constructor() { }
 
   ngOnInit() {
-    this.rowCount = this.rowMinimum;
+    for (let i = this.entries.length; i < this.rowMinimum; i++) this.entries.push('');
   }
 
   first(index){ return index == 0; }
-  middle(index){ return index > 0 && index < this.rowCount - 1 }
-  penultimate(index){ return index == this.rowCount - 2 }
-  last(index){ return index == this.rowCount - 1; }
+  middle(index){ return index > 0 && index < this.entries.length - 1 }
+  penultimate(index){ return index == this.entries.length - 2 }
+  last(index){ return index == this.entries.length - 1; }
 
-  deletable(){ return this.rowCount > this.rowMinimum; }
+  deletable(){ return this.entries.length > this.rowMinimum; }
 
   getPlaceholderText(indexPlusOne){
     let text = this.placeholder;
-    if (this.rowCount > 1) text += ' ' + indexPlusOne;
+    if (this.entries.length > 1) text += ' ' + indexPlusOne;
     return text;
   }
 
-  minusButtonClicked(){
-    this.rowCount--;
+  minusButtonClicked(index){
+    this.entries.splice(index,1);
   }
   plusButtonClicked(){
-    this.rowCount++;
+    this.entries.splice(this.entries.length,0,'');
   }
 
 }

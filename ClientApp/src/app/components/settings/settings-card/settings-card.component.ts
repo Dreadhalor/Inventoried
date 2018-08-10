@@ -1,4 +1,4 @@
-import { KeyValuePair } from 'src/app/models/keyValuePair';
+import { KeyValuePair } from '../../../models/classes/keyValuePair';
 import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, Input } from '@angular/core';
 
 @Component({

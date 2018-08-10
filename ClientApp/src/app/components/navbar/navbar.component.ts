@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Globals } from 'src/app/globals';
+import { Globals } from '../../globals';
 import { Router } from '@angular/router';
 
 @Component({

@@ -1,10 +1,10 @@
-import { Asset } from 'src/app/models/asset';
-import { Globals } from 'src/app/globals';
-import { Assignment } from 'src/app/models/assignment';
-import { InfoService } from 'src/app/services/info/info.service';
+import { Asset } from '../../models/classes/asset';
+import { Globals } from '../../globals';
+import { Assignment } from '../../models/classes/assignment';
+import { InfoService } from '../info/info.service';
 import { Injectable } from '@angular/core';
-import { Durable } from 'src/app/models/durable';
-import { Consumable } from 'src/app/models/consumable';
+import { Durable } from '../../models/classes/durable';
+import { Consumable } from '../../models/classes/consumable';
 
 @Injectable({
   providedIn: 'root'
@@ -85,7 +85,7 @@ export class AssetService {
   }
   unassign(assignment: Assignment){
     if (assignment){
-      let asset = this.getDurable(assignment.assetId);
+      let asset = this.getAsset(assignment.assetId);
       if (asset) asset.unassign(assignment.id);
       let assignmentIndex = this.pendingAssignments.findIndex(match => match.id == assignment.id);
       if (assignmentIndex >= 0) this.pendingAssignments.splice(assignmentIndex,1);

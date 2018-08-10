@@ -7,6 +7,17 @@ html, body {
   @extend .full-height;
 }
 
+.mat-chip-list-no-margin {
+  .mat-chip-list-wrapper {
+    margin: 0px!important;
+  }
+}
+.mat-form-field-no-padding {
+  .mat-form-field-wrapper {
+    padding: 0px!important;
+  }
+}
+
 ::placeholder {
     color: lighten(grey,30%)!important;
     opacity: 1;

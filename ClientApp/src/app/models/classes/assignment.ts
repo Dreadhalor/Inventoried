@@ -1,4 +1,4 @@
-import { UtilitiesService } from "src/app/services/utilities/utilities.service";
+import { UtilitiesService } from "../../services/utilities/utilities.service";
 
 export class Assignment {
 

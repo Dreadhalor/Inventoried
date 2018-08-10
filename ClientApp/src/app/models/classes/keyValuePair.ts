@@ -1,5 +1,5 @@
-import { IKeyValuePair } from './IKeyValuePair';
-import { UtilitiesService } from 'src/app/services/utilities/utilities.service';
+import { IKeyValuePair } from '../interfaces/IKeyValuePair';
+import { UtilitiesService } from '../../services/utilities/utilities.service';
 
 export class KeyValuePair implements IKeyValuePair {
   constructor(

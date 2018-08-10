@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, Output } from '@angular/core';
-import { KeyValuePair } from 'src/app/models/keyValuePair';
 import { MatAutocompleteSelectedEvent, MatChipInputEvent, MatAutocompleteTrigger, MatAutocomplete } from '@angular/material';
 import { ENTER, COMMA } from '@angular/cdk/keycodes';
 

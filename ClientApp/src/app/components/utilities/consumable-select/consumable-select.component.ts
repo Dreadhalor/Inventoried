@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ElementRef, EventEmitter, ViewChild, Output } from '@angular/core';
-import { AssetService } from 'src/app/services/asset/asset.service';
-import { Consumable } from 'src/app/models/consumable';
+import { AssetService } from '../../../services/asset/asset.service';
+import { Consumable } from '../../../models/classes/consumable';
 
 @Component({
   selector: 'consumable-select',

@@ -1,7 +1,6 @@
-import { KeyValuePair } from 'src/app/models/keyValuePair';
-import { Asset } from 'src/app/models/asset';
+import { Asset } from '../../../models/classes/asset';
 import { Component, OnInit, EventEmitter, ElementRef, ViewChild, Input, Output } from '@angular/core';
-import { AssetService } from 'src/app/services/asset/asset.service';
+import { AssetService } from '../../../services/asset/asset.service';
 
 @Component({
   selector: 'asset-select',
@@ -12,7 +11,15 @@ export class AssetSelectComponent implements OnInit {
 
   @ViewChild('popoverContent') popoverContent: ElementRef;
 
-  assetIds: string[] = [];
+  
+  private _assetIds : string[];
+  @Input() get assetIds() : string[] { return this._assetIds; }
+  @Output() assetIdsChange = new EventEmitter<string[]>();
+  set assetIds(v : string[]) {
+    this._assetIds = v;
+    this.assetIdsChange.emit(v);
+  }
+  
 
 
   @Input() shouldFilter = false;

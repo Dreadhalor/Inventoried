@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { Consumable } from 'src/app/models/consumable';
-import { AssetService } from 'src/app/services/asset/asset.service';
-import { Globals } from 'src/app/globals';
-import { EditConsumableComponent } from 'src/app/components/modals/edit-consumable/edit-consumable.component';
+import { Consumable } from '../../../models/classes/consumable';
+import { AssetService } from '../../../services/asset/asset.service';
+import { Globals } from '../../../globals';
+import { EditConsumableComponent } from '../../modals/edit-consumable/edit-consumable.component';
 
 @Component({
   selector: 'browse-consumables',

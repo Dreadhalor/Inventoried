@@ -1,26 +1,15 @@
 <h4 class="mat-dialog-title">
-  Check out {{selectedAssetType}}
+  Check out Assets
 </h4>
 <mat-dialog-content>
-  <mat-tab-group [(selectedIndex)]="tabIndex">
-    <mat-tab label="Durable">
-      <div class="d-flex-row">
-        <asset-select>
-        </asset-select>
-        <user-select [(userId)]="userId"
-          class="ml-auto"></user-select>
-      </div>
-    </mat-tab>
-    <mat-tab label="Consumable">
-      <div class="d-flex-row">
-        <consumable-select [(consumableId)]="consumableId"
-          shouldFilter="true">
-        </consumable-select>
-        <user-select [(userId)]="userId"
-          class="ml-auto"></user-select>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
+  <div class="d-flex-row">
+    <asset-select
+      [(assetIds)]="assetIds">
+    </asset-select>
+    <user-select [(userId)]="userId"
+      class="ml-auto">
+    </user-select>
+  </div>
   <div class="text-center">
     <p>From: <ng-container *ngIf="pickedFromDate">{{ fromString }}</ng-container></p>
     <p>To: <ng-container *ngIf="pickedToDate">{{ toString }}</ng-container></p>

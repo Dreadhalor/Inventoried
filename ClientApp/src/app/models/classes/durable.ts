@@ -1,8 +1,6 @@
-import { Asset } from 'src/app/models/asset';
-import { IDurable } from 'src/app/models/IDurable';
-import { InfoService } from 'src/app/services/info/info.service';
-import { Globals } from 'src/app/globals';
-import { KeyValuePair } from 'src/app/models/keyValuePair';
+import { Asset } from './asset';
+import { IDurable } from '../interfaces/IDurable';
+import { Globals } from '../../globals';
 
 export class Durable extends Asset {
 

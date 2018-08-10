@@ -1,5 +1,5 @@
-import { IConsumable } from 'src/app/models/IConsumable';
-import { IDurable } from "src/app/models/IDurable";
+import { IConsumable } from './models/interfaces/IConsumable';
+import { IDurable } from "./models/interfaces/IDurable";
 
 export class Globals {
 

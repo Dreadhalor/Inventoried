@@ -1,9 +1,8 @@
-import { KeyValuePair } from 'src/app/models/keyValuePair';
 import { Component, OnInit } from '@angular/core';
-import { InfoService } from 'src/app/services/info/info.service';
-import { AssetService } from 'src/app/services/asset/asset.service';
-import { AddConsumableComponent } from 'src/app/components/modals/add-asset/add-consumable/add-consumable.component';
-import { AddDurableComponent } from 'src/app/components/modals/add-asset/add-durable/add-durable.component';
+import { InfoService } from '../../../services/info/info.service';
+import { AssetService } from '../../../services/asset/asset.service';
+import { AddConsumableComponent } from './add-consumable/add-consumable.component';
+import { AddDurableComponent } from './add-durable/add-durable.component';
 
 @Component({
   selector: 'add-asset',

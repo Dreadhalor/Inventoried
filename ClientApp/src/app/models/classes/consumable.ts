@@ -1,6 +1,6 @@
-import { IConsumable } from './interfaces/IConsumable';
-import { Asset } from './classes/asset';
-import { Globals } from '../globals';
+import { Asset } from './asset';
+import { Globals } from '../../globals';
+import { IConsumable } from '../interfaces/IConsumable';
 
 export class Consumable extends Asset {
 
@@ -72,6 +72,16 @@ export class Consumable extends Asset {
     });
     result.injectService(this.infoService);
     return result;
+  }
+
+  assign(assignmentId: string): void{
+    if (!this.assignmentIds.includes(assignmentId))
+      this.assignmentIds.push(assignmentId);
+  }
+  unassign(assignmentId: string): void{
+    for (let i = this.assignmentIds.length; i >= 0; i--){
+      if (this.assignmentIds[i] == assignmentId) this.assignmentIds.splice(i,1);
+    }
   }
 
   repair(){

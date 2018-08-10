@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, Input } from '@angular/core';
-import { AssetService } from 'src/app/services/asset/asset.service';
-import { Durable } from 'src/app/models/durable';
+import { AssetService } from '../../../services/asset/asset.service';
+import { Durable } from '../../../models/classes/durable';
 
 @Component({
   selector: 'durable-select',

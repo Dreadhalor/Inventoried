@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AssetService } from 'src/app/services/asset/asset.service';
+import { AssetService } from '../../../services/asset/asset.service';
 import { MatDialog } from '@angular/material';
-import { Durable } from 'src/app/models/durable';
-import { EditDurableComponent } from 'src/app/components/modals/edit-durable/edit-durable.component';
-import { Globals } from 'src/app/globals';
+import { Durable } from '../../../models/classes/durable';
+import { Globals } from '../../../globals';
+import { EditDurableComponent } from '../../modals/edit-durable/edit-durable.component';
 
 @Component({
   selector: 'browse-durables',

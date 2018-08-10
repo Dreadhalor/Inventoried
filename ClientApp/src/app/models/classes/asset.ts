@@ -1,9 +1,9 @@
-import { IAsset } from 'src/app/models/IAsset';
-import { UtilitiesService } from "src/app/services/utilities/utilities.service";
-import { InfoService } from 'src/app/services/info/info.service';
-import { KeyValuePair } from 'src/app/models/keyValuePair';
+import { IAsset } from '../interfaces/IAsset';
+import { UtilitiesService } from "../../services/utilities/utilities.service";
+import { InfoService } from '../../services/info/info.service';
+import { KeyValuePair } from './keyValuePair';
 
-export class Asset implements IAsset  {
+export abstract class Asset implements IAsset  {
   
   constructor(
     iAsset: IAsset
@@ -82,7 +82,9 @@ export class Asset implements IAsset  {
     return result;
   }
 
-  get name(){ return ''; }
+  abstract get name(): string;
+  abstract assign(assignmentId: string): void;
+  abstract unassign(assignmentId: string): void;
 
   repair(){
     this._id = (this.id) ? this.id : UtilitiesService.uuid();

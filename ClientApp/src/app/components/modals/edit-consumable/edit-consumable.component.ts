@@ -1,11 +1,12 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material';
-import { CheckoutComponent } from 'src/app/components/modals/checkout/checkout.component';
-import { Globals } from 'src/app/globals';
-import { Consumable } from 'src/app/models/consumable';
-import { AssignmentService } from 'src/app/services/assignment/assignment.service';
-import { AssetService } from 'src/app/services/asset/asset.service';
-import { InfoService } from 'src/app/services/info/info.service';
+import { CheckoutComponent } from '../checkout/checkout.component';
+import { Globals } from '../../../globals';
+import { Consumable } from '../../../models/classes/consumable';
+import { AssignmentService } from '../../../services/assignment/assignment.service';
+import { AssetService } from '../../../services/asset/asset.service';
+import { InfoService } from '../../../services/info/info.service';
+import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
 
 @Component({
   selector: 'edit-consumable',
@@ -63,7 +64,11 @@ export class EditConsumableComponent implements OnInit {
   }
   openCheckout(){
     let options = Globals.dialogConfig;
-    Object.assign(options,{data: {consumableId: this.consumable.id}});
+    let data: ICheckoutData = {
+      assetId: this.consumable.id,
+      userId: null
+    }
+    Object.assign(options, {data: data});
     const dialogRef = this.dialog.open(CheckoutComponent, options);
   }
   checkinButtonPressed(){

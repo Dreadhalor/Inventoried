@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { InfoService } from 'src/app/services/info/info.service';
-import { Consumable } from 'src/app/models/consumable';
+import { InfoService } from '../../../../services/info/info.service';
+import { Consumable } from '../../../../models/classes/consumable';
 
 @Component({
   selector: 'add-consumable',

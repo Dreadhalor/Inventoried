@@ -1,7 +1,7 @@
-import { UserService } from 'src/app/services/user/user.service';
-import { AssetService } from 'src/app/services/asset/asset.service';
+import { UserService } from '../user/user.service';
+import { AssetService } from '../asset/asset.service';
 import { Injectable } from '@angular/core';
-import { Assignment } from 'src/app/models/assignment';
+import { Assignment } from '../../models/classes/assignment';
 
 @Injectable({
   providedIn: 'root'

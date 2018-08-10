@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Durable } from 'src/app/models/durable';
-import { InfoService } from 'src/app/services/info/info.service';
-import { Globals } from 'src/app/globals';
+import { Durable } from '../../../../models/classes/durable';
+import { InfoService } from '../../../../services/info/info.service';
+import { Globals } from '../../../../globals';
 
 @Component({
   selector: 'add-durable',
