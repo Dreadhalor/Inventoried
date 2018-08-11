@@ -1,8 +1,9 @@
 import { Asset } from './asset';
 import { Globals } from '../../globals';
 import { IConsumable } from '../interfaces/IConsumable';
+import { MultiAssigned } from '../interfaces/MultiAssigned';
 
-export class Consumable extends Asset {
+export class Consumable extends Asset implements MultiAssigned {
 
   private _label: string = '';
   private _quantity: number = 0;
@@ -57,8 +58,6 @@ export class Consumable extends Asset {
   get assignmentIds(){ return this._assignmentIds; }
   set assignmentIds(val){ this._assignmentIds = val; }
 
-  get name(){ return `${this.label}`; }
-
   copy(): Consumable {
     let result = new Consumable({
       id: this.id,
@@ -74,11 +73,12 @@ export class Consumable extends Asset {
     return result;
   }
 
-  assign(assignmentId: string): void{
+  get name(){ return `${this.label}`; };
+  assign(assignmentId: string): void {
     if (!this.assignmentIds.includes(assignmentId))
       this.assignmentIds.push(assignmentId);
   }
-  unassign(assignmentId: string): void{
+  unassign(assignmentId: string): void {
     for (let i = this.assignmentIds.length; i >= 0; i--){
       if (this.assignmentIds[i] == assignmentId) this.assignmentIds.splice(i,1);
     }

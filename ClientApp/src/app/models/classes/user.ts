@@ -1,4 +1,6 @@
-export class User {
+import { MultiAssigned } from "../interfaces/MultiAssigned";
+
+export class User implements MultiAssigned {
 
   constructor(
     private _email: string,
@@ -11,6 +13,8 @@ export class User {
   set assignmentIds(val: any[]){
     this._assignmentIds = val;
   }
+
+  get name(){ return this.email; }
 
   assign(assignmentId){
     this.assignmentIds.push(assignmentId);

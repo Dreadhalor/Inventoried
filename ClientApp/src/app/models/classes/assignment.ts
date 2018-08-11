@@ -16,4 +16,14 @@ export class Assignment {
   get checkoutDate(){ return this._checkoutDate; }
   get dueDate(){ return this._dueDate; }
 
+  copy(){
+    return new Assignment(
+      this.id,
+      this.userId,
+      this.assetId,
+      this.checkoutDate,
+      this.dueDate
+    );
+  }
+
 }

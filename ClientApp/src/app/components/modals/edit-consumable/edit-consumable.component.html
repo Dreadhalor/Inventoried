@@ -126,7 +126,7 @@
     (click)="editButtonPressed()">
     Edit
   </button>
-  <button *ngIf="default && !consumable.available"
+  <button *ngIf="default"
     class="option-button"
     mat-stroked-button
     mat-dialog-close
@@ -134,11 +134,11 @@
     (click)="checkoutButtonPressed()">
     Check out
   </button>
-  <button *ngIf="default && consumable.available"
+  <button *ngIf="default"
     class="option-button"
     mat-stroked-button
     color="basic"
-    (click)="checkinButtonPressed()">
-    Check in
+    (click)="viewAssignmentsButtonPressed()">
+    View Assignments
   </button>
 </mat-dialog-actions>

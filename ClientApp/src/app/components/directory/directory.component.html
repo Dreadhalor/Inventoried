@@ -22,7 +22,7 @@
           <button *ngFor="let assignmentId of user.assignmentIds"
             type="button"
             class="btn btn-link btn-sm"
-            (click)="openEditDurable(assignments.getAsset(assignmentId))">
+            (click)="openEditAsset(assignments.getAssetFromAssignmentId(assignmentId))">
             {{assignments.getAssetText(assignmentId)}}
           </button>
         </td>

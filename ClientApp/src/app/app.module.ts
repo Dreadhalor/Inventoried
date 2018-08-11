@@ -37,6 +37,9 @@ import { CustomSelectComponent } from './components/utilities/custom-select/cust
 import { EditConsumableComponent } from './components/modals/edit-consumable/edit-consumable.component';
 import { ConsumableSelectComponent } from './components/utilities/consumable-select/consumable-select.component';
 import { AssetSelectComponent } from './components/utilities/asset-select/asset-select.component';
+import { EditAssignmentComponent } from './components/modals/edit-assignment/edit-assignment.component';
+import { ViewAssignmentsComponent } from './components/modals/view-assignments/view-assignments.component';
+import { EditAssignmentContentComponent } from './components/modals/edit-assignment/edit-assignment-content/edit-assignment-content.component';
 
 
 var routes: Routes = [
@@ -53,6 +56,8 @@ var routes: Routes = [
     EditDurableComponent,
     CheckoutComponent,
     EditConsumableComponent,
+    EditAssignmentComponent,
+    ViewAssignmentsComponent
   ],
   declarations: [
     AppComponent,
@@ -77,7 +82,10 @@ var routes: Routes = [
     CustomSelectComponent,
     EditConsumableComponent,
     ConsumableSelectComponent,
-    AssetSelectComponent
+    AssetSelectComponent,
+    EditAssignmentComponent,
+    ViewAssignmentsComponent,
+    EditAssignmentContentComponent
   ],
   imports: [
     BrowserModule,

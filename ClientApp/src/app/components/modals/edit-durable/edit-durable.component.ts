@@ -1,4 +1,4 @@
-import { ICheckoutData } from './../../../models/interfaces/ICheckoutData';
+import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
 import { AssignmentService } from '../../../services/assignment/assignment.service';
 import { InfoService } from '../../../services/info/info.service';
 import { Durable } from '../../../models/classes/durable';
@@ -7,6 +7,7 @@ import { AssetService } from '../../../services/asset/asset.service';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material';
 import { Globals } from '../../../globals';
 import { CheckoutComponent } from '../checkout/checkout.component';
+import { EditAssignmentComponent } from '../edit-assignment/edit-assignment.component';
 
 @Component({
   selector: 'edit-durable',
@@ -71,8 +72,16 @@ export class EditDurableComponent implements OnInit {
     Object.assign(options, {data: data});
     const dialogRef = this.dialog.open(CheckoutComponent, options);
   }
-  checkinButtonPressed(){
-    this.assignments.checkin(this.editedDurable.assignmentId);
+  openViewAssignment(){
+    let options = Globals.dialogConfig;
+    let data = {
+      id: this.durable.assignmentId
+    }
+    Object.assign(options, {data: data});
+    const dialogRef = this.dialog.open(EditAssignmentComponent, options);
+  }
+  viewAssignmentButtonPressed(){
+    this.openViewAssignment();
   }
 
   get default(){

@@ -1,0 +1,48 @@
+<mat-tab-group class="mat-dialog-title no-header"
+  [(selectedIndex)]="viewAssignmentTabIndex">
+  <mat-tab>
+weawwefawf
+  </mat-tab>
+  <mat-tab>
+    <button mat-stroked-button
+      color="basic"
+      (click)="goBack()">
+      Back
+    </button>
+    ddddddddddddd
+  </mat-tab>
+</mat-tab-group>
+<mat-dialog-content>
+  <mat-tab-group class="no-header w-100"
+    [(selectedIndex)]="viewAssignmentTabIndex">
+    <mat-tab>
+        <ul class="list-group w-100">
+          <li *ngFor="let assignmentId of multiassigned.assignmentIds"
+            class="list-group-item"
+            (click)="openViewAssignment(assignmentId)">
+            {{assignmentId}}
+          </li>
+        </ul>
+    </mat-tab>
+    <mat-tab>
+      <edit-assignment-content
+        [assignmentId]="assignmentId">
+      </edit-assignment-content>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions  align="end">
+  <mat-tab-group class="no-header mat-modal-no-margins w-100"
+    [(selectedIndex)]="viewAssignmentTabIndex">
+    <mat-tab>
+        
+    </mat-tab>
+    <mat-tab>
+      <button mat-stroked-button
+        color="basic"
+        (click)="checkinButtonPressed()">
+        Check in
+      </button>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-actions>

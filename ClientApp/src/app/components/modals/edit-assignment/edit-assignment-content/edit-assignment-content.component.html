@@ -1,0 +1,19 @@
+<ng-container *ngIf="assignmentId">
+  <div class="d-flex-row">
+    <p>
+      {{assets.getAsset(assignment.assetId).name}}
+    </p>
+    <p class="ml-auto">
+      {{assignment.userId}}
+    </p>
+  </div>
+  <div class="center-aligned-column">
+    <p>
+      From {{formatDate(assignment.checkoutDate,dateStringFormat,dayStringFormat)}}
+    </p>
+    <p>
+      to {{formatDate(assignment.dueDate,dateStringFormat,dayStringFormat)}}
+    </p>
+    <strong>Duration: {{getDuration(assignment.checkoutDate,assignment.dueDate)}} day(s)</strong>
+  </div>
+</ng-container>

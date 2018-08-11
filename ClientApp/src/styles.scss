@@ -28,6 +28,11 @@ html, body {
     display: none!important;
   }
 }
+.mat-modal-no-margins{
+  .mat-dialog-content {
+    margin: 0px!important;
+  }
+}
 
 .full-height {
   display: block;

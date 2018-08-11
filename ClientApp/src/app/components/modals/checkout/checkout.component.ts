@@ -1,4 +1,4 @@
-import { ICheckoutData } from './../../../models/interfaces/ICheckoutData';
+import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
 import { AssignmentService } from '../../../services/assignment/assignment.service';
 import { Component, OnInit, Inject } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
@@ -50,11 +50,13 @@ export class CheckoutComponent implements OnInit {
   checkoutButtonClicked(){
     let checkoutDate = this.from.format(this.dateStringFormat);
     let dueDate = this.to.format(this.dateStringFormat);
-    //this.assignments.createNewAssignmentAndCheckout(this.userId, this.durableId, checkoutDate, dueDate);
+    this.assetIds.forEach(
+      assetId => this.assignments.createNewAssignmentAndCheckout(this.userId, assetId, checkoutDate, dueDate)
+    )
   }
 
   readyToCheckout(){
-    //return this.pickedFromDate && this.pickedToDate && this.userId && this.durableId;
+    return this.pickedFromDate && this.pickedToDate && this.userId && this.assetIds.length > 0;
   }
 
 }

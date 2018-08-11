@@ -1,3 +1,4 @@
+import { ViewAssignmentsComponent } from '../view-assignments/view-assignments.component';
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material';
 import { CheckoutComponent } from '../checkout/checkout.component';
@@ -71,8 +72,16 @@ export class EditConsumableComponent implements OnInit {
     Object.assign(options, {data: data});
     const dialogRef = this.dialog.open(CheckoutComponent, options);
   }
-  checkinButtonPressed(){
-    //this.assignments.checkin(this.editedConsumable.assignmentId);
+  openViewAssignments(){
+    let options = Globals.dialogConfig;
+    let data = {
+      id: this.consumable.id
+    }
+    Object.assign(options, {data: data});
+    const dialogRef = this.dialog.open(ViewAssignmentsComponent, options);
+  }
+  viewAssignmentsButtonPressed(){
+    this.openViewAssignments();
   }
 
   get default(){
