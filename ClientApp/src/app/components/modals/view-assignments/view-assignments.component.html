@@ -1,7 +1,7 @@
 <mat-tab-group class="mat-dialog-title no-header"
   [(selectedIndex)]="viewAssignmentTabIndex">
   <mat-tab>
-weawwefawf
+    Assignments: {{multiassigned.name}}
   </mat-tab>
   <mat-tab>
     <button mat-stroked-button
@@ -20,7 +20,7 @@ weawwefawf
           <li *ngFor="let assignmentId of multiassigned.assignmentIds"
             class="list-group-item"
             (click)="openViewAssignment(assignmentId)">
-            {{assignmentId}}
+            {{singleassigned}}
           </li>
         </ul>
     </mat-tab>

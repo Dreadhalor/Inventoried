@@ -1,5 +1,6 @@
 import { IConsumable } from './models/interfaces/IConsumable';
 import { IDurable } from "./models/interfaces/IDurable";
+import { IAssignment } from './models/interfaces/IAssignment';
 
 export class Globals {
 
@@ -169,6 +170,65 @@ export class Globals {
       notes: '1 per workstation',
       assignmentIds: undefined,
       tagIds: ['1']
+    }
+  ]
+
+  public static initUsers = [
+    'test@test.com',
+    'ohboy@test.com',
+    'thisisreal@test.com',
+    'admin@test.com'
+  ]
+
+  public static initAssignments: IAssignment[] = [
+    {
+      id: '1',
+      userId: Globals.initUsers[0],
+      assetId: Globals.initConsumables[1].id,
+      checkoutDate: 'January 1st 2018',
+      dueDate: 'September 4th 2018'
+    },
+    {
+      id: '2',
+      userId: Globals.initUsers[1],
+      assetId: Globals.initConsumables[3].id,
+      checkoutDate: 'January 1st 2018',
+      dueDate: 'September 4th 2018'
+    },
+    {
+      id: '3',
+      userId: Globals.initUsers[3],
+      assetId: Globals.initConsumables[0].id,
+      checkoutDate: 'January 1st 2018',
+      dueDate: 'September 4th 2018'
+    },
+    {
+      id: '4',
+      userId: Globals.initUsers[2],
+      assetId: Globals.initDurables[0].id,
+      checkoutDate: 'January 1st 2018',
+      dueDate: 'September 4th 2018'
+    },
+    {
+      id: '5',
+      userId: Globals.initUsers[3],
+      assetId: Globals.initDurables[1].id,
+      checkoutDate: 'January 1st 2018',
+      dueDate: 'September 4th 2018'
+    },
+    {
+      id: '6',
+      userId: Globals.initUsers[3],
+      assetId: Globals.initConsumables[0].id,
+      checkoutDate: 'July 1st 2018',
+      dueDate: 'September 4th 2018'
+    },
+    {
+      id: '7',
+      userId: Globals.initUsers[1],
+      assetId: Globals.initConsumables[2].id,
+      checkoutDate: 'July 1st 2018',
+      dueDate: 'August 5th 2018'
     }
   ]
 }

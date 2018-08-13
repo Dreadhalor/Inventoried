@@ -3,21 +3,16 @@ import { UserService } from '../user/user.service';
 import { AssetService } from '../asset/asset.service';
 import { Injectable } from '@angular/core';
 import { Assignment } from '../../models/classes/assignment';
-import { Asset } from '../../models/classes/asset';
 import { Durable } from '../../models/classes/durable';
 import { Consumable } from '../../models/classes/consumable';
+import { Globals } from '../../globals';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AssignmentService {
 
-  public static initAssignments = [
-    'test@test.com',
-    'ohboy@test.com',
-    'thisisreal@test.com',
-    'admin@test.com'
-  ]
+  
 
   private _assignments: Assignment[] = [];
   get assignments(){ return this._assignments; }
@@ -27,28 +22,20 @@ export class AssignmentService {
     private assets: AssetService,
     private us: UserService
   ) {
-    AssignmentService.initAssignments.forEach((email, index) => this.assignments.push(
-      this.checkout(
-        new Assignment(
-          (index + 1).toString(),
-          email,
-          index + 1,
-          'August 3rd 2018',
-          'August 19th 2018'
-        )
-      )
-    ));
+    Globals.initAssignments.forEach(iassignment => {
+      this.checkout(new Assignment(iassignment));
+    })
   }
 
   createNewAssignmentAndCheckout(userId, assetId, checkoutDate, dueDate){
     this.checkout(
-      new Assignment(
-        undefined,
-        userId,
-        assetId,
-        checkoutDate,
-        dueDate
-      )
+      new Assignment({
+        id: undefined,
+        userId: userId,
+        assetId: assetId,
+        checkoutDate: checkoutDate,
+        dueDate: dueDate
+      })
     );
   }
   checkout(assignment: Assignment){

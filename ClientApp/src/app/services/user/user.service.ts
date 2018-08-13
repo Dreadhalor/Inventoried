@@ -1,18 +1,12 @@
 import { Injectable } from '@angular/core';
 import { User } from '../../models/classes/user';
 import { Assignment } from '../../models/classes/assignment';
+import { Globals } from '../../globals';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-
-  public static initUsers = [
-    'test@test.com',
-    'ohboy@test.com',
-    'thisisreal@test.com',
-    'admin@test.com'
-  ]
 
   private _users = [];
   get users(){ return this._users; }
@@ -21,7 +15,7 @@ export class UserService {
   pendingAssignments = [];
 
   constructor() {
-    UserService.initUsers.forEach(user => this.addUser(new User(user,undefined)));
+    Globals.initUsers.forEach(user => this.addUser(new User(user,undefined)));
   }
 
   addUser(user: User){
