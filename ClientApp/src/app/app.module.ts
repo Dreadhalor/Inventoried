@@ -102,9 +102,6 @@ var routes: Routes = [
     MaterialsModule, //Angular Material modules,
     NgSelectModule
   ],
-  providers: [
-    ModalDeploymentService
-  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
