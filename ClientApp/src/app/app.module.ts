@@ -18,7 +18,6 @@ import { EditDurableComponent } from './components/modals/edit-durable/edit-dura
 
 import { MaterialsModule } from './modules/materials.module';
 
-import { InfoService } from './services/info/info.service';
 import { BrowseDurablesComponent } from './components/browse-assets/browse-durables/browse-durables.component';
 import { BrowseConsumablesComponent } from './components/browse-assets/browse-consumables/browse-consumables.component';
 import { AddDurableComponent } from './components/modals/add-asset/add-durable/add-durable.component';
@@ -40,10 +39,6 @@ import { EditAssignmentComponent } from './components/modals/edit-assignment/edi
 import { ViewAssignmentsComponent } from './components/modals/view-assignments/view-assignments.component';
 import { EditAssignmentContentComponent } from './components/modals/edit-assignment/edit-assignment-content/edit-assignment-content.component';
 import { ButtonTightComponent } from './components/utilities/button-tight/button-tight.component';
-
-import { ModalService } from './services/modal/modal.service';
-import { AssignmentService } from './services/assignment/assignment.service';
-import { ModalDeploymentService } from './services/modal-deployment/modal-deployment.service';
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
