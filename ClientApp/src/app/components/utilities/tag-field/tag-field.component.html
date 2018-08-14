@@ -18,11 +18,11 @@
       (click)="showAutoComplete()">
   </mat-chip-list>
   <mat-autocomplete #auto="matAutocomplete"
-    autoActiveFirstOption
+    [panelWidth]="panelWidth"
     (optionSelected)="selected($event)">
 
     <ng-container *ngIf="!rowTitles">
-      <mat-option *ngFor="let item of filterNonMatches(filterDupes(dictionary),itemInput.value)"
+      <mat-option *ngFor="let item of filter(dictionary,itemInput.value)"
         [value]="item[bindValue]">
         {{item[bindLabel]}}
       </mat-option>
@@ -31,8 +31,9 @@
     <ng-container *ngIf="rowTitles">
       <mat-optgroup *ngFor="let row of dictionary; let i = index;"
         [label]="rowTitles[i]">
-        <mat-option *ngFor="let item of filterNonMatches(filterDupes(row),itemInput.value)"
-          [value]="item[bindValue]">
+        <mat-option *ngFor="let item of filter(row,itemInput.value)"
+          [value]="item[bindValue]"
+          [disabled]="!enabledItems(dictionary).includes(item)">
           {{item[bindLabel]}}
         </mat-option>
       </mat-optgroup>

@@ -21,9 +21,11 @@
   </mat-autocomplete>
 </mat-form-field-->
 
-<tag-field
+<tag-field [panelWidth]="panelWidth"
+  [enabledFxn]="filter"
   [dictionary]="allAssets"
   [rowTitles]="rowTitles"
+  [removeDupes]="false"
   bindLabel="name"
   bindValue="id"
   placeholder="Assets"

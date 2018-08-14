@@ -16,6 +16,10 @@ export class TagFieldComponent implements OnInit {
   @Input() bindValue;
   @Input() bindLabel;
   @Input() placeholder = 'Tags';
+  @Input() removeDupes = true;
+  @Input() panelWidth: string;
+  @Input() filterFxn;
+  @Input() enabledFxn;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   @ViewChild('itemInput') itemInput: ElementRef;
@@ -87,14 +91,33 @@ export class TagFieldComponent implements OnInit {
     }
   }
 
+  filter(dictionary: any[], filter: string){
+    let result = this.filterNonMatches(dictionary,filter);
+    if (this.removeDupes) result = this.filterDupes(result);
+    if (this.filterFxn) return this.filterCustom(result);
+    return result;
+  }
   filterDupes(dictionary: any[]){
-    return dictionary.filter(
-      item => !this.itemIds.find(match => match == item[this.bindValue])
-    );
+    if (!this.filterFxn){
+      return dictionary.filter(
+        item => !this.itemIds.find(match => match == item[this.bindValue])
+      );
+    } return dictionary;
+    
   }
   filterNonMatches(dictionary: any[], filter: string){
-    let lowercase = filter.toLowerCase();
-    return dictionary.filter(item => item[this.bindLabel].toLowerCase().includes(lowercase));
+      let lowercase = filter.toLowerCase();
+      return dictionary.filter(item => item[this.bindLabel].toLowerCase().includes(lowercase));
+  }
+  filterCustom(dictionary: any[]){
+    return this.filterFxn(dictionary,this.itemIds);
+  }
+  enabledItems(dictionary: any[]){
+    if (this.enabledFxn){
+      let result = this.enabledFxn(dictionary,this.itemIds);
+      return result;
+    }
+    return dictionary;
   }
   showAutoComplete(){
     this.trigger.openPanel();

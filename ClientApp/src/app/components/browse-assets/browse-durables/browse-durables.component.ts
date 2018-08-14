@@ -1,9 +1,9 @@
+import { MatDialog } from '@angular/material';
 import { Component, OnInit } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
-import { MatDialog } from '@angular/material';
 import { Durable } from '../../../models/classes/durable';
-import { Globals } from '../../../globals';
 import { EditDurableComponent } from '../../modals/edit-durable/edit-durable.component';
+import { Globals } from '../../../globals';
 
 @Component({
   selector: 'browse-durables',
@@ -22,8 +22,9 @@ export class BrowseDurablesComponent implements OnInit {
 
   openEditDurable(durable: Durable){
     let options = Globals.dialogConfig;
-    Object.assign(options,{data: durable});
-    const dialogRef = this.dialog.open(EditDurableComponent, options);
+    let data = {id: durable.id};
+    Object.assign(options, {data: data});
+    this.dialog.open(EditDurableComponent, options);
   }
 
 }

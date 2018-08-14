@@ -1,5 +1,6 @@
-import { ViewAssignmentsComponent } from '../view-assignments/view-assignments.component';
-import { Component, OnInit, Inject } from '@angular/core';
+import { SubjectService } from './../../../services/subject/subject.service';
+import { ViewAssignmentsComponent } from './../view-assignments/view-assignments.component';
+import { Component, OnInit, Inject, ViewChild, ElementRef, TemplateRef, OnDestroy } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material';
 import { CheckoutComponent } from '../checkout/checkout.component';
 import { Globals } from '../../../globals';
@@ -8,13 +9,14 @@ import { AssignmentService } from '../../../services/assignment/assignment.servi
 import { AssetService } from '../../../services/asset/asset.service';
 import { InfoService } from '../../../services/info/info.service';
 import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
+import { Subscriber, Subject, Subscription } from '../../../../../node_modules/rxjs';
 
 @Component({
   selector: 'edit-consumable',
   templateUrl: './edit-consumable.component.html',
   styleUrls: ['./edit-consumable.component.scss']
 })
-export class EditConsumableComponent implements OnInit {
+export class EditConsumableComponent implements OnInit, OnDestroy {
 
   consumable: Consumable;
   editedConsumable: Consumable;
@@ -24,7 +26,8 @@ export class EditConsumableComponent implements OnInit {
     private assets: AssetService,
     private assignments: AssignmentService,
     private dialog: MatDialog,
-    @Inject(MAT_DIALOG_DATA) private data: Consumable
+    private sb: SubjectService,
+    @Inject(MAT_DIALOG_DATA) private data: any
   ) {
     this.refreshConsumables(data.id);
   }
@@ -39,6 +42,9 @@ export class EditConsumableComponent implements OnInit {
 
   ngOnInit() {
   }
+  ngOnDestroy(){
+    //this.subscription.unsubscribe();
+  }
 
   save(){
     this.editedConsumable.repair();
@@ -50,17 +56,17 @@ export class EditConsumableComponent implements OnInit {
     if (this.consumable) this.editedConsumable = this.consumable.copy();
   }
 
-  editButtonPressed(){
+  editButtonClicked(){
     this.state = consumableModalState.editing;
   }
-  cancelButtonPressed(){
+  cancelButtonClicked(){
     this.state = consumableModalState.default;
   }
-  saveButtonPressed(){
+  saveButtonClicked(){
     this.save();
     this.state = consumableModalState.default;
   }
-  checkoutButtonPressed(){
+  checkoutButtonClicked(){
     this.openCheckout();
   }
   openCheckout(){
@@ -68,20 +74,25 @@ export class EditConsumableComponent implements OnInit {
     let data: ICheckoutData = {
       assetId: this.consumable.id,
       userId: null
-    }
+    };
     Object.assign(options, {data: data});
-    const dialogRef = this.dialog.open(CheckoutComponent, options);
+    this.dialog.open(CheckoutComponent, options);
   }
   openViewAssignments(){
     let options = Globals.dialogConfig;
-    let data = {
-      id: this.consumable.id
-    }
+    let data = {id: this.consumable.id};
     Object.assign(options, {data: data});
-    const dialogRef = this.dialog.open(ViewAssignmentsComponent, options);
+    this.dialog.open(ViewAssignmentsComponent, options);
   }
-  viewAssignmentsButtonPressed(){
+  viewAssignmentsButtonClicked(){
     this.openViewAssignments();
+  }
+
+  openSelf(){
+    let options = Globals.dialogConfig;
+    let data = this.consumable;
+    Object.assign(options, {data: data});
+    this.dialog.open(EditConsumableComponent, options);
   }
 
   get default(){
@@ -89,6 +100,10 @@ export class EditConsumableComponent implements OnInit {
   }
   get editing(){
     return this.state == consumableModalState.editing;
+  }
+
+  get validQuantity(){
+    return this.editedConsumable.quantity >= this.consumable.assignmentIds.length;
   }
 
 }

@@ -1,3 +1,5 @@
+import { CheckoutComponent } from './../checkout/checkout.component';
+import { EditAssignmentComponent } from './../edit-assignment/edit-assignment.component';
 import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
 import { AssignmentService } from '../../../services/assignment/assignment.service';
 import { InfoService } from '../../../services/info/info.service';
@@ -6,8 +8,6 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material';
 import { Globals } from '../../../globals';
-import { CheckoutComponent } from '../checkout/checkout.component';
-import { EditAssignmentComponent } from '../edit-assignment/edit-assignment.component';
 
 @Component({
   selector: 'edit-durable',
@@ -50,17 +50,17 @@ export class EditDurableComponent implements OnInit {
     if (this.durable) this.editedDurable = this.durable.copy();
   }
 
-  editButtonPressed(){
+  editButtonClicked(){
     this.state = durableModalState.editing;
   }
-  cancelButtonPressed(){
+  cancelButtonClicked(){
     this.state = durableModalState.default;
   }
-  saveButtonPressed(){
+  saveButtonClicked(){
     this.save();
     this.state = durableModalState.default;
   }
-  checkoutButtonPressed(){
+  checkoutButtonClicked(){
     this.openCheckout();
   }
   openCheckout(){
@@ -68,19 +68,17 @@ export class EditDurableComponent implements OnInit {
     let data: ICheckoutData = {
       assetId: this.durable.id,
       userId: null
-    }
+    };
     Object.assign(options, {data: data});
-    const dialogRef = this.dialog.open(CheckoutComponent, options);
+    this.dialog.open(CheckoutComponent, options);
   }
   openViewAssignment(){
     let options = Globals.dialogConfig;
-    let data = {
-      id: this.durable.assignmentId
-    }
+    let data = {id: this.durable.assignmentId};
     Object.assign(options, {data: data});
-    const dialogRef = this.dialog.open(EditAssignmentComponent, options);
+    this.dialog.open(EditAssignmentComponent, options);
   }
-  viewAssignmentButtonPressed(){
+  viewAssignmentButtonClicked(){
     this.openViewAssignment();
   }
 

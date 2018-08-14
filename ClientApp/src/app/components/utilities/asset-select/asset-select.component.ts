@@ -1,6 +1,9 @@
+import { Consumable } from './../../../models/classes/consumable';
 import { Asset } from '../../../models/classes/asset';
 import { Component, OnInit, EventEmitter, ElementRef, ViewChild, Input, Output } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
+import { Durable } from '../../../models/classes/durable';
+import { Globals } from '../../../globals';
 
 @Component({
   selector: 'asset-select',
@@ -11,6 +14,7 @@ export class AssetSelectComponent implements OnInit {
 
   @ViewChild('popoverContent') popoverContent: ElementRef;
 
+panelWidth = '275px';
   
   private _assetIds : string[];
   @Input() get assetIds() : string[] { return this._assetIds; }
@@ -24,14 +28,8 @@ export class AssetSelectComponent implements OnInit {
 
   @Input() shouldFilter = false;
 
-  get durables(){
-    return this.filterByAvailable(this.assets.durables);
-  }
-  get consumables(){
-    return this.filterByAvailable(this.assets.consumables);
-  }
   get allAssets(){
-    return [this.durables, this.consumables];
+    return [this.assets.durables, this.assets.consumables];
   }
   get rowTitles(){ return ['Durables','Consumables']; }
 
@@ -47,13 +45,16 @@ export class AssetSelectComponent implements OnInit {
     return null;
   }
 
-  filterByAvailable(toFilter: Asset[]){
-    //if (this.shouldFilter) return toFilter.filter(durable => !durable.available);
-    return toFilter;
-  }
-  filterNonMatches(dictionary: Asset[], filter: string){
-    let lowercase = filter.toLowerCase();
-    return dictionary.filter(asset => asset.name.toLowerCase().includes(lowercase));
+  filter(dictionary: Asset[][], selectedAssetIds: string[]){
+    let durables: Durable[] = dictionary[0] as Durable[];
+    let consumables: Consumable[] = dictionary[1] as Consumable[];
+    durables = durables.filter(match => !match.available);
+    durables = durables.filter(match => !selectedAssetIds.includes(match.id));
+    consumables = consumables.filter(
+      match => match.assignmentIds.length + Globals.countInArray(selectedAssetIds,match.id) < match.quantity
+    );
+    let result = (durables as Asset[]).concat(consumables as Asset[]);
+    return result;
   }
   
 }

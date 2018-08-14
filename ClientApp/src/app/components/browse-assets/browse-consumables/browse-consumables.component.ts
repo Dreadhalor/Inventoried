@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
+import { Component, OnInit } from '@angular/core';
 import { Consumable } from '../../../models/classes/consumable';
 import { AssetService } from '../../../services/asset/asset.service';
 import { Globals } from '../../../globals';
@@ -14,7 +14,7 @@ export class BrowseConsumablesComponent implements OnInit {
 
   constructor(
     private assets: AssetService,
-    public dialog: MatDialog
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -22,8 +22,9 @@ export class BrowseConsumablesComponent implements OnInit {
 
   openEditConsumable(consumable: Consumable){
     let options = Globals.dialogConfig;
-    Object.assign(options,{data: consumable});
-    const dialogRef = this.dialog.open(EditConsumableComponent, options);
+    let data = {id: consumable.id};
+    Object.assign(options, {data: data});
+    this.dialog.open(EditConsumableComponent, options);
   }
 
 }

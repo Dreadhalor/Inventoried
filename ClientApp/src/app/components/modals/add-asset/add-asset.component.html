@@ -27,7 +27,7 @@
     mat-stroked-button
     color="basic"
     mat-dialog-close
-    (click)="durableSubmitButtonPressed(durable)">
+    (click)="durableSubmitButtonClicked(durable)">
     <ng-container *ngIf="durable.serialNumbers.length <= 1">
       Add Durable
     </ng-container>
@@ -39,7 +39,7 @@
     mat-stroked-button
     color="basic"
     mat-dialog-close
-    (click)="consumableSubmitButtonPressed(consumable)">
+    (click)="consumableSubmitButtonClicked(consumable)">
     Add Consumable
   </button>
 </mat-dialog-actions>

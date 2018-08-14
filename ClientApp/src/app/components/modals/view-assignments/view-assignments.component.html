@@ -4,25 +4,25 @@
     Assignments: {{multiassigned.name}}
   </mat-tab>
   <mat-tab>
-    <button mat-stroked-button
-      color="basic"
-      (click)="goBack()">
-      Back
-    </button>
-    ddddddddddddd
+    <button-tight
+      (click)="goBack()"
+      iconClasses="fas fa-chevron-left">
+    </button-tight>
   </mat-tab>
 </mat-tab-group>
 <mat-dialog-content>
   <mat-tab-group class="no-header w-100"
     [(selectedIndex)]="viewAssignmentTabIndex">
     <mat-tab>
-        <ul class="list-group w-100">
+        <ul *ngIf="multiassigned.assignmentIds.length > 0; else noAssignments"
+          class="list-group w-100">
           <li *ngFor="let assignmentId of multiassigned.assignmentIds"
             class="list-group-item"
             (click)="openViewAssignment(assignmentId)">
-            {{singleassigned}}
+            {{getOther(assignmentId,multiassigned.id).name}}
           </li>
         </ul>
+        <ng-template #noAssignments>No assignments right now!</ng-template>
     </mat-tab>
     <mat-tab>
       <edit-assignment-content
@@ -35,12 +35,17 @@
   <mat-tab-group class="no-header mat-modal-no-margins w-100"
     [(selectedIndex)]="viewAssignmentTabIndex">
     <mat-tab>
-        
+      <button mat-stroked-button
+        color="basic"
+        mat-dialog-close
+        (click)="viewAssetButtonClicked()">
+        View Asset
+      </button>
     </mat-tab>
     <mat-tab>
       <button mat-stroked-button
         color="basic"
-        (click)="checkinButtonPressed()">
+        (click)="checkinButtonClicked()">
         Check in
       </button>
     </mat-tab>

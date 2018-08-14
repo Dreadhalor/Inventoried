@@ -31,28 +31,33 @@
   </ng-container>
   <ng-container *ngIf="editing">
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Label</mat-label>
       <input matInput
+        required
         spellcheck="false"
         placeholder="Label"
         [(ngModel)]="editedConsumable.label"
         name="labeTextfield">
-      <mat-hint>required</mat-hint>
     </mat-form-field>
 
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100"
+      [ngClass]="{
+        'mat-form-field-no-padding': validQuantity,
+        'mat-form-field-bottom-padding-only': !validQuantity
+      }">
       <mat-label>Quantity</mat-label>
       <input matInput
         type="number"
         placeholder="Quantity"
         [(ngModel)]="editedConsumable.quantity"
         name="quantityTextfield">
+        <mat-hint *ngIf="!validQuantity">{{consumable.assignmentIds.length}} are currently checked out; quantity cannot be set lower than that.</mat-hint>
     </mat-form-field>
 
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Category</mat-label>
       <mat-select placeholder="Category"
         [(ngModel)]="editedConsumable.categoryId"
@@ -66,7 +71,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Manufacturer</mat-label>
       <mat-select placeholder="Manufacturer"
         [(ngModel)]="editedConsumable.manufacturerId"
@@ -80,7 +85,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Notes</mat-label>
       <textarea matInput
         placeholder="Notes"
@@ -109,21 +114,21 @@
     class="option-button"
     mat-stroked-button
     color="basic"
-    (click)="cancelButtonPressed()">
+    (click)="cancelButtonClicked()">
     Cancel
   </button>
   <button *ngIf="editing"
     class="option-button"
     mat-stroked-button
     color="basic"
-    (click)="saveButtonPressed()">
+    (click)="saveButtonClicked()">
     Save changes
   </button>
   <button *ngIf="default"
     class="option-button"
     mat-stroked-button
     color="basic"
-    (click)="editButtonPressed()">
+    (click)="editButtonClicked()">
     Edit
   </button>
   <button *ngIf="default"
@@ -131,14 +136,15 @@
     mat-stroked-button
     mat-dialog-close
     color="basic"
-    (click)="checkoutButtonPressed()">
+    (click)="checkoutButtonClicked()">
     Check out
   </button>
   <button *ngIf="default"
     class="option-button"
     mat-stroked-button
     color="basic"
-    (click)="viewAssignmentsButtonPressed()">
+    mat-dialog-close
+    (click)="viewAssignmentsButtonClicked()">
     View Assignments
   </button>
 </mat-dialog-actions>

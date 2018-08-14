@@ -38,6 +38,16 @@ export class Globals {
     array = array.slice(0);
   }
 
+  public static countInArray(array, what) {
+    let count = 0;
+    for (let i = 0; i < array.length; i++) {
+        if (array[i] === what) {
+            count++;
+        }
+    }
+    return count;
+}
+
   public static deepCopy(obj) {
     var copy;
     // Handle the 3 simple types, and null or undefined

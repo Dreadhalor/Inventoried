@@ -28,18 +28,18 @@
   </ng-container>
   <ng-container *ngIf="editing">
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Serial Number</mat-label>
       <input matInput
+        required
         spellcheck="false"
         placeholder="Serial Number"
         [(ngModel)]="editedDurable.serialNumber"
         name="serialNumberTextfield">
-      <mat-hint>required</mat-hint>
     </mat-form-field>
 
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Category</mat-label>
       <mat-select placeholder="Category"
         [(ngModel)]="editedDurable.categoryId"
@@ -53,7 +53,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Manufacturer</mat-label>
       <mat-select placeholder="Manufacturer"
         [(ngModel)]="editedDurable.manufacturerId"
@@ -67,7 +67,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Notes</mat-label>
       <textarea matInput
         placeholder="Notes"
@@ -77,7 +77,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline"
-      class="w-100">
+      class="w-100 mat-form-field-no-padding">
       <mat-label>Active</mat-label>
       <mat-select placeholder="Active"
         [(ngModel)]="editedDurable.active"
@@ -111,21 +111,21 @@
     class="option-button"
     mat-stroked-button
     color="basic"
-    (click)="cancelButtonPressed()">
+    (click)="cancelButtonClicked()">
     Cancel
   </button>
   <button *ngIf="editing"
     class="option-button"
     mat-stroked-button
     color="basic"
-    (click)="saveButtonPressed()">
+    (click)="saveButtonClicked()">
     Save changes
   </button>
   <button *ngIf="default"
     class="option-button"
     mat-stroked-button
     color="basic"
-    (click)="editButtonPressed()">
+    (click)="editButtonClicked()">
     Edit
   </button>
   <button *ngIf="default && !durable.available"
@@ -133,7 +133,7 @@
     mat-stroked-button
     mat-dialog-close
     color="basic"
-    (click)="checkoutButtonPressed()">
+    (click)="checkoutButtonClicked()">
     Check out
   </button>
   <button *ngIf="default && durable.available"
@@ -141,7 +141,7 @@
     mat-stroked-button
     color="basic"
     mat-dialog-close
-    (click)="viewAssignmentButtonPressed()">
+    (click)="viewAssignmentButtonClicked()">
     View Assignment
   </button>
 </mat-dialog-actions>

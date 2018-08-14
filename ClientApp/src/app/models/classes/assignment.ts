@@ -30,6 +30,12 @@ export class Assignment {
   get dueDate(){ return this._dueDate; }
   set dueDate(v){ this._dueDate = v; }
 
+  getOther(maId: string){
+    if (this.userId == maId) return this.assetId;
+    if (this.assetId == maId) return this.userId;
+    return null;
+  }
+
   copy(){
     return new Assignment({
       id: this.id,

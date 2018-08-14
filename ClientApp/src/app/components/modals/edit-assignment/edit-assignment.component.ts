@@ -33,7 +33,7 @@ export class EditAssignmentComponent implements OnInit {
 
   ngOnInit(){}
 
-  checkinButtonPressed(){
+  checkinButtonClicked(){
     this.assignments.checkin(this.assignmentId);
   }
 
