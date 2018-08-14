@@ -2,13 +2,10 @@ import { Consumable } from '../../models/classes/consumable';
 import { AssignmentService } from '../../services/assignment/assignment.service';
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user/user.service';
-import { Globals } from '../../globals';
 import { Durable } from '../../models/classes/durable';
-import { MatDialog } from '@angular/material';
 import { AssetService } from '../../services/asset/asset.service';
-import { EditDurableComponent } from '../modals/edit-durable/edit-durable.component';
 import { Asset } from '../../models/classes/asset';
-import { EditConsumableComponent } from '../modals/edit-consumable/edit-consumable.component';
+import { ModalService } from '../../services/modal/modal.service';
 
 @Component({
   selector: 'directory',
@@ -21,7 +18,7 @@ export class DirectoryComponent implements OnInit {
     private us: UserService,
     private assets: AssetService,
     private assignments: AssignmentService,
-    private dialog: MatDialog
+    private ms: ModalService
   ) { }
 
   ngOnInit() {
@@ -33,14 +30,12 @@ export class DirectoryComponent implements OnInit {
   }
 
   openEditDurable(durable: Durable){
-    let options = Globals.dialogConfig;
-    Object.assign(options,{data: durable});
-    const dialogRef = this.dialog.open(EditDurableComponent, options);
+    let data = {id: durable.id};
+    this.ms.openEditDurable(data);
   }
   openEditConsumable(consumable: Consumable){
-    let options = Globals.dialogConfig;
-    Object.assign(options,{data: consumable});
-    const dialogRef = this.dialog.open(EditConsumableComponent, options);
+    let data = {id: consumable.id};
+    this.ms.openEditConsumable(data);
   }
 
 }

@@ -1,10 +1,8 @@
 import { InfoService } from '../../services/info/info.service';
-import { Globals } from '../../globals';
-import { AddAssetComponent } from '../modals/add-asset/add-asset.component';
 import { Component, OnInit } from '@angular/core';
 import { AssetService } from '../../services/asset/asset.service';
-import { MatDialog } from '@angular/material';
 import { AssignmentService } from '../../services/assignment/assignment.service';
+import { ModalService } from '../../services/modal/modal.service';
 
 @Component({
   selector: 'browse-assets',
@@ -17,14 +15,14 @@ export class BrowseAssetsComponent implements OnInit {
     private assets: AssetService,
     private is: InfoService,
     private assignments: AssignmentService,
-    private dialog: MatDialog
+    private ms: ModalService
   ) { }
 
   ngOnInit() {
   }
 
   openAddAsset(){
-    const dialogRef = this.dialog.open(AddAssetComponent, Globals.dialogConfig);
+    this.ms.openAddAsset();
   }
 
 }

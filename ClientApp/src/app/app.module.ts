@@ -1,4 +1,3 @@
-import { SubjectService } from './services/subject/subject.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
@@ -44,7 +43,7 @@ import { ButtonTightComponent } from './components/utilities/button-tight/button
 
 import { ModalService } from './services/modal/modal.service';
 import { AssignmentService } from './services/assignment/assignment.service';
-
+import { ModalDeploymentService } from './services/modal-deployment/modal-deployment.service';
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
@@ -104,10 +103,7 @@ var routes: Routes = [
     NgSelectModule
   ],
   providers: [
-    InfoService,
-    AssignmentService,
-    SubjectService,
-    ModalService
+    ModalDeploymentService
   ],
   bootstrap: [AppComponent]
 })

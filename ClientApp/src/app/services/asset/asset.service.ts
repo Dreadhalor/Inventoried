@@ -1,4 +1,3 @@
-import { MatDialog } from '@angular/material';
 import { Asset } from '../../models/classes/asset';
 import { Globals } from '../../globals';
 import { Assignment } from '../../models/classes/assignment';
@@ -31,8 +30,7 @@ export class AssetService {
   pendingAssignments = [];
 
   constructor(
-    private infoService: InfoService,
-    private dialog: MatDialog
+    private infoService: InfoService
   ) {
     Globals.initDurables.forEach(idurable => {
       this.addDurable(new Durable(idurable));

@@ -6,6 +6,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MAT_DIALOG_DATA } from '@angular/material';
 
 import * as moment from 'moment';
+import { ModalService } from '../../../services/modal/modal.service';
 
 @Component({
   selector: 'checkout',
@@ -31,8 +32,10 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private assets: AssetService,
     private assignments: AssignmentService,
+    private ms: ModalService,
     @Inject(MAT_DIALOG_DATA) private data: ICheckoutData
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     if (this.data.userId) this.userId = this.data.userId;

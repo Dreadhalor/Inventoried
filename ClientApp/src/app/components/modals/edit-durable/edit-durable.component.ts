@@ -1,13 +1,11 @@
-import { CheckoutComponent } from './../checkout/checkout.component';
-import { EditAssignmentComponent } from './../edit-assignment/edit-assignment.component';
 import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
 import { AssignmentService } from '../../../services/assignment/assignment.service';
 import { InfoService } from '../../../services/info/info.service';
 import { Durable } from '../../../models/classes/durable';
 import { Component, OnInit, Inject } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material';
-import { Globals } from '../../../globals';
+import { MAT_DIALOG_DATA } from '@angular/material';
+import { ModalService } from '../../../services/modal/modal.service';
 
 @Component({
   selector: 'edit-durable',
@@ -23,8 +21,8 @@ export class EditDurableComponent implements OnInit {
     private is: InfoService,
     private assets: AssetService,
     private assignments: AssignmentService,
-    private dialog: MatDialog,
-    @Inject(MAT_DIALOG_DATA) private data: Durable
+    private ms: ModalService,
+    @Inject(MAT_DIALOG_DATA) private data: any
   ) {
     this.refreshDurables(data.id);
   }
@@ -64,19 +62,15 @@ export class EditDurableComponent implements OnInit {
     this.openCheckout();
   }
   openCheckout(){
-    let options = Globals.dialogConfig;
     let data: ICheckoutData = {
       assetId: this.durable.id,
       userId: null
     };
-    Object.assign(options, {data: data});
-    this.dialog.open(CheckoutComponent, options);
+    this.ms.openCheckout(data);
   }
   openViewAssignment(){
-    let options = Globals.dialogConfig;
     let data = {id: this.durable.assignmentId};
-    Object.assign(options, {data: data});
-    this.dialog.open(EditAssignmentComponent, options);
+    this.ms.openEditAssignment(data);
   }
   viewAssignmentButtonClicked(){
     this.openViewAssignment();

@@ -1,22 +1,18 @@
-import { SubjectService } from './../../../services/subject/subject.service';
-import { ViewAssignmentsComponent } from './../view-assignments/view-assignments.component';
-import { Component, OnInit, Inject, ViewChild, ElementRef, TemplateRef, OnDestroy } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material';
-import { CheckoutComponent } from '../checkout/checkout.component';
-import { Globals } from '../../../globals';
+import { Component, OnInit, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material';
 import { Consumable } from '../../../models/classes/consumable';
 import { AssignmentService } from '../../../services/assignment/assignment.service';
 import { AssetService } from '../../../services/asset/asset.service';
 import { InfoService } from '../../../services/info/info.service';
 import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
-import { Subscriber, Subject, Subscription } from '../../../../../node_modules/rxjs';
+import { ModalService } from '../../../services/modal/modal.service';
 
 @Component({
   selector: 'edit-consumable',
   templateUrl: './edit-consumable.component.html',
   styleUrls: ['./edit-consumable.component.scss']
 })
-export class EditConsumableComponent implements OnInit, OnDestroy {
+export class EditConsumableComponent implements OnInit {
 
   consumable: Consumable;
   editedConsumable: Consumable;
@@ -25,8 +21,7 @@ export class EditConsumableComponent implements OnInit, OnDestroy {
     private is: InfoService,
     private assets: AssetService,
     private assignments: AssignmentService,
-    private dialog: MatDialog,
-    private sb: SubjectService,
+    private ms: ModalService,
     @Inject(MAT_DIALOG_DATA) private data: any
   ) {
     this.refreshConsumables(data.id);
@@ -41,9 +36,6 @@ export class EditConsumableComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-  }
-  ngOnDestroy(){
-    //this.subscription.unsubscribe();
   }
 
   save(){
@@ -70,29 +62,20 @@ export class EditConsumableComponent implements OnInit, OnDestroy {
     this.openCheckout();
   }
   openCheckout(){
-    let options = Globals.dialogConfig;
     let data: ICheckoutData = {
       assetId: this.consumable.id,
       userId: null
     };
-    Object.assign(options, {data: data});
-    this.dialog.open(CheckoutComponent, options);
+    this.ms.openCheckout(data);
   }
   openViewAssignments(){
-    let options = Globals.dialogConfig;
-    let data = {id: this.consumable.id};
-    Object.assign(options, {data: data});
-    this.dialog.open(ViewAssignmentsComponent, options);
+    let data = {
+      id: this.consumable.id
+    };
+    this.ms.openViewAssignments(data);
   }
   viewAssignmentsButtonClicked(){
     this.openViewAssignments();
-  }
-
-  openSelf(){
-    let options = Globals.dialogConfig;
-    let data = this.consumable;
-    Object.assign(options, {data: data});
-    this.dialog.open(EditConsumableComponent, options);
   }
 
   get default(){

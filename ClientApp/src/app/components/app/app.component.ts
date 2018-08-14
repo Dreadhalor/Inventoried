@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ModalDeploymentService } from '../../services/modal-deployment/modal-deployment.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  
   title = 'app';
+
+  constructor(
+    private mds: ModalDeploymentService
+  ){}
 }

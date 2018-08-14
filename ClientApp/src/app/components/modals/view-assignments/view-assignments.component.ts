@@ -4,10 +4,8 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { InfoService } from '../../../services/info/info.service';
 import { AssetService } from '../../../services/asset/asset.service';
 import { AssignmentService } from '../../../services/assignment/assignment.service';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material';
-import { EditAssignmentComponent } from '../edit-assignment/edit-assignment.component';
-import { Globals } from '../../../globals';
-import { SubjectService } from '../../../services/subject/subject.service';
+import { MAT_DIALOG_DATA } from '@angular/material';
+import { ModalService } from '../../../services/modal/modal.service';
 
 @Component({
   selector: 'view-assignments',
@@ -25,8 +23,7 @@ export class ViewAssignmentsComponent implements OnInit {
     private is: InfoService,
     private assets: AssetService,
     private assignments: AssignmentService,
-    private dialog: MatDialog,
-    private sb: SubjectService,
+    private ms: ModalService,
     @Inject(MAT_DIALOG_DATA) private data
   ) {
     this.refreshMultiAssigned(data.id);
@@ -56,8 +53,10 @@ export class ViewAssignmentsComponent implements OnInit {
     this.goBack();
   }
   viewAssetButtonClicked(){
-    let id = this.multiassigned.id;
-    this.sb.viewAsset.next(id);
+    let data = {
+      id: this.multiassigned.id
+    };
+    this.ms.openEditConsumable(data);
   }
 
   goBack(){ this.viewAssignmentTabIndex = 0; }

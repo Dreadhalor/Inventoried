@@ -1,9 +1,7 @@
-import { MatDialog } from '@angular/material';
 import { Component, OnInit } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
 import { Durable } from '../../../models/classes/durable';
-import { EditDurableComponent } from '../../modals/edit-durable/edit-durable.component';
-import { Globals } from '../../../globals';
+import { ModalService } from '../../../services/modal/modal.service';
 
 @Component({
   selector: 'browse-durables',
@@ -14,17 +12,15 @@ export class BrowseDurablesComponent implements OnInit {
 
   constructor(
     private assets: AssetService,
-    private dialog: MatDialog
+    private ms: ModalService
   ) { }
 
   ngOnInit() {
   }
 
   openEditDurable(durable: Durable){
-    let options = Globals.dialogConfig;
     let data = {id: durable.id};
-    Object.assign(options, {data: data});
-    this.dialog.open(EditDurableComponent, options);
+    this.ms.openEditDurable(data);
   }
 
 }
