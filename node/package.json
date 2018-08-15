@@ -1,0 +1,38 @@
+{
+  "name": "inventoried",
+  "version": "1.0.0",
+  "description": "Inventory tracking application",
+  "main": "../dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "watch-ts": "tsc -w",
+    "watch-node": "nodemon dist/server.js",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript, Node\" -c \"yello.bold, cyan.bold\" \"yarn run watch-ts\" \"yarn run watch-node\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dreadhalor/Inventoried.git"
+  },
+  "author": "Scott Hetrick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dreadhalor/Inventoried/issues"
+  },
+  "homepage": "https://github.com/Dreadhalor/Inventoried#readme",
+  "dependencies": {
+    "@types/cors": "^2.8.4",
+    "@types/passport": "^0.4.6",
+    "activedirectory2": "^1.2.6",
+    "cors": "^2.8.4",
+    "mssql": "^4.1.0",
+    "passport-windowsauth": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.0",
+    "concurrently": "^3.6.1",
+    "express": "^4.16.3",
+    "typescript": "^3.0.1",
+    "yarn": "^1.9.4"
+  }
+}
