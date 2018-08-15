@@ -17,7 +17,7 @@
         <ul *ngIf="multiassigned.assignmentIds.length > 0; else noAssignments"
           class="list-group w-100">
           <li *ngFor="let assignmentId of multiassigned.assignmentIds"
-            class="list-group-item"
+            class="list-group-item list-group-item-action"
             (click)="openViewAssignment(assignmentId)">
             {{getOther(assignmentId,multiassigned.id).name}}
           </li>
