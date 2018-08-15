@@ -20,8 +20,10 @@ const config = {
     baseDN: 'dc=la-archdiocese,dc=org',
     username: 'scott.hetrick@la-archdiocese.org',
     password: 'abc#123',
+    entryParser: formatGUIDParser,
     attributes: {
         user: [
+            'objectGUID',
             'departmentnumber',
             'title',
             'givenName',
@@ -135,6 +137,16 @@ app.post('/test2', (req, res) => __awaiter(this, void 0, void 0, function* () {
         }
     });
 }));
+app.get('/getAllUsers', (req, res) => __awaiter(this, void 0, void 0, function* () {
+    ad.findUsers('', (err, users) => {
+        if (err)
+            return res.send('ERROR: ' + JSON.stringify(err));
+        if ((!users) || (users.length == 0))
+            return res.send('No users found.');
+        return res.json(users.map(user => formatLDAPData(user)));
+        //return res.json(users);
+    });
+}));
 app.get('*', (req, res) => {
     res.send('hello');
 });
@@ -143,6 +155,7 @@ app.listen(port, () => {
 });
 function formatLDAPData(data) {
     var result = {
+        id: data.objectGUID,
         title: '',
         location_id: formatForEmptyString(data.departmentnumber),
         job_title: formatForEmptyString(data.title),
@@ -150,12 +163,11 @@ function formatLDAPData(data) {
         middle_name: formatForEmptyString(data.initials),
         last_name: formatForEmptyString(data.sn),
         user_name: formatForEmptyString(data.sAMAccountName),
-        domain: 'la-archdiocese.org',
+        //domain: 'la-archdiocese.org',// 8
         dep_name: formatForEmptyString(data.department),
         manager_name: formatManagerName(data.manager),
         full_name: formatForEmptyString(data.cn),
         phone: formatForEmptyString(data.telephonenumber),
-        ismanager: formatIsManager(data.distinguishedName),
         directreports: formatForEmptyNum(data.directreports),
         email: formatForEmptyString(data.mail),
         distinguished_name: formatForEmptyString(data.distinguishedName)
@@ -163,7 +175,7 @@ function formatLDAPData(data) {
     return result;
 }
 function formatForEmptyString(value) {
-    return (value) ? value : '';
+    return (value) ? value.trim() : '';
 }
 function formatForEmptyNum(value) {
     return (value) ? value.length : 0;
@@ -174,19 +186,27 @@ function formatManagerName(manager) {
     }
     return '';
 }
-function formatIsManager(distinguishedName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var query = 'manager=' + distinguishedName;
-        yield ad.findGroups(query, (err, groups) => {
-            if (err)
-                return 'ERROR: ' + JSON.stringify(err);
-            if ((!groups) || (groups.length == 0))
-                return 'No groups found.';
-            else {
-                console.log(groups);
-                return groups;
-            }
+function formatGUIDParser(entry, raw, callback) {
+    if (raw.hasOwnProperty('objectGUID')) {
+        let guidRaw = raw.objectGUID;
+        let parts = [
+            guidRaw.slice(0, 4).reverse(),
+            guidRaw.slice(4, 6).reverse(),
+            guidRaw.slice(6, 8).reverse(),
+            guidRaw.slice(8, 10),
+            guidRaw.slice(10, 16)
+        ];
+        let result = parts.map(part => {
+            let mapped = '';
+            part.forEach(byte => {
+                let padded = '00' + byte.toString(16);
+                let trimmed = padded.substring(padded.length - 2);
+                mapped += trimmed;
+            });
+            return mapped;
         });
-    });
+        entry.objectGUID = result.join('-');
+    }
+    callback(entry);
 }
 //# sourceMappingURL=index.js.map

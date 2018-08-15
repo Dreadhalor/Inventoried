@@ -12,8 +12,10 @@ const config = {
   baseDN: 'dc=la-archdiocese,dc=org',
   username: 'scott.hetrick@la-archdiocese.org',
   password: 'abc#123',
+  entryParser: formatGUIDParser,
   attributes: {
     user: [
+      'objectGUID',
       'departmentnumber', // 2
       'title', // 3
       'givenName', // 4
@@ -78,10 +80,10 @@ passport.use(new WindowsStrategy({
 
 app.post('/login',
   passport.authenticate('WindowsAuthentication', {session: false}),
-  (req: any, res: any) => { res.json({user: req.user}); }
+  (req, res) => { res.json({user: req.user}); }
 );
 
-app.post('/login2', (req: any, res: any) => {
+app.post('/login2', (req, res) => {
   var username = req.body.username;
   var password = req.body.password;
   
@@ -93,7 +95,7 @@ app.post('/login2', (req: any, res: any) => {
     return res.json({authorized: auth});
   });*/
   // Find user by a sAMAccountName
-  ad.findUser(username, (err: any, user: any) => {
+  ad.findUser(username, (err, user) => {
     if (err) return res.send('ERROR: ' +JSON.stringify(err));
     if (!user) return res.send('User: ' + username + ' not found.');
     res.json(formatLDAPData(user));
@@ -131,13 +133,23 @@ app.post('/test2', async (req, res) => {
 
   ad.findGroups(query, (err: any, groups: any) => {
     if (err) {
-      return  res.send('ERROR: ' +JSON.stringify(err));
+      return  res.send('ERROR: ' + JSON.stringify(err));
     }
 
     if ((! groups) || (groups.length == 0)) res.send('No groups found.');
     else {
       res.json(groups);
     }
+  });
+});
+
+
+app.get('/getAllUsers', async (req, res) => {
+  ad.findUsers('',(err, users) => {
+    if (err) return res.send('ERROR: ' + JSON.stringify(err));
+    if ((!users) || (users.length == 0)) return res.send('No users found.');
+    return res.json(users.map(user => formatLDAPData(user)));
+    //return res.json(users);
   });
 });
 
@@ -152,6 +164,7 @@ app.listen(port, () => {
 
 function formatLDAPData(data: any){
   var result = {
+    id: data.objectGUID,
     title: '', // 1
     location_id: formatForEmptyString(data.departmentnumber), // 2
     job_title: formatForEmptyString(data.title),// 3
@@ -159,12 +172,11 @@ function formatLDAPData(data: any){
     middle_name: formatForEmptyString(data.initials),// 5
     last_name: formatForEmptyString(data.sn),// 6
     user_name: formatForEmptyString(data.sAMAccountName),// 7
-    domain: 'la-archdiocese.org',// 8
+    //domain: 'la-archdiocese.org',// 8
     dep_name: formatForEmptyString(data.department),// 9
     manager_name: formatManagerName(data.manager),// 10
     full_name: formatForEmptyString(data.cn),// 11
     phone: formatForEmptyString(data.telephonenumber),// 12
-    ismanager: formatIsManager(data.distinguishedName),//13
     directreports: formatForEmptyNum(data.directreports), //14
     email: formatForEmptyString(data.mail),
     distinguished_name: formatForEmptyString(data.distinguishedName)
@@ -172,8 +184,8 @@ function formatLDAPData(data: any){
   return result;
 }
 
-function formatForEmptyString(value: any): string{
-  return (value) ? value : '';
+function formatForEmptyString(value: string): string{
+  return (value) ? value.trim() : '';
 }
 function formatForEmptyNum(value: any[]): number{
   return (value) ? value.length : 0;
@@ -184,15 +196,27 @@ function formatManagerName(manager: string){
   }
   return '';
 }
-async function formatIsManager(distinguishedName: string){
-  var query = 'manager=' + distinguishedName;
 
-  await ad.findGroups(query, (err: any, groups: any) => {
-    if (err) return 'ERROR: ' + JSON.stringify(err);
-    if ((!groups) || (groups.length == 0)) return 'No groups found.';
-    else {
-      console.log(groups);
-      return groups;
-    }
-  });
+function formatGUIDParser(entry, raw, callback){
+  if (raw.hasOwnProperty('objectGUID')){
+    let guidRaw = raw.objectGUID as number[];
+    let parts = [
+      guidRaw.slice(0,4).reverse(),
+      guidRaw.slice(4,6).reverse(),
+      guidRaw.slice(6,8).reverse(),
+      guidRaw.slice(8,10),
+      guidRaw.slice(10,16)
+    ];
+    let result = parts.map(part => {
+      let mapped = '';
+      part.forEach(byte => {
+        let padded = '00' + byte.toString(16);
+        let trimmed = padded.substring(padded.length - 2);
+        mapped += trimmed;
+      });
+      return mapped;
+    })
+    entry.objectGUID = result.join('-');
+  }
+  callback(entry);
 }

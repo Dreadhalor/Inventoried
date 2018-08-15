@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from '../../models/classes/user';
 import { Assignment } from '../../models/classes/assignment';
@@ -14,8 +15,18 @@ export class UserService {
 
   pendingAssignments = [];
 
-  constructor() {
-    Globals.initUsers.forEach(user => this.addUser(new User(user,undefined)));
+  constructor(
+    private http: HttpClient
+  ) {
+    //Globals.initUsers.forEach(user => this.addUser(new User(user,undefined)));
+    this.getAllUsers();
+  }
+
+  getAllUsers(){
+    console.log('dsfe');
+    this.http.get(Globals.request_prefix + 'getAllUsers').subscribe(
+      (users: any) => users.forEach(user => this.addUser(new User(user.id,user.email,user.full_name,undefined)))
+    )
   }
 
   addUser(user: User){
@@ -24,6 +35,7 @@ export class UserService {
       user.assign(this.pendingAssignments[assignmentIndex].id);
       this.pendingAssignments.splice(assignmentIndex,1);
     }
+    if (!user.fullName) console.log(user.id);
     this.users.push(user);
   }
 
