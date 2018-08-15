@@ -2,12 +2,12 @@
   "name": "inventoried",
   "version": "1.0.0",
   "description": "Inventory tracking application",
-  "main": "../dist/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "watch-ts": "tsc -w",
-    "watch-node": "nodemon dist/server.js",
+    "watch-node": "nodemon dist/index.js",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript, Node\" -c \"yello.bold, cyan.bold\" \"yarn run watch-ts\" \"yarn run watch-node\""
   },
   "repository": {
