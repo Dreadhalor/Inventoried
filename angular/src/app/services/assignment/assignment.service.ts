@@ -22,9 +22,9 @@ export class AssignmentService {
     private assets: AssetService,
     private us: UserService
   ) {
-    Globals.initAssignments.forEach(iassignment => {
-      this.checkout(new Assignment(iassignment));
-    })
+    //Globals.initAssignments.forEach(iassignment => {
+    //  this.checkout(new Assignment(iassignment));
+    //})
   }
 
   createNewAssignmentAndCheckout(userId, assetId, checkoutDate, dueDate){

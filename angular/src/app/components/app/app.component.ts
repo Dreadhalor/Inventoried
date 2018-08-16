@@ -1,3 +1,4 @@
+import { UserService } from './../../services/user/user.service';
 import { Component } from '@angular/core';
 import { ModalDeploymentService } from '../../services/modal-deployment/modal-deployment.service';
 

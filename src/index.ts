@@ -4,36 +4,17 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as passport from 'passport';
 
-const sql = require('mssql')
+const config = require('./config');
+const sql = require('mssql/msnodesqlv8')
 const WindowsStrategy = require('passport-windowsauth');
 const ActiveDirectory = require('activedirectory2');
-const config = {
-  url: 'ldap://la-archdiocese.org',
-  baseDN: 'dc=la-archdiocese,dc=org',
-  username: 'scott.hetrick@la-archdiocese.org',
-  password: 'abc#123',
-  entryParser: formatGUIDParser,
-  attributes: {
-    user: [
-      'objectGUID',
-      'departmentnumber', // 2
-      'title', // 3
-      'givenName', // 4
-      'initials', // 5
-      'sn', // 6
-      'sAMAccountName', // 7
-      'department', // 9
-      'manager', // 10
-      'cn', // 11
-      'telephonenumber', //12,
-      'distinguishedName', // 12.5
-      'directreports', //14
-      'mail'
-    ]
+const pool = new sql.ConnectionPool(config.mssql,
+  (err: any) => {
+    //Error handling goes here
   }
-}
+);
 const router = express.Router();
-const ad = new ActiveDirectory(config);
+const ad = new ActiveDirectory(config.activedirectory2);
 
 const port = 5000;
 const app = express();
@@ -105,23 +86,35 @@ app.post('/login2', (req, res) => {
 app.post('/test', async (req, res) => {
   let value = '3';
   try {
-      //const pool = await sql.connect('Server=localhost\\SQLEXPRESS;Database=Vega;Trusted_Connection=True;');
-      const pool = new sql.ConnectionPool({
-        user: 'scott.hetrick@la-archdiocese.org',
-        password: 'abc#123',
-        server: 'localhost\\SQLEXPRESS',
-        database: 'master',
-        options: {
-          encrypt: false
-        }
-      });
-      pool.connect((err: any) => {
-        return res.send(err);
+      
+      const transaction = new sql.Transaction(pool);
+      transaction.begin(err => {
+        // ... error checks
+        console.log('begin err:');
+        console.log(err);
+        const request = new sql.Request(transaction)
+        request.query('insert into testTable (testField) values (333)', (err, result) => {
+          if (err){
+            console.log('insert error');
+            res.send(err);
+          } else {
+            console.log('result:');
+            console.log(result);
+            transaction.commit(err => {
+              if (err){
+                console.log('commit error');
+                res.send(err);
+              }
+              else res.send('success!');
+            })
+          }
+        })
       })
-      return res.send(pool);
-      /*const result = await sql.query`select * from mytable where id = ${value}`
-      res.send(result);*/
+
+
   } catch (err) {
+    console.log('catch error');
+    console.log(err);
     res.send(err);
       // ... error checks
   }
@@ -195,28 +188,4 @@ function formatManagerName(manager: string){
     return manager.substring(manager.indexOf('=') + 1, manager.indexOf(','));
   }
   return '';
-}
-
-function formatGUIDParser(entry, raw, callback){
-  if (raw.hasOwnProperty('objectGUID')){
-    let guidRaw = raw.objectGUID as number[];
-    let parts = [
-      guidRaw.slice(0,4).reverse(),
-      guidRaw.slice(4,6).reverse(),
-      guidRaw.slice(6,8).reverse(),
-      guidRaw.slice(8,10),
-      guidRaw.slice(10,16)
-    ];
-    let result = parts.map(part => {
-      let mapped = '';
-      part.forEach(byte => {
-        let padded = '00' + byte.toString(16);
-        let trimmed = padded.substring(padded.length - 2);
-        mapped += trimmed;
-      });
-      return mapped;
-    })
-    entry.objectGUID = result.join('-');
-  }
-  callback(entry);
 }

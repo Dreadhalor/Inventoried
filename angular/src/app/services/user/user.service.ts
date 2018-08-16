@@ -23,7 +23,6 @@ export class UserService {
   }
 
   getAllUsers(){
-    console.log('dsfe');
     this.http.get(Globals.request_prefix + 'getAllUsers').subscribe(
       (users: any) => users.forEach(user => this.addUser(new User(user.id,user.email,user.full_name,undefined)))
     )
@@ -35,7 +34,6 @@ export class UserService {
       user.assign(this.pendingAssignments[assignmentIndex].id);
       this.pendingAssignments.splice(assignmentIndex,1);
     }
-    if (!user.fullName) console.log(user.id);
     this.users.push(user);
   }
 

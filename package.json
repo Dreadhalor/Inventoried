@@ -25,6 +25,7 @@
     "@types/passport": "^0.4.6",
     "activedirectory2": "^1.2.6",
     "cors": "^2.8.4",
+    "msnodesqlv8": "^0.6.8",
     "mssql": "^4.1.0",
     "passport-windowsauth": "^3.0.1",
     "uuid": "^3.3.2"

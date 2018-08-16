@@ -6,6 +6,7 @@ import { Durable } from '../../models/classes/durable';
 import { AssetService } from '../../services/asset/asset.service';
 import { Asset } from '../../models/classes/asset';
 import { ModalService } from '../../services/modal/modal.service';
+import { MatTableDataSource } from '@angular/material';
 
 @Component({
   selector: 'directory',
@@ -13,6 +14,9 @@ import { ModalService } from '../../services/modal/modal.service';
   styleUrls: ['./directory.component.scss']
 })
 export class DirectoryComponent implements OnInit {
+
+  displayedColumns: string[] = ['id', 'fullName', 'email', 'assignments'];
+  dataSource = new MatTableDataSource(this.us.users);
 
   constructor(
     private us: UserService,
