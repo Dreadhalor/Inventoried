@@ -1,4 +1,51 @@
-<table class="table table-striped table-hover">
+<table mat-table [dataSource]="dataSource" class="w-100">
+
+  <ng-container matColumnDef="label">
+    <th mat-header-cell *matHeaderCellDef> Label </th>
+    <td mat-cell *matCellDef="let consumable"> {{consumable.label}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="category">
+    <th mat-header-cell *matHeaderCellDef> Category </th>
+    <td mat-cell *matCellDef="let consumable"> {{consumable.categoryVal}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="manufacturer">
+    <th mat-header-cell *matHeaderCellDef> Manufacturer </th>
+    <td mat-cell *matCellDef="let consumable"> {{consumable.manufacturerVal}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="notes">
+    <th mat-header-cell *matHeaderCellDef> Notes </th>
+    <td mat-cell *matCellDef="let consumable"> {{consumable.notes}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="tags">
+    <th mat-header-cell *matHeaderCellDef> Tags </th>
+    <td mat-cell *matCellDef="let consumable">
+      <div *ngFor="let tag of consumable.tags">
+        {{tag.value}}
+      </div>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="checkedOut">
+    <th mat-header-cell *matHeaderCellDef> Checked Out </th>
+    <td mat-cell *matCellDef="let consumable"> {{consumable.checkedOut}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="owned">
+    <th mat-header-cell *matHeaderCellDef> Owned </th>
+    <td mat-cell *matCellDef="let consumable"> {{consumable.quantity}} </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+    (click)="openEditConsumable(row)"></tr>
+
+</table>
+
+<!--table class="table table-striped table-hover">
   <thead>
     <th scope="col">
       Label
@@ -50,4 +97,4 @@
       </td>
     </tr>
   </tbody>
-</table>
+</table-->

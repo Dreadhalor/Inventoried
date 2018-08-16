@@ -25,6 +25,9 @@ $border: solid 1px $border-color;
 
 .shared-properties {
   border: $border;
+  &:hover {
+    border: 1px solid rgba(0,0,0,0.87);
+  }
   > {
     border-radius: $border-radius;
   }

@@ -144,3 +144,19 @@ $cancel-color: red;
     }
   }
 }
+
+$table-stripe-color: #f2f2f2;
+.mat-row {
+  &:nth-child(odd) {
+    background-color: $table-stripe-color;
+  }
+  &:hover {
+    background-color: darken($table-stripe-color,5%);
+  }
+}
+
+$column-spacing: 20px;
+.mat-cell, .mat-header-cell {
+  padding-left: $column-spacing/2!important;
+  padding-right: $column-spacing/2!important;
+}

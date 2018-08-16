@@ -4,6 +4,7 @@ import { AssetService } from '../../../services/asset/asset.service';
 import { Globals } from '../../../globals';
 import { EditConsumableComponent } from '../../modals/edit-consumable/edit-consumable.component';
 import { ModalService } from '../../../services/modal/modal.service';
+import { MatTableDataSource } from '@angular/material';
 
 @Component({
   selector: 'browse-consumables',
@@ -11,6 +12,17 @@ import { ModalService } from '../../../services/modal/modal.service';
   styleUrls: ['./browse-consumables.component.scss']
 })
 export class BrowseConsumablesComponent implements OnInit {
+
+  displayedColumns: string[] = [
+    'label',
+    'category',
+    'manufacturer',
+    'notes',
+    'tags',
+    'checkedOut',
+    'owned'
+  ];
+  dataSource = new MatTableDataSource(this.assets.consumables);
 
   constructor(
     private assets: AssetService,
