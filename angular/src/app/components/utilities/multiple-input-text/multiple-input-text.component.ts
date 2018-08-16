@@ -29,6 +29,11 @@ export class MultipleInputTextComponent implements OnInit {
     for (let i = this.entries.length; i < this.rowMinimum; i++) this.entries.push('');
   }
 
+  getHeight(){
+    if (this.entries.length > 1) return '50px';
+    return '50px';
+  }
+
   first(index){ return index == 0; }
   middle(index){ return index > 0 && index < this.entries.length - 1 }
   penultimate(index){ return index == this.entries.length - 2 }

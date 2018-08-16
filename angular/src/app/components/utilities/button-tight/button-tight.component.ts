@@ -8,6 +8,7 @@ import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
 export class ButtonTightComponent implements OnInit {
 
   @Input() iconClasses: string;
+  @Input() class: string;
   @Output() click = new EventEmitter<any>();
 
   constructor() { }

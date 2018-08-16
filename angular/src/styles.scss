@@ -26,7 +26,7 @@ html, body {
 }
 
 ::placeholder {
-    color: lighten(grey,30%)!important;
+    //color: lighten(grey,0%)!important;
     opacity: 1;
 }
 
@@ -113,5 +113,34 @@ $cancel-color: red;
   color: $cancel-color!important;
   &:hover {
     color: darken($cancel-color,20%)!important;
+  }
+}
+
+.has-label-hover {
+  &:hover {
+    + .label-hover {
+      display: block;
+    }
+  }
+}
+.label-hover {
+  display: none;
+}
+
+.inner-mouseover-label {
+  display: none!important;
+  line-height: 0px!important;
+}
+.inner-mouseover-disappear {
+  display: block;
+}
+.has-inner-mouseover-label {
+  &:hover {
+    .inner-mouseover-label {
+      display: block!important;
+    }
+    .inner-mouseover-disappear {
+      display: none!important;
+    }
   }
 }

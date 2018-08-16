@@ -22,7 +22,7 @@ export class AssignmentService {
     private assets: AssetService,
     private us: UserService
   ) {
-    //Globals.initAssignments.forEach(iassignment => {
+    //SeedValues.initAssignments.forEach(iassignment => {
     //  this.checkout(new Assignment(iassignment));
     //})
   }

@@ -2,32 +2,46 @@
   <li *ngFor="let row of getRows(); let i = index;"
     class="list-group-item center-aligned-row border-0 py-0 px-0"
     style="background-color: transparent">
-    <button *ngIf="deletable()"
-      type="button"
-      tabindex="-1"
-      class="btn btn-link cancel-add-btn center-aligned-row p-0 ml-0 mr-1"
-      (click)="minusButtonClicked(i)">
-      <i class="fas fas fa-times-circle"></i>
-    </button>
-    <div class="input-group"
-      [ngClass]="{
-        'first': first(i),
-        'middle': middle(i),
-        'penultimate': penultimate(i),
-        'last': last(i)
-      }">
-      <div *ngIf="entries.length > 1"
-        class="input-group-prepend border-right-only">
-        <span class="input-group-text border-right-only bg-transparent">{{i + 1}}</span>
-      </div>
-      <input type="text"
-        class="form-control border-0"
-        [(ngModel)]="entries[i]"
-        name="entry-{{i}}"
-        [placeholder]="getPlaceholderText(i+1)"
+    <div class="has-inner-mouseover-label center-aligned-row flex-1">
+      <div class="input-group"
         [ngClass]="{
-          'text-uppercase': uppercase
+          'first': first(i),
+          'middle': middle(i),
+          'penultimate': penultimate(i),
+          'last': last(i)
         }">
+        <div *ngIf="entries.length > 1"
+          class="input-group-prepend border-right-only">
+          <span class="input-group-text border-right-only bg-transparent p-0">
+            <div style="width:30px;">
+              <span class="inner-mouseover-disappear">
+                {{i + 1}}
+              </span>
+              <button *ngIf="deletable()"
+                type="button"
+                tabindex="-1"
+                class="btn btn-link p-0 mx-auto
+                  cancel-add-btn center-aligned-row
+                  inner-mouseover-label"
+                (click)="minusButtonClicked(i)">
+                <i class="fas fas fa-times-circle"></i>
+              </button>
+            </div>
+          </span>
+          
+        </div>
+        <input type="text"
+          class="form-control border-0"
+          [(ngModel)]="entries[i]"
+          name="entry-{{i}}"
+          [placeholder]="getPlaceholderText(i+1)"
+          [ngClass]="{
+            'text-uppercase': uppercase
+          }"
+          [ngStyle]="{
+            'height': getHeight()
+          }">
+      </div>
     </div>
     <button *ngIf="last(i)"
       type="button"

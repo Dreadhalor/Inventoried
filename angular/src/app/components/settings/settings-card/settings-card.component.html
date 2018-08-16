@@ -1,22 +1,22 @@
-<div class="card mx-2">
+<div class="card mx-2 has-inner-mouseover-label">
   <div class="card-header center-aligned-row">
     <h4>{{title}}</h4>
     <span class="ml-auto p-0 center-aligned-row">
       <button *ngIf="editing_entries"
         type="button"
-        class="btn btn-link edit-show"
+        class="btn btn-link inner-mouseover-label"
         (click)="cancelEditEntryButtonClicked()">
         cancel
       </button>
       <button *ngIf="editing_entries"
         type="button"
-        class="btn btn-link edit-show"
+        class="btn btn-link inner-mouseover-label"
         (click)="saveEditEntryButtonClicked()">
         save
       </button>
       <button *ngIf="!editing_entries"
         type="button"
-        class="btn btn-link edit-show"
+        class="btn btn-link inner-mouseover-label"
         (click)="editEntryButtonClicked()">
         edit
     </button>

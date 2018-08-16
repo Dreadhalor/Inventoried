@@ -1,10 +1,10 @@
 import { Asset } from '../../models/classes/asset';
-import { Globals } from '../../globals';
 import { Assignment } from '../../models/classes/assignment';
 import { InfoService } from '../info/info.service';
 import { Injectable } from '@angular/core';
 import { Durable } from '../../models/classes/durable';
 import { Consumable } from '../../models/classes/consumable';
+import { SeedValues } from '../seedvalues';
 
 @Injectable({
   providedIn: 'root'
@@ -32,10 +32,10 @@ export class AssetService {
   constructor(
     private infoService: InfoService
   ) {
-    Globals.initDurables.forEach(idurable => {
+    SeedValues.initDurables.forEach(idurable => {
       this.addDurable(new Durable(idurable));
     })
-    Globals.initConsumables.forEach(iconsumable => {
+    SeedValues.initConsumables.forEach(iconsumable => {
       this.addConsumable(new Consumable(iconsumable));
     })
   }

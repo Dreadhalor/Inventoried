@@ -23,7 +23,6 @@ $border: solid 1px $border-color;
   border-radius: 0px;
 }
 
-
 .shared-properties {
   border: $border;
   > {
@@ -47,4 +46,12 @@ $border: solid 1px $border-color;
   @extend .middle;
   border-bottom-left-radius: $radius;
   border-bottom-right-radius: $radius;
+}
+
+$cancel-color: red;
+.cancel-add-btn {
+  color: $cancel-color!important;
+  &:hover {
+    color: darken($cancel-color,20%)!important;
+  }
 }

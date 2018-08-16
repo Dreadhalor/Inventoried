@@ -1,13 +1,3 @@
-.has-label-hover {
-  &:hover {
-    + .label-hover {
-      display: block;
-    }
-  }
-}
-.label-hover {
-  display: none;
-}
 .plus-icon {
   width: 10px;
   height: 10px;

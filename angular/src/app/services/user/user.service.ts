@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { User } from '../../models/classes/user';
 import { Assignment } from '../../models/classes/assignment';
 import { Globals } from '../../globals';
+import { SeedValues } from '../seedvalues';
 
 @Injectable({
   providedIn: 'root'
@@ -18,14 +19,25 @@ export class UserService {
   constructor(
     private http: HttpClient
   ) {
-    //Globals.initUsers.forEach(user => this.addUser(new User(user,undefined)));
-    this.getAllUsers();
+    this.getAllUsers().then(
+      undefined,
+      rejected => this.getSeedUsers()
+    );
   }
 
   getAllUsers(){
-    this.http.get(Globals.request_prefix + 'getAllUsers').subscribe(
-      (users: any) => users.forEach(user => this.addUser(new User(user.id,user.email,user.full_name,undefined)))
-    )
+    return new Promise((resolve, reject) => {
+      this.http.get(Globals.request_prefix + 'getAllUsers').subscribe(
+        (users: any) => {
+          users.forEach(user => this.addUser(user));
+          resolve();
+        },
+        (error) => reject()
+      )
+    })
+  }
+  getSeedUsers(){
+    SeedValues.initUsers.forEach(iuser => this.addUser(new User(iuser)));
   }
 
   addUser(user: User){
