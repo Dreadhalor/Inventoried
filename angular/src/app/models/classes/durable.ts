@@ -21,8 +21,6 @@ export class Durable extends Asset {
     if (typeof iDurable.active === 'boolean') this.active = iDurable.active;
   }
 
-  
-
   get serialNumber(){ return this._serialNumber; }
   set serialNumber(val: string){ this._serialNumber = val.toUpperCase(); }
 
@@ -71,6 +69,20 @@ export class Durable extends Asset {
   }
   unassign(assignmentId){
     if (this.assignmentId == assignmentId) this.assignmentId = '0';
+  }
+
+  asInterface(){
+    let result: IDurable = {
+      id: this.id,
+      serialNumber: this.serialNumber,
+      categoryId: this.categoryId,
+      manufacturerId: this.manufacturerId,
+      notes: this.notes,
+      assignmentId: this.assignmentId,
+      tagIds: this.tagIds,
+      active: this.active
+    }
+    return result;
   }
 
   repair(){

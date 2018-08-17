@@ -1,6 +1,9 @@
 let info = {
   user: 'scott.hetrick@la-archdiocese.org',
-  password: 'abc#123'
+  password: 'abc#123',
+  serverHost: 'localhost',
+  serverInstance: 'SQLEXPRESS',
+  database: 'test'
 };
 
 module.exports = {
@@ -32,10 +35,10 @@ module.exports = {
   mssql: {
     user: info.user,
     password: info.password,
-    server: 'localhost',
-    database: 'test',
+    server: info.serverHost,
+    database: info.database,
     options: {
-      instanceName: 'SQLEXPRESS',
+      instanceName: info.serverInstance,
       trustedConnection: true
     }
   }

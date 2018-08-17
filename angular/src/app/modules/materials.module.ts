@@ -25,7 +25,8 @@ import {
     MatAutocompleteModule,
     MatListModule,
     MatTooltipModule,
-    MatTableModule
+    MatTableModule,
+    
   ],
   exports: [
     MatInputModule,

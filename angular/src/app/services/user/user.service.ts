@@ -4,6 +4,7 @@ import { User } from '../../models/classes/user';
 import { Assignment } from '../../models/classes/assignment';
 import { Globals } from '../../globals';
 import { SeedValues } from '../seedvalues';
+import { IUser } from '../../models/interfaces/IUser';
 
 @Injectable({
   providedIn: 'root'
@@ -27,9 +28,9 @@ export class UserService {
 
   getAllUsers(){
     return new Promise((resolve, reject) => {
-      this.http.get(Globals.request_prefix + 'getAllUsers').subscribe(
-        (users: any) => {
-          users.forEach(user => this.addUser(user));
+      this.http.get<IUser[]>(Globals.request_prefix + 'users/get_all_users').subscribe(
+        (iusers) => {
+          iusers.forEach(iuser => this.addUser(new User(iuser)));
           resolve();
         },
         (error) => reject()

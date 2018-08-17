@@ -6,15 +6,10 @@ import * as passport from 'passport';
 
 const config = require('./config');
 const sql = require('mssql/msnodesqlv8')
+const db = require('./models/classes/db');
+db.connect(config.mssql);
 const WindowsStrategy = require('passport-windowsauth');
-const ActiveDirectory = require('activedirectory2');
-const pool = new sql.ConnectionPool(config.mssql,
-  (err: any) => {
-    //Error handling goes here
-  }
-);
 const router = express.Router();
-const ad = new ActiveDirectory(config.activedirectory2);
 
 const port = 5000;
 const app = express();
@@ -28,11 +23,11 @@ app.use(passport.initialize());
 
 //initialize routes
 /*const settings = require('./routes/settings');
-app.use('/settings', settings);
+app.use('/settings', settings);*/
 const assets = require('./routes/assets');
 app.use('/assets', assets);
 const users = require('./routes/users');
-app.use('/users', users);*/
+app.use('/users', users);
 
 //set client file
 /*app.use(express.static(path.join(__dirname, '/client/angular-prod')));
@@ -51,7 +46,7 @@ passport.use(new WindowsStrategy({
     usernameField: 'username',
     passwordField: 'password'
   },
-  (user: any, done: any) => {
+  (user, done) => {
     if (user) {
       return done(null, user);
     } else return done(null, false);
@@ -59,7 +54,7 @@ passport.use(new WindowsStrategy({
 ));
 
 
-app.post('/login',
+/*app.post('/login',
   passport.authenticate('WindowsAuthentication', {session: false}),
   (req, res) => { res.json({user: req.user}); }
 );
@@ -68,59 +63,22 @@ app.post('/login2', (req, res) => {
   var username = req.body.username;
   var password = req.body.password;
   
-  /*ad.authenticate(username, password, function(err, auth) {
+  *ad.authenticate(username, password, function(err, auth) {
     if (err) {
       res.send('ERROR: '+ JSON.stringify(err));
       return;
     }
     return res.json({authorized: auth});
-  });*/
+  });*
   // Find user by a sAMAccountName
   ad.findUser(username, (err, user) => {
     if (err) return res.send('ERROR: ' +JSON.stringify(err));
     if (!user) return res.send('User: ' + username + ' not found.');
     res.json(formatLDAPData(user));
   });
-});
+});*/
 
-app.post('/test', async (req, res) => {
-  let value = '3';
-  try {
-      
-      const transaction = new sql.Transaction(pool);
-      transaction.begin(err => {
-        // ... error checks
-        console.log('begin err:');
-        console.log(err);
-        const request = new sql.Request(transaction)
-        request.query('insert into testTable (testField) values (333)', (err, result) => {
-          if (err){
-            console.log('insert error');
-            res.send(err);
-          } else {
-            console.log('result:');
-            console.log(result);
-            transaction.commit(err => {
-              if (err){
-                console.log('commit error');
-                res.send(err);
-              }
-              else res.send('success!');
-            })
-          }
-        })
-      })
-
-
-  } catch (err) {
-    console.log('catch error');
-    console.log(err);
-    res.send(err);
-      // ... error checks
-  }
-});
-
-app.post('/test2', async (req, res) => {
+/*app.post('/test2', async (req, res) => {
 
   var query = 'CN=*Manager*';
 
@@ -134,58 +92,23 @@ app.post('/test2', async (req, res) => {
       res.json(groups);
     }
   });
-});
+});*/
 
-
-app.get('/getAllUsers', async (req, res) => {
-  ad.findUsers('',(err, users) => {
-    if (err) return res.send('ERROR: ' + JSON.stringify(err));
-    if ((!users) || (users.length == 0)) return res.send('No users found.');
-    return res.json(users.map(user => formatLDAPData(user)));
-    //return res.json(users);
+app.get('/ugh', (req, res) => {
+  let fields = db.Schema({
+    test: 'int',
+    boo: 'int'
   });
-});
+  db.model('21',fields).then(
+    resolved => {return res.json(resolved);},
+    rejected => {return res.json(rejected);}
+  );
+})
 
 
-app.get('*', (req: any, res: any) => {
-  res.send('hello');
+app.get('*', (req, res) => {
 });
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
-
-function formatLDAPData(data: any){
-  var result = {
-    id: data.objectGUID,
-    title: '', // 1
-    location_id: formatForEmptyString(data.departmentnumber), // 2
-    job_title: formatForEmptyString(data.title),// 3
-    first_name: formatForEmptyString(data.givenName),// 4
-    middle_name: formatForEmptyString(data.initials),// 5
-    last_name: formatForEmptyString(data.sn),// 6
-    user_name: formatForEmptyString(data.sAMAccountName),// 7
-    //domain: 'la-archdiocese.org',// 8
-    dep_name: formatForEmptyString(data.department),// 9
-    manager_name: formatManagerName(data.manager),// 10
-    full_name: formatForEmptyString(data.cn),// 11
-    phone: formatForEmptyString(data.telephonenumber),// 12
-    directreports: formatForEmptyNum(data.directreports), //14
-    email: formatForEmptyString(data.mail),
-    distinguished_name: formatForEmptyString(data.distinguishedName)
-  };
-  return result;
-}
-
-function formatForEmptyString(value: string): string{
-  return (value) ? value.trim() : '';
-}
-function formatForEmptyNum(value: any[]): number{
-  return (value) ? value.length : 0;
-}
-function formatManagerName(manager: string){
-  if (manager && manager.length > 0){
-    return manager.substring(manager.indexOf('=') + 1, manager.indexOf(','));
-  }
-  return '';
-}

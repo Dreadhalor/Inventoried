@@ -74,6 +74,7 @@ export class Consumable extends Asset implements MultiAssigned {
   }
 
   get name(){ return `${this.label}`; };
+
   assign(assignmentId: string): void {
     if (!this.assignmentIds.includes(assignmentId))
       this.assignmentIds.push(assignmentId);
@@ -82,6 +83,20 @@ export class Consumable extends Asset implements MultiAssigned {
     for (let i = this.assignmentIds.length; i >= 0; i--){
       if (this.assignmentIds[i] == assignmentId) this.assignmentIds.splice(i,1);
     }
+  }
+
+  asInterface(){
+    let result: IConsumable = {
+      id: this.id,
+      label: this.label,
+      quantity: this.quantity,
+      categoryId: this.categoryId,
+      manufacturerId: this.manufacturerId,
+      notes: this.notes,
+      assignmentIds: this.assignmentIds,
+      tagIds: this.tagIds
+    }
+    return result;
   }
 
   repair(){

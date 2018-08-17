@@ -113,26 +113,26 @@ export class SeedValues {
   public static initUsers: IUser[] = [
     {
       id: '1',
-      email: 'test@test.com',
       fullName: 'Test McTesterson',
+      email: 'test@test.com',
       assignmentIds: undefined
     },
     {
       id: '2',
-      email: 'ohboy@test.com',
       fullName: 'Boy McBoysen',
+      email: 'ohboy@test.com',
       assignmentIds: undefined
     },
     {
       id: '3',
-      email: 'thisisreal@test.com',
       fullName: 'Real McPerson',
+      email: 'thisisreal@test.com',
       assignmentIds: undefined
     },
     {
       id: '4',
-      email: 'admin@test.com',
       fullName: 'Admin McAdminface',
+      email: 'admin@test.com',
       assignmentIds: undefined
     }
   ]
