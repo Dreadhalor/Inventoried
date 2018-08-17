@@ -85,12 +85,8 @@ app.post('/login2', (req, res) => {
     }
   });
 });*/
-app.get('/ugh', (req, res) => {
-    let fields = db.Schema({
-        test: 'int',
-        boo: 'int'
-    });
-    db.model('21', fields).then(resolved => { return res.json(resolved); }, rejected => { return res.json(rejected); });
+app.post('/create_table', (req, res) => {
+    db.createTableIfNotExists(req.body.tableName, req.body.fields, req.body.types).then(resolved => res.json(resolved), rejected => res.json(rejected));
 });
 app.get('*', (req, res) => {
 });
