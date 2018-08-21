@@ -19,7 +19,6 @@ router.get('/get_all_users', (req, res) => __awaiter(this, void 0, void 0, funct
             return res.send('ERROR: ' + JSON.stringify(err));
         if ((!users) || (users.length == 0))
             return res.send('No users found.');
-        console.log(users.length);
         return res.json(users.map(user => formatLDAPData(user)));
     });
 }));

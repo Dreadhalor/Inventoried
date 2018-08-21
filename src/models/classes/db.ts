@@ -4,6 +4,8 @@ const sql = require('mssql/msnodesqlv8')
 
 let pool = null;
 
+let table;
+
 exports.connect = (config) =>
   pool = new sql.ConnectionPool(config,
     (err) => {
@@ -22,19 +24,9 @@ exports.Schema = (fields: any) => {
 }
 
 const saveDurable = exports.saveDurable = (durable: IDurable) => {
-  let checkData = Durable.sqlFields();
-  return new Promise((resolve, reject) => {
-    return createTableIfNotExists(checkData[0] as string, checkData[1] as string[], checkData[2] as string[]).then(
-      resolved => {
-        let addData = Durable.sqlFieldsWithValues(Durable.formatDurable(durable));
-        return add(addData[0],addData[1],addData[2]);
-      },
-      rejected => {
-        console.log('rejected');
-        return rejected;
-      }
-    ).catch(exception => exception)
-  })
+  let data = Durable.sqlFieldsWithValues(durable);
+  //return insertValues(data.tableName, data.fields, data.types, data.values);
+  insert(data.tableName, data.fields, data.types, data.values);
 }
 
 exports.model = (tableName: string, fields: string[][]) => {
@@ -63,24 +55,25 @@ function createTable(tableName: string, fields: string[][]){
 const createTableIfNotExists = exports.createTableIfNotExists = (tableName: string, fields: string[], types: string[]) => {
   let query = `if not exists ` + 
     `(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}') ` +
-    `begin create table "${tableName}" ${formatArgs(pairArgs(fields,types))} end`;
+    `begin create table "${tableName}" ${formatArgs(pairArgs(fields,types),'')} end`;
   return executeQuery(query);
 }
 
 function add(tableName, fields, values){
-  let query = `insert into "${tableName}" ${formatArgs(fields)} ${formatArgs(values)}`;
+  let query = `insert into "${tableName}" ${formatArgs(fields,`"`)} ${formatArgs(values,`'`)}`;
   console.log(query);
   return executeQuery(query);
 }
 
 function pairArgs(args1: string[], args2: string[]){
+  //console.log(args1);
   let pairs = args1.map((arg, index) => `${arg} ${args2[index]}`);
   return pairs;
 }
-function formatArgs(args: string[]){
+function formatArgs(args: string[], delimiter: string){
   let argsString = '(';
   args.forEach((arg, index) => {
-    argsString += `${arg}`;
+    argsString += `${delimiter}${arg}${delimiter}`;
     if (index < args.length - 1) argsString += ', '
     else argsString += ')';
   });
@@ -105,3 +98,121 @@ function executeQuery(query){
     } catch (err4) {reject(err4);}
   });
 }
+
+const insertValues = (tableName: string, fields: string[], types: string[], values: string[]) => {
+  let createTable = formatCreateTableIfNotExists(tableName, fields, types);
+  let insert = formatInsertValues(tableName, fields, values);
+  let query = `${createTable}\n${insert}`;
+  console.log(query);
+  return executeQuery(query);
+}
+
+const formatCreateTableIfNotExists = (tableName: string, fields: string[], types: string[]) => {
+  //prepareCreateTableIfNotExists(tableName, fields, types);
+  let query = `if not exists\n` + 
+    `(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}')\n` +
+    `begin\n\tcreate table "${tableName}" ${formatArgs(pairArgs(fields,types),'')}\nend;`;
+  return query;
+}
+const prepareCreateTableIfNotExists = (tableName: string, fields: string[], types: string[]) => {
+  const ps = new sql.PreparedStatement();
+  ps.prepare(`if not exists ` + 
+    `(select * from INFORMATION_SCHEMA.TABLES where ` + 
+    `TABLE_NAME = @tableName) ` +
+    `begin create table @tableName `, err => {
+      console.log(err);
+    });
+}
+
+  /*console.log(sql.VarChar(sql.MAX));
+  //console.log(formattedIDurable);
+  const ps = new sql.PreparedStatement(pool);
+  ps.input('id',sql.VarChar(sql.MAX));
+  ps.input('serialNumber',sql.VarChar(sql.MAX));
+  ps.input('categoryId',sql.VarChar(sql.MAX));
+  ps.input('manufacturerId',sql.VarChar(sql.MAX));
+  ps.input('notes',sql.VarChar(sql.MAX));
+  ps.input('assignmentId',sql.VarChar(sql.MAX));
+  ps.input('tagIds',sql.VarChar(sql.MAX));
+  ps.input('active',sql.Bit);
+  console.log(ps);
+  ps.prepare(insertDurableStatement, err => {
+    if (err){
+      console.log('one---------------------');
+      console.log(err);
+    }
+    else {
+      ps.execute(formattedIDurable, (err, result) => {
+        if (err){
+          console.log('two---------------------');
+          console.log(err);
+        }
+        else if (result){
+          ps.unprepare(err => {
+            if (err){
+              console.log('three---------------------');
+              console.log(err);
+            }
+            return result;
+          })
+          return result;
+        }
+        else console.log('oh no');
+      })
+    }
+  })
+}*/
+const formatInsertValues = (tableName: string, fields: string[], values: string[]) => {
+    let query = `insert into "${tableName}"\n${formatArgs(fields,`"`)}\nvalues ${formatArgs(values,`'`)};`;
+    return query;
+}
+
+const insert = (tableName: string, fields: string[], types: string[], values: string[]) => {
+  //console.log(tableName);
+  //console.log(fields);
+  //console.log(types);
+  //console.log(values);
+  let paramCount = fields.length;
+  let requestStr = `if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = @tableName)
+  begin create table @tableName (`;
+  for (let i = 1; i <= paramCount; i++) {
+    requestStr += `@field${i}`;
+    if (i < paramCount) requestStr += `, `;
+  };
+  requestStr += `) end;`/* insert into @tableName values (`;
+  for (let i = 1; i <= paramCount; i++) {
+    requestStr += `@value${i}`;
+    if (i < paramCount) requestStr += `, `;
+  };
+  requestStr += `);`*/
+  //console.log(requestStr);
+
+  const request = new sql.Request(pool);
+  request.input('tableName',tableName);
+  /*for (let i = 1; i <= paramCount; i++) {
+    request.input(`field${i}`,`${fields[i]} ${types[i]}`);
+    request.input(`value${i}`,`${values[i]}`);
+  };*/
+  //console.log(request);
+  request.query(requestStr, (err, result) => {
+    if (err){
+      console.log(err);
+      return err;
+    }
+    //console.log(result);
+    return result;
+  })
+}
+
+const insertDurableStatement = `if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'durables')
+begin create table durables (
+  id varchar(max),
+  serialNumber varchar(max),
+  categoryId varchar(max),
+  manufacturerId varchar(max),
+  notes varchar(max),
+  assignmentId varchar(max),
+  tagIds varchar(max),
+  active bit
+) end;
+insert into durables values (@id, @serialNumber, @categoryId, @manufacturerId, @notes, @assignmentId, @tagIds, @active)`;

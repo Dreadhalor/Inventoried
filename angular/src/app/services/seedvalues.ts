@@ -40,7 +40,7 @@ export class SeedValues {
       serialNumber: '87fgh49y',
       categoryId: '2',
       manufacturerId: '5',
-      notes: 'Ooga booga shoeshine',
+      notes: `Ooga booga's s'h'o'e's'hine`,
       assignmentId: undefined,
       tagIds: ['2'],
       active: undefined
@@ -104,7 +104,7 @@ export class SeedValues {
       quantity: 5,
       categoryId: '2',
       manufacturerId: '2',
-      notes: '1 per workstation',
+      notes: `1 test's test's per workstation`,
       assignmentIds: undefined,
       tagIds: ['1']
     }

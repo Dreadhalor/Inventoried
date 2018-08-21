@@ -11,7 +11,6 @@ router.get('/get_all_users', async (req, res) => {
   ad.findUsers((err, users) => {
     if (err) return res.send('ERROR: ' + JSON.stringify(err));
     if ((!users) || (users.length == 0)) return res.send('No users found.');
-    console.log(users.length);
     return res.json(users.map(user => formatLDAPData(user)));
   });
 });

@@ -18,20 +18,26 @@ class Durable {
         return [
             'durables',
             ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'],
-            ['varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'text', 'bit']
+            ['varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'bit']
         ];
     }
-    static sqlFieldsWithValues(vals) {
-        return [
-            'durables',
-            ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'],
-            vals
-        ];
+    static sqlFieldsWithValues(durable) {
+        return {
+            tableName: 'durables',
+            fields: ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'],
+            types: ['varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'bit'],
+            values: this.formatDurable(durable)
+        };
     }
     static formatDurable(idurable) {
         let keys = Object.keys(idurable);
         let result = [];
-        keys.forEach((key) => result.push = idurable[key].join(','));
+        keys.forEach((key) => {
+            if (typeof idurable[key] == 'object')
+                result.push(idurable[key].join(','));
+            else
+                result.push(idurable[key]);
+        });
         return result;
     }
 }
