@@ -21,14 +21,6 @@ $input-height: 50px;
   flex: 1;
   height: $input-height;
   cursor: text;
-  &:hover {
-    .clear-button {
-      display: block!important;
-    }
-  }
-  .clear-button {
-    display: none!important;
-  }
 }
 
 $vertical-alignment: 65%;
@@ -53,13 +45,14 @@ $ease-out-duration: 400ms;
 
 .multiple-input-textfield {
   border: 0;
+  background-color: transparent;
   flex: 1;
   line-height: normal;
-  //height: $input-height;
   padding: 0 0 0 $textfield-x-padding;
   pointer-events: all;
   &::placeholder {
     color: transparent;
+    opacity: 1;
   }
   &:focus {
     &::placeholder {

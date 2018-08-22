@@ -49,7 +49,7 @@
                       cancel-add-btn center-aligned-row
                       inner-mouseover-label"
                     (click)="minusButtonClicked(i)">
-                    <i class="fas fa-trash-alt"></i>
+                    <i class="fas fa-minus-circle"></i>
                   </button>
                 </div>
               </span>
@@ -67,10 +67,10 @@
                     'text-uppercase': uppercase
                   }"
                   (focus)="focus(i,true)" (blur)="focus(i,false)">
-                  <button *ngIf="textfield.value"
+                  <button *ngIf="clearButton(i)"
                     type="button"
                     class="clear-button"
-                    (click)="clearClicked(i,$event)">
+                    (click)="clearClicked(i,$event);">
                     <i class="fas fas fa-times"></i>
                   </button>
                 </div>

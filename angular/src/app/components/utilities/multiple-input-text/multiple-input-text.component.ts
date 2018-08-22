@@ -63,20 +63,53 @@ export class MultipleInputTextComponent implements OnInit {
     this.hovered[index] = hover;
   }
 
-  activeBorder(index){return this.focused[index];}
-  border(index){
-    return this.activeBorder(index) ? this.focusColor : 'black';
+  state(index){
+    if (this.focused[index]){
+      if (this.entries[index]) return state.activatedFilled;
+      return state.activatedEmpty;
+    }
+    if (this.hovered[index]){
+      if (this.entries[index]) return state.hoverFilled;
+      return state.hoverEmpty;
+    }
+    return state.inactive;
   }
-  activeOpacity(index){return this.activeBorder(index) || this.hovered[index];}
+  
+  border(index){
+    switch(this.state(index)){
+      case state.activatedEmpty:
+      case state.activatedFilled:
+        return this.focusColor;
+      default: return 'black';
+    }
+  }
   opacity(index){
-    return (this.activeOpacity(index)) ? '1' : '0';
+    switch(this.state(index)){
+      case state.activatedEmpty:
+      case state.activatedFilled:
+      case state.hoverEmpty:
+      case state.hoverFilled: return '1';
+      default: return '0';
+    }
   }
   transition(index){
     let border = 'border-color 0.4s';
-    let opacity = this.activeOpacity(index) ? 'opacity 0.4s' : 'opacity 0s';
+    let opacity = 'opacity ';
+    switch(this.state(index)){
+      case state.activatedEmpty:
+      case state.activatedFilled:
+      case state.hoverEmpty:
+      case state.hoverFilled:
+        opacity += '0.4s';
+        break;
+      default:
+        opacity += '0s';
+        break;
+    }
     let result = `${opacity}, ${border}`;
     return result; 
   }
+  
   scale = 0.75;
   floating(index){
     return this.focused[index] || this.entries[index];
@@ -87,9 +120,28 @@ export class MultipleInputTextComponent implements OnInit {
     return '';
   }
   floatingColor(index){
-    if (this.floating(index))
-      return this.focusColor;
-    return 'rgba(0,0,0,0.6)';
+    switch(this.state(index)){
+      case state.activatedEmpty:
+      case state.activatedFilled:
+        return this.focusColor;
+      default: return 'rgba(0,0,0,0.6)';
+    }
   }
 
+  clearButton(index){
+    switch(this.state(index)){
+      case state.activatedFilled:
+      case state.hoverFilled: return true;
+      default: return false;
+    }
+  }
+
+}
+
+export enum state {
+  inactive = 0,
+  activatedEmpty = 1,
+  activatedFilled = 2,
+  hoverEmpty = 3,
+  hoverFilled = 4
 }
