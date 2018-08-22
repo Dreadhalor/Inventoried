@@ -64,9 +64,9 @@ export class AssetService {
       this.pendingAssignments.splice(assignmentIndex,1);
     }
     this.durables.push(durable);
-    this.http.post(Globals.request_prefix + 'assets/add_asset',{asset: durable.asInterface()}).
+    /*this.http.post(Globals.request_prefix + 'assets/add_asset',{asset: durable.asInterface()}).
       subscribe(res => console.log(res),
-      err => console.log(err));
+      err => console.log(err));*/
   }
   saveDurable(durable: Durable){
     let index = this.durables.findIndex(match => match.id == durable.id);
@@ -76,9 +76,9 @@ export class AssetService {
   addConsumable(consumable: Consumable){
     consumable.injectService(this.infoService);
     this.consumables.push(consumable);
-    this.http.post(Globals.request_prefix + 'assets/add_asset',{asset: consumable.asInterface()}).
+    /*this.http.post(Globals.request_prefix + 'assets/add_asset',{asset: consumable.asInterface()}).
       subscribe(res => console.log(res),
-      err => console.log(err));
+      err => console.log(err));*/
   }
   saveConsumable(consumable: Consumable){
     let index = this.consumables.findIndex(match => match.id == consumable.id);

@@ -3,7 +3,8 @@
     class="list-group-item center-aligned-row border-0 py-0 px-0"
     style="background-color: transparent;">
     <div class="has-inner-mouseover-label center-aligned-row flex-1">
-      <div class="input-group-wrapper flex-1">
+      <div class="input-group-wrapper flex-1"
+        (mouseenter)="hover(i,true)" (mouseleave)="hover(i,false)">
         <div class="thick-outline"
           [ngClass]="{
             'first-thick': first(i),
@@ -34,7 +35,6 @@
               'penultimate': penultimate(i),
               'last': last(i)
             }">
-            
             <div *ngIf="entries.length > 1"
               class="input-group-prepend border-right-only">
               <span class="input-group-text border-right-only bg-transparent p-0">
@@ -49,24 +49,38 @@
                       cancel-add-btn center-aligned-row
                       inner-mouseover-label"
                     (click)="minusButtonClicked(i)">
-                    <i class="fas fas fa-times-circle"></i>
+                    <i class="fas fa-trash-alt"></i>
                   </button>
                 </div>
               </span>
             </div>
-            <input type="text"
-              class="form-control simplebox"
-              [(ngModel)]="entries[i]"
-              name="entry-{{i}}"
-              [placeholder]="getPlaceholderText(i+1)"
-              [ngClass]="{
-                'text-uppercase': uppercase
-              }"
+            <div class="input-wrapper"
+              (click)="textfield.focus()">
+              <div class="textfield-wrapper">
+                <div class="clear-button-fix">
+                  <input type="text" #textfield
+                  class="simplebox multiple-input-textfield w-100"
+                  [(ngModel)]="entries[i]"
+                  name="entry-{{i}}"
+                  placeholder="Serial Number"
+                  [ngClass]="{
+                    'text-uppercase': uppercase
+                  }"
+                  (focus)="focus(i,true)" (blur)="focus(i,false)">
+                  <button *ngIf="textfield.value"
+                    type="button"
+                    class="clear-button"
+                    (click)="clearClicked(i,$event)">
+                    <i class="fas fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            <span class="floating-label"
               [ngStyle]="{
-                'height': getHeight()
-              }"
-              (focus)="focus(i,true)" (blur)="focus(i,false)"
-              (mouseenter)="hover(i,true)" (mouseleave)="hover(i,false)">
+                'transform': floatingTransform(i),
+                'color': floatingColor(i)
+              }">{{getPlaceholderText(i+1)}}</span>
+            </div>
           </div>
       </div>
     </div>

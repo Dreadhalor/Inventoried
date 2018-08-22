@@ -22,6 +22,7 @@ export class MultipleInputTextComponent implements OnInit {
 
   private focused: boolean[] = [];
   private hovered: boolean[] = [];
+  private focusColor = '#3f51b5';
 
   getRows(){ return new Array(this.entries.length); }
 
@@ -29,11 +30,6 @@ export class MultipleInputTextComponent implements OnInit {
 
   ngOnInit() {
     for (let i = this.entries.length; i < this.rowMinimum; i++) this.entries.push('');
-  }
-
-  getHeight(){
-    if (this.entries.length > 1) return '50px';
-    return '50px';
   }
 
   first(index){ return index == 0; }
@@ -55,6 +51,10 @@ export class MultipleInputTextComponent implements OnInit {
   plusButtonClicked(){
     this.entries.splice(this.entries.length,0,'');
   }
+  clearClicked(index,event){
+    event.stopPropagation();
+    this.entries[index] = '';
+  }
 
   focus(index, focus){
     this.focused[index] = focus;
@@ -65,17 +65,31 @@ export class MultipleInputTextComponent implements OnInit {
 
   activeBorder(index){return this.focused[index];}
   border(index){
-    return this.activeBorder(index) ? '#3f51b5' : 'black';
+    return this.activeBorder(index) ? this.focusColor : 'black';
   }
   activeOpacity(index){return this.activeBorder(index) || this.hovered[index];}
   opacity(index){
     return (this.activeOpacity(index)) ? '1' : '0';
   }
   transition(index){
-    let border = 'border-color 0.2s';
-    let opacity = this.activeOpacity(index) ? 'opacity 0.2s' : 'opacity 0s';
+    let border = 'border-color 0.4s';
+    let opacity = this.activeOpacity(index) ? 'opacity 0.4s' : 'opacity 0s';
     let result = `${opacity}, ${border}`;
     return result; 
+  }
+  scale = 0.75;
+  floating(index){
+    return this.focused[index] || this.entries[index];
+  }
+  floatingTransform(index){
+    if (this.floating(index))
+      return `scale(${this.scale}) translateY(-20px)`;
+    return '';
+  }
+  floatingColor(index){
+    if (this.floating(index))
+      return this.focusColor;
+    return 'rgba(0,0,0,0.6)';
   }
 
 }

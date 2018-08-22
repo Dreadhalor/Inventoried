@@ -14,6 +14,80 @@ $border: solid 1px $border-color;
   @extend .border-bottom-0;
 }
 
+$input-height: 50px;
+
+.input-wrapper {
+  position: relative;
+  flex: 1;
+  height: $input-height;
+  cursor: text;
+  &:hover {
+    .clear-button {
+      display: block!important;
+    }
+  }
+  .clear-button {
+    display: none!important;
+  }
+}
+
+$vertical-alignment: 65%;
+.textfield-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  pointer-events: none;
+  transform: translateY($vertical-alignment);
+}
+
+.clear-button-fix {
+  @extend .d-flex-row;
+  transform: translateY(-$vertical-alignment);
+}
+
+$textfield-x-padding: 0.75rem;
+$ease-out-duration: 400ms;
+
+.multiple-input-textfield {
+  border: 0;
+  flex: 1;
+  line-height: normal;
+  //height: $input-height;
+  padding: 0 0 0 $textfield-x-padding;
+  pointer-events: all;
+  &::placeholder {
+    color: transparent;
+  }
+  &:focus {
+    &::placeholder {
+      color: rgba(0,0,0,0.42);
+      transition: color 0.15s linear 0.2s;
+    }
+  }
+}
+.clear-button {
+  @extend .btn;
+  @extend .btn-link;
+  @extend .center-aligned-row;
+  @extend .mx-2;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: all;
+}
+.floating-label {
+  position: absolute;
+  top: $input-height/2;
+  left: $textfield-x-padding;
+  transition-property: transform, color;
+  transform-style: cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition-duration: $ease-out-duration;
+  transform-origin: left;
+  pointer-events: none;
+}
+
 .input-group-wrapper {
   position: relative;
 }
