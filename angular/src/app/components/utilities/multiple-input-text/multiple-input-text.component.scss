@@ -14,20 +14,11 @@ $border: solid 1px $border-color;
   @extend .border-bottom-0;
 }
 
-.outline-class {
-  background-color: transparent;
-  border-top: 0px;
-  border-left: 0px;
-  border-right: 0px;
-  border-bottom: 1px solid black;
-  border-radius: 0px;
+.input-group-wrapper {
+  position: relative;
 }
-
 .shared-properties {
   border: $border;
-  &:hover {
-    border: 1px solid rgba(0,0,0,0.87);
-  }
   > {
     border-radius: $border-radius;
   }
@@ -47,6 +38,18 @@ $border: solid 1px $border-color;
 }
 .last {
   @extend .middle;
+  border-bottom-left-radius: $radius;
+  border-bottom-right-radius: $radius;
+}
+
+.first-thick {
+  border-top-left-radius: $radius;
+  border-top-right-radius: $radius;
+}
+.penultimate-thick {
+  border-bottom-right-radius: $radius;
+}
+.last-thick {
   border-bottom-left-radius: $radius;
   border-bottom-right-radius: $radius;
 }

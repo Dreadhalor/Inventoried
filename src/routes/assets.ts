@@ -10,11 +10,11 @@ router.post('/add_asset', (req,res) => {
   if (asset){
     let type = typeCheck(asset);
     if (type == 'durable'){
-      db.saveDurable(asset);/*.then(
+      db.saveDurable(asset).then(
         resolved => res.json(resolved),
         rejected => res.json(rejected)
-      ).catch(exception => {console.log('bruh'); res.json(exception)});
-    */}
+      ).catch(exception => res.json(exception));
+    }
     if (type == 'consumable'){
       //save consumable
     }

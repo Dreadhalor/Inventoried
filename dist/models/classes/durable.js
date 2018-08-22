@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+let db = require('./db');
 class Durable {
     static sample() {
         let sample = {

@@ -1,10 +1,7 @@
 import { Durable } from './durable';
 import { IDurable } from './../interfaces/IDurable';
-const sql = require('mssql/msnodesqlv8')
-
+const sql = exports.sql = require('mssql/msnodesqlv8');
 let pool = null;
-
-let table;
 
 exports.connect = (config) =>
   pool = new sql.ConnectionPool(config,
@@ -25,8 +22,9 @@ exports.Schema = (fields: any) => {
 
 const saveDurable = exports.saveDurable = (durable: IDurable) => {
   let data = Durable.sqlFieldsWithValues(durable);
+  //console.log(data);
   //return insertValues(data.tableName, data.fields, data.types, data.values);
-  insert(data.tableName, data.fields, data.types, data.values);
+  return create(data.tableName, data.fields, data.types, data.values, durable.id);
 }
 
 exports.model = (tableName: string, fields: string[][]) => {
@@ -42,21 +40,6 @@ const doesTableExist = exports.doesTableExist = (tableName: string) => {
     (resolve: any) => resolve.recordset[0][''],
     reject => false
   );
-}
-
-function createTable(tableName: string, fields: string[][]){
-  let fieldsString = '';
-    fields.forEach((pair, index) => {
-      fieldsString += `${pair[0]} ${pair[1]}`;
-      if (index < fields.length - 1) fieldsString += ', ';
-    });
-  return executeQuery(`create table "${tableName}" (${fieldsString});`);
-}
-const createTableIfNotExists = exports.createTableIfNotExists = (tableName: string, fields: string[], types: string[]) => {
-  let query = `if not exists ` + 
-    `(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}') ` +
-    `begin create table "${tableName}" ${formatArgs(pairArgs(fields,types),'')} end`;
-  return executeQuery(query);
 }
 
 function add(tableName, fields, values){
@@ -99,120 +82,66 @@ function executeQuery(query){
   });
 }
 
-const insertValues = (tableName: string, fields: string[], types: string[], values: string[]) => {
-  let createTable = formatCreateTableIfNotExists(tableName, fields, types);
-  let insert = formatInsertValues(tableName, fields, values);
-  let query = `${createTable}\n${insert}`;
-  console.log(query);
-  return executeQuery(query);
-}
-
 const formatCreateTableIfNotExists = (tableName: string, fields: string[], types: string[]) => {
-  //prepareCreateTableIfNotExists(tableName, fields, types);
-  let query = `if not exists\n` + 
-    `(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}')\n` +
-    `begin\n\tcreate table "${tableName}" ${formatArgs(pairArgs(fields,types),'')}\nend;`;
+  let query =
+    `if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}')
+    begin
+      create table "${tableName}" ${formatArgs(pairArgs(fields,types),'')}
+    end;`;
   return query;
 }
-const prepareCreateTableIfNotExists = (tableName: string, fields: string[], types: string[]) => {
-  const ps = new sql.PreparedStatement();
-  ps.prepare(`if not exists ` + 
-    `(select * from INFORMATION_SCHEMA.TABLES where ` + 
-    `TABLE_NAME = @tableName) ` +
-    `begin create table @tableName `, err => {
-      console.log(err);
-    });
+const formatInsertValuesIfNotDuplicate = (tableName: string, values: any[], id: any) => {
+  let query =
+  `if not exists (select * from ${tableName} where id = '${id}')
+  begin
+    ${formatInsertValuesPrepareString(tableName,values)}
+  end;`;
+  return query;
 }
-
-  /*console.log(sql.VarChar(sql.MAX));
-  //console.log(formattedIDurable);
+const formatInsertValuesPrepareString = (tableName: string, values: any[]) => {
+  let paramCount = values.length;
+  let query = `insert into "${tableName}" values (`;
+  for (let i = 1; i <= paramCount; i++) {
+    query += `@value${i}`;
+    if (i < paramCount) query += `, `;
+  };
+  query += `);`
+  return query;
+}
+const preparedStatementWithInputs = (types: string[]) => {
   const ps = new sql.PreparedStatement(pool);
-  ps.input('id',sql.VarChar(sql.MAX));
-  ps.input('serialNumber',sql.VarChar(sql.MAX));
-  ps.input('categoryId',sql.VarChar(sql.MAX));
-  ps.input('manufacturerId',sql.VarChar(sql.MAX));
-  ps.input('notes',sql.VarChar(sql.MAX));
-  ps.input('assignmentId',sql.VarChar(sql.MAX));
-  ps.input('tagIds',sql.VarChar(sql.MAX));
-  ps.input('active',sql.Bit);
-  console.log(ps);
-  ps.prepare(insertDurableStatement, err => {
-    if (err){
-      console.log('one---------------------');
-      console.log(err);
-    }
-    else {
-      ps.execute(formattedIDurable, (err, result) => {
-        if (err){
-          console.log('two---------------------');
-          console.log(err);
-        }
-        else if (result){
-          ps.unprepare(err => {
-            if (err){
-              console.log('three---------------------');
-              console.log(err);
-            }
-            return result;
-          })
-          return result;
-        }
-        else console.log('oh no');
+  for (let i = 0; i < types.length; i++){
+    ps.input(`value${i+1}`,parseDataType(types[i]));
+  }
+  return ps;
+}
+const parseDataType = (type: string) => {
+  switch (type){
+    case 'varchar(max)': return sql.VarChar(sql.MAX);
+    case 'bit': return sql.Bit;
+  }
+}
+const create = (tableName: string, fields: string[], types: string[], values: any[], id: any) => {
+  return new Promise((resolve, reject) => {
+    let createTable = formatCreateTableIfNotExists(tableName, fields, types);
+    let insertValues = (id) ? formatInsertValuesIfNotDuplicate(tableName, values, id) : formatInsertValuesPrepareString(tableName, values);
+    let prepString = `${createTable} ${insertValues}`;
+    const ps = preparedStatementWithInputs(types);
+    ps.prepare(prepString, err => {
+      if (err) reject(err);
+      let formattedValues = [];
+      values.forEach((value,index) => { formattedValues[`value${index+1}`] = value; });
+      ps.execute(formattedValues, (err, result) => {
+        if (err) reject(err);
+        ps.unprepare(err => {
+          if (err) reject(err);
+          resolve(result);
+        })
       })
-    }
-  })
-}*/
-const formatInsertValues = (tableName: string, fields: string[], values: string[]) => {
-    let query = `insert into "${tableName}"\n${formatArgs(fields,`"`)}\nvalues ${formatArgs(values,`'`)};`;
-    return query;
-}
-
-const insert = (tableName: string, fields: string[], types: string[], values: string[]) => {
-  //console.log(tableName);
-  //console.log(fields);
-  //console.log(types);
-  //console.log(values);
-  let paramCount = fields.length;
-  let requestStr = `if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = @tableName)
-  begin create table @tableName (`;
-  for (let i = 1; i <= paramCount; i++) {
-    requestStr += `@field${i}`;
-    if (i < paramCount) requestStr += `, `;
-  };
-  requestStr += `) end;`/* insert into @tableName values (`;
-  for (let i = 1; i <= paramCount; i++) {
-    requestStr += `@value${i}`;
-    if (i < paramCount) requestStr += `, `;
-  };
-  requestStr += `);`*/
-  //console.log(requestStr);
-
-  const request = new sql.Request(pool);
-  request.input('tableName',tableName);
-  /*for (let i = 1; i <= paramCount; i++) {
-    request.input(`field${i}`,`${fields[i]} ${types[i]}`);
-    request.input(`value${i}`,`${values[i]}`);
-  };*/
-  //console.log(request);
-  request.query(requestStr, (err, result) => {
-    if (err){
-      console.log(err);
-      return err;
-    }
-    //console.log(result);
-    return result;
+    })
   })
 }
 
-const insertDurableStatement = `if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'durables')
-begin create table durables (
-  id varchar(max),
-  serialNumber varchar(max),
-  categoryId varchar(max),
-  manufacturerId varchar(max),
-  notes varchar(max),
-  assignmentId varchar(max),
-  tagIds varchar(max),
-  active bit
-) end;
-insert into durables values (@id, @serialNumber, @categoryId, @manufacturerId, @notes, @assignmentId, @tagIds, @active)`;
+//read
+//update
+//delete

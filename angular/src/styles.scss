@@ -160,3 +160,11 @@ $column-spacing: 20px;
   padding-left: $column-spacing/2!important;
   padding-right: $column-spacing/2!important;
 }
+
+.simplebox {
+  outline: none;
+  border: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+}
