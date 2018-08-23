@@ -5,14 +5,16 @@ const router = express.Router();
 const config = require('../config');
 
 const ActiveDirectory = require('activedirectory2');
-const ad = new ActiveDirectory(config.activedirectory2);
+let ad;// = new ActiveDirectory(config.activedirectory2);
 
 router.get('/get_all_users', async (req, res) => {
+  ad = new ActiveDirectory(config.activedirectory2);
   ad.findUsers((err, users) => {
     if (err) return res.send('ERROR: ' + JSON.stringify(err));
     if ((!users) || (users.length == 0)) return res.send('No users found.');
     return res.json(users.map(user => formatLDAPData(user)));
   });
+  ad = null;
 });
 
 module.exports = router;

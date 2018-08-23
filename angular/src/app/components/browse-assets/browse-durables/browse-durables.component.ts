@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AssetService } from '../../../services/asset/asset.service';
 import { Durable } from '../../../models/classes/durable';
 import { ModalService } from '../../../services/modal/modal.service';
@@ -9,7 +9,7 @@ import { MatTableDataSource } from '@angular/material';
   templateUrl: './browse-durables.component.html',
   styleUrls: ['./browse-durables.component.scss']
 })
-export class BrowseDurablesComponent implements OnInit {
+export class BrowseDurablesComponent implements OnInit, OnDestroy {
 
   displayedColumns: string[] = [
     'serialNumber',
@@ -21,6 +21,7 @@ export class BrowseDurablesComponent implements OnInit {
     'active'
   ];
   dataSource = new MatTableDataSource(this.assets.durables);
+  subscription = null;
 
   constructor(
     private assets: AssetService,
@@ -28,6 +29,12 @@ export class BrowseDurablesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.subscription = this.assets.assetsEdited.asObservable().subscribe((edited) => {
+      this.dataSource = new MatTableDataSource(this.assets.durables);
+    })
+  }
+  ngOnDestroy(){
+    if (this.subscription) this.subscription.unsubscribe();
   }
 
   openEditDurable(durable: Durable){

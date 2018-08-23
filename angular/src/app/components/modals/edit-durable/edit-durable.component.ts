@@ -54,6 +54,9 @@ export class EditDurableComponent implements OnInit {
   cancelButtonClicked(){
     this.state = durableModalState.default;
   }
+  deleteButtonClicked(){
+    this.assets.deleteAsset(this.durable);
+  }
   saveButtonClicked(){
     this.save();
     this.state = durableModalState.default;

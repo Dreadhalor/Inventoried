@@ -10,7 +10,8 @@ import {
   MatAutocompleteModule,
   MatListModule,
   MatTooltipModule,
-  MatTableModule
+  MatTableModule,
+  MatMenuModule
 } from '@angular/material';
 
 @NgModule({
@@ -26,7 +27,7 @@ import {
     MatListModule,
     MatTooltipModule,
     MatTableModule,
-    
+    MatMenuModule
   ],
   exports: [
     MatInputModule,
@@ -39,7 +40,8 @@ import {
     MatAutocompleteModule,
     MatListModule,
     MatTooltipModule,
-    MatTableModule
+    MatTableModule,
+    MatMenuModule
   ]
 })
 export class MaterialsModule { }

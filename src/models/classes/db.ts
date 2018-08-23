@@ -1,5 +1,6 @@
 import { Durable } from './durable';
 import { IDurable } from './../interfaces/IDurable';
+import { exec } from 'child_process';
 const sql = exports.sql = require('mssql/msnodesqlv8');
 let pool = null;
 
@@ -22,9 +23,18 @@ exports.Schema = (fields: any) => {
 
 const saveDurable = exports.saveDurable = (durable: IDurable) => {
   let data = Durable.sqlFieldsWithValues(durable);
-  //console.log(data);
-  //return insertValues(data.tableName, data.fields, data.types, data.values);
   return create(data.tableName, data.fields, data.types, data.values, durable.id);
+}
+const getDurables = exports.getDurables = () => {
+  let query = '';
+  return read('durables',query);
+}
+const updateDurable = exports.updateDurable = (durable: IDurable) => {
+  let data = Durable.sqlFieldsWithValues(durable);
+  return update('durables', data.fields, data.types, data.values, [data.fields[0], data.types[0], data.values[0]]);
+}
+const deleteDurable = exports.deleteDurable = (id: string) => {
+  return deleteItem('durables',id);
 }
 
 exports.model = (tableName: string, fields: string[][]) => {
@@ -82,20 +92,37 @@ function executeQuery(query){
   });
 }
 
-const formatCreateTableIfNotExists = (tableName: string, fields: string[], types: string[]) => {
+const formatIfTableExists = (tableName: string, innerQuery: string, exists: boolean) => {
   let query =
-    `if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}')
+    `if ${exists ? `` : `not `}exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}')
     begin
-      create table "${tableName}" ${formatArgs(pairArgs(fields,types),'')}
+      ${innerQuery}
     end;`;
   return query;
 }
-const formatInsertValuesIfNotDuplicate = (tableName: string, values: any[], id: any) => {
+const formatCreateTable = (tableName: string, fields: string[], types: string[]) => {
+  let query = `create table "${tableName}" ${formatArgs(pairArgs(fields,types),'')}`;
+  return query;
+}
+const formatCreateTableIfNotExists = (tableName: string, fields: string[], types: string[]) => {
+  let query = formatCreateTable(tableName, fields, types);
+  query = formatIfTableExists(tableName, query, false);
+  return query;
+}
+const formatIfNotDuplicate = (tableName: string, innerQuery: string, id: any) => {
   let query =
-  `if not exists (select * from ${tableName} where id = '${id}')
-  begin
-    ${formatInsertValuesPrepareString(tableName,values)}
-  end;`;
+    `if not exists (select * from ${tableName} where id = '${id}')
+    begin
+      ${innerQuery};
+    end;`;
+  return query;
+}
+const formatInsertValues = (tableName: string, values: any[]) => {
+  return formatInsertValuesPrepareString(tableName, values);
+}
+const formatInsertValuesIfNotDuplicate = (tableName: string, values: any[], id: any) => {
+  let query = formatInsertValues(tableName, values);
+  query = formatIfNotDuplicate(tableName, query, id);
   return query;
 }
 const formatInsertValuesPrepareString = (tableName: string, values: any[]) => {
@@ -108,6 +135,16 @@ const formatInsertValuesPrepareString = (tableName: string, values: any[]) => {
   query += `);`
   return query;
 }
+const formatUpdateValuesPrepareString = (tableName: string, fields: string[]) => {
+  let paramCount = fields.length;
+  let query = `update "${tableName}" set `;
+  for (let i = 1; i < paramCount; i++) {
+    query += `${fields[i]} = @value${i}`;
+    if (i < paramCount - 1) query += `, `;
+  };
+  query += ` where id = @id;`;
+  return query;
+}
 const preparedStatementWithInputs = (types: string[]) => {
   const ps = new sql.PreparedStatement(pool);
   for (let i = 0; i < types.length; i++){
@@ -115,23 +152,11 @@ const preparedStatementWithInputs = (types: string[]) => {
   }
   return ps;
 }
-const parseDataType = (type: string) => {
-  switch (type){
-    case 'varchar(max)': return sql.VarChar(sql.MAX);
-    case 'bit': return sql.Bit;
-  }
-}
-const create = (tableName: string, fields: string[], types: string[], values: any[], id: any) => {
+const executePreparedStatement = (ps: any, str: string, vals: object) => {
   return new Promise((resolve, reject) => {
-    let createTable = formatCreateTableIfNotExists(tableName, fields, types);
-    let insertValues = (id) ? formatInsertValuesIfNotDuplicate(tableName, values, id) : formatInsertValuesPrepareString(tableName, values);
-    let prepString = `${createTable} ${insertValues}`;
-    const ps = preparedStatementWithInputs(types);
-    ps.prepare(prepString, err => {
+    ps.prepare(str, err => {
       if (err) reject(err);
-      let formattedValues = [];
-      values.forEach((value,index) => { formattedValues[`value${index+1}`] = value; });
-      ps.execute(formattedValues, (err, result) => {
+        ps.execute(vals, (err, result) => {
         if (err) reject(err);
         ps.unprepare(err => {
           if (err) reject(err);
@@ -141,7 +166,42 @@ const create = (tableName: string, fields: string[], types: string[], values: an
     })
   })
 }
+const formatValues = (values: any[]): any => {
+  let formattedValues = [];
+  values.forEach((value,index) => { formattedValues[`value${index+1}`] = value; });
+  return formattedValues;
+}
+const parseDataType = (type: string) => {
+  switch (type){
+    case 'varchar(max)': return sql.VarChar(sql.MAX);
+    case 'bit': return sql.Bit;
+  }
+}
+const create = (tableName: string, fields: string[], types: string[], values: any[], id: any) => {
+  let createTable = formatCreateTableIfNotExists(tableName, fields, types);
+  let insertValues = (id) ? formatInsertValuesIfNotDuplicate(tableName, values, id) : formatInsertValuesPrepareString(tableName, values);
+  let prepString = `${createTable} ${insertValues}`;
+  const ps = preparedStatementWithInputs(types);
+  let formattedValues = formatValues(values);
+  return executePreparedStatement(ps, prepString, formattedValues);
+}
+const read = (tableName: string, query: string) => {
+  let innerQuery = `select * from ${tableName}${query ? ` where ${query}` : ``};`;
+  let result = formatIfTableExists(tableName, innerQuery, true);
+  return executeQuery(result);
+}
+const update = (tableName: string, fields: string[], types: string[], values: any[], idVals: any[]) => {
+  let prepString = formatUpdateValuesPrepareString(tableName, fields);
+  let prepTypes = types.slice(1);
+  let prepVals = values.slice(1);
+  let ps = preparedStatementWithInputs(prepTypes);
+  ps.input('id',parseDataType(idVals[1]));
+  let formattedValues = formatValues(prepVals);
+  formattedValues.id = idVals[2];
+  return executePreparedStatement(ps, prepString, formattedValues);
+}
+const deleteItem = (tableName: string, id: any) => {
+  return executeQuery(`delete from ${tableName} where id = '${id}'`);
+}
 
-//read
-//update
 //delete

@@ -97,16 +97,34 @@
       bindLabel="value"
       [(itemIds)]="editedDurable.tagIds">
     </tag-field>
+
   </ng-container>
 
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button class="mr-auto option-button"
-    mat-stroked-button
-    color="basic"
-    mat-dialog-close>
-    Close
-  </button>
+  <span class="mr-auto">
+    <button class="option-button"
+      mat-stroked-button
+      color="basic"
+      mat-dialog-close>
+      Close
+    </button>
+
+    <mat-menu #moreMenu="matMenu">
+      <button mat-menu-item
+        mat-dialog-close
+        (click)="deleteButtonClicked()">
+        Delete {{durable.name}}
+      </button>
+    </mat-menu>
+    <button *ngIf="editing"
+      class="option-button"
+      mat-stroked-button
+      color="warn"
+      [matMenuTriggerFor]="moreMenu">
+      More <i class="fas fa-caret-down"></i>
+    </button>
+  </span>
   <button *ngIf="editing"
     class="option-button"
     mat-stroked-button

@@ -83,6 +83,7 @@ export abstract class Asset implements IAsset  {
   }
 
   abstract get name(): string;
+  abstract asInterface();
   abstract assign(assignmentId: string): void;
   abstract unassign(assignmentId: string): void;
 

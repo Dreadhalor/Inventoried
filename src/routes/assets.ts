@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models/classes/db');
 
-router.post('/add_asset', (req,res) => {
+router.post('/add_asset', (req, res) => {
   let asset = req.body.asset;
   if (asset){
     let type = typeCheck(asset);
@@ -19,6 +19,47 @@ router.post('/add_asset', (req,res) => {
       //save consumable
     }
   }
+})
+router.post('/update_asset', (req, res) => {
+  let asset = req.body.asset;
+  if (asset){
+    let type = typeCheck(asset);
+    if (type == 'durable'){
+      db.updateDurable(asset).then(
+        resolved => res.json(resolved),
+        rejected => res.json(rejected)
+      ).catch(exception => res.json(exception));
+    }
+    if (type == 'consumable'){
+      //save consumable
+    }
+  }
+})
+router.post('/delete_asset', (req, res) => {
+  let asset = req.body.asset;
+  if (asset){
+    let type = typeCheck(asset);
+    if (type == 'durable'){
+      db.deleteDurable(asset.id).then(
+        resolved => res.json(resolved),
+        rejected => res.json(rejected)
+      ).catch(exception => res.json(exception));
+    }
+    if (type == 'consumable'){
+      //save consumable
+    }
+  }
+})
+
+router.get('/get_durables', (req, res) => {
+  db.getDurables().then(
+    resolved => {
+      let result = resolved.recordset;
+      if (result) res.json(result);
+      else res.json([]);
+    },
+    rejected => res.json(rejected)
+  ).catch(exception => res.json(exception));
 })
 
 module.exports = router;

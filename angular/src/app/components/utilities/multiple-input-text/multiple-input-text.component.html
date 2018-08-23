@@ -11,22 +11,11 @@
             'penultimate-thick': penultimate(i),
             'last-thick': last(i)
           }"
-          style="
-            position: absolute;
-            z-index: 100;
-            top: 0px;
-            left: 0px;
-            width: 100%;
-            height: 100%;
-            background-color: transparent;
-            border-width: 2px;
-            border-style: solid;
-            pointer-events: none;"
-            [ngStyle]="{
-              'border-color': border(i),
-              'opacity': opacity(i),
-              'transition': transition(i)
-            }">
+          [ngStyle]="{
+            'border-color': border(i),
+            'opacity': opacity(i),
+            'transition': transition(i)
+          }">
           </div>
           <div class="input-group"
             [ngClass]="{
@@ -69,6 +58,7 @@
                   (focus)="focus(i,true)" (blur)="focus(i,false)">
                   <button *ngIf="clearButton(i)"
                     type="button"
+                    tabindex="-1"
                     class="clear-button"
                     (click)="clearClicked(i,$event);">
                     <i class="fas fas fa-times"></i>
@@ -86,6 +76,7 @@
     </div>
     <button *ngIf="last(i)"
       type="button"
+      tabindex="-1"
       class="btn btn-link center-aligned-row p-0 ml-1 mr-0"
       style="border:transparent;background-color: transparent"
       (click)="plusButtonClicked()">

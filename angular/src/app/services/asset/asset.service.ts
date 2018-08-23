@@ -1,3 +1,4 @@
+import { IDurable } from './../../../../../src/models/interfaces/IDurable';
 import { Globals } from './../../globals';
 import { HttpClient } from '@angular/common/http';
 import { Asset } from '../../models/classes/asset';
@@ -7,6 +8,7 @@ import { Injectable } from '@angular/core';
 import { Durable } from '../../models/classes/durable';
 import { Consumable } from '../../models/classes/consumable';
 import { SeedValues } from '../seedvalues';
+import { Subject } from '../../../../node_modules/rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -31,13 +33,16 @@ export class AssetService {
 
   pendingAssignments = [];
 
+  public assetsEdited = new Subject<any>();
+
   constructor(
     private infoService: InfoService,
     private http: HttpClient
   ) {
-    SeedValues.initDurables.forEach(idurable => {
+    /*SeedValues.initDurables.forEach(idurable => {
       this.addDurable(new Durable(idurable));
-    })
+    })*/
+    this.fetchDurables();
     SeedValues.initConsumables.forEach(iconsumable => {
       this.addConsumable(new Consumable(iconsumable));
     })
@@ -49,14 +54,49 @@ export class AssetService {
     asset = this.getConsumable(id);
     if (asset) return asset;
   }
+  deleteAssetWithoutPosting(asset: Asset){
+    let index = this.durables.findIndex(match => match.id == asset.id);
+    if (index >= 0) this.durables.splice(index,1);
+    else index = this.consumables.findIndex(match => match.id == asset.id);
+    if (index >= 0) this.consumables.splice(index,1);
+  }
+  deleteAsset(asset: Asset){
+    this.deleteAssetWithoutPosting(asset);
+    this.http.post(Globals.request_prefix + 'assets/delete_asset', {asset: asset.asInterface()}).
+      subscribe(res => {
+        console.log(res)
+        this.assetsEdited.next();
+      },
+      err => console.log(err));
+  }
   getDurable(id){
     return this.durables.find(match => match.id == id);
+  }
+  setDurables(idurables: IDurable[]){
+    idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
+    this.assetsEdited.next();
+  }
+  fetchDurables(){
+    this.http.get(Globals.request_prefix + 'assets/get_durables').
+      subscribe((res: object[]) => {
+        this.setDurables(this.parseSQLIDurables(res));
+      },
+      err => console.log(err));
+  }
+  parseSQLIDurables(idurables: any[]): IDurable[]{
+    let fields = ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'];
+    return idurables.map(entry => {
+      let result: any =  {};
+      fields.forEach(field => result[field] = entry[field]);
+      result.tagIds = entry.tagIds.split(',');
+      return result;
+    })
   }
   getConsumable(id){
     return this.consumables.find(match => match.id == id);
   }
 
-  addDurable(durable: Durable){
+  addDurableWithoutPost(durable: Durable){
     durable.injectService(this.infoService);
     let assignmentIndex = this.pendingAssignments.findIndex(match => match.assetId == durable.id);
     if (assignmentIndex >= 0){
@@ -64,19 +104,31 @@ export class AssetService {
       this.pendingAssignments.splice(assignmentIndex,1);
     }
     this.durables.push(durable);
-    /*this.http.post(Globals.request_prefix + 'assets/add_asset',{asset: durable.asInterface()}).
-      subscribe(res => console.log(res),
-      err => console.log(err));*/
+  }
+  addDurable(durable: Durable){
+    this.addDurableWithoutPost(durable);
+    this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: durable.asInterface()}).
+      subscribe(res => {
+        console.log(res)
+        this.assetsEdited.next();
+      },
+      err => console.log(err));
   }
   saveDurable(durable: Durable){
     let index = this.durables.findIndex(match => match.id == durable.id);
     if (index >= 0) this.durables[index] = durable;
+    this.http.post(Globals.request_prefix + 'assets/update_asset', {asset: durable.asInterface()}).
+      subscribe(res => {
+        console.log(res);
+        this.assetsEdited.next();
+      },
+      err => console.log(err));
   }
 
   addConsumable(consumable: Consumable){
     consumable.injectService(this.infoService);
     this.consumables.push(consumable);
-    /*this.http.post(Globals.request_prefix + 'assets/add_asset',{asset: consumable.asInterface()}).
+    /*this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: consumable.asInterface()}).
       subscribe(res => console.log(res),
       err => console.log(err));*/
   }
