@@ -43,7 +43,7 @@ export abstract class Asset implements IAsset  {
     let result = null;
     if (this.manufacturerId){
       result = this.infoService.getManufacturer(this.manufacturerId);
-      if (!result) this.manufacturerId = '0';
+      if (!result) return '0';//this.manufacturerId = '0';
     }
     return result;
   }
@@ -81,6 +81,7 @@ export abstract class Asset implements IAsset  {
     } else this.repair();
     return result;
   }
+  static parseSQLIAssets(assets: any){};
 
   abstract get name(): string;
   abstract asInterface();

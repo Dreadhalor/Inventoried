@@ -54,6 +54,9 @@ export class EditConsumableComponent implements OnInit {
   cancelButtonClicked(){
     this.state = consumableModalState.default;
   }
+  deleteButtonClicked(){
+    this.assets.deleteAsset(this.consumable);
+  }
   saveButtonClicked(){
     this.save();
     this.state = consumableModalState.default;

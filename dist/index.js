@@ -5,11 +5,9 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const passport = require("passport");
 const config = require('./config');
-const sql = require('mssql/msnodesqlv8');
 const db = require('./models/classes/db');
 db.connect(config.mssql);
 const WindowsStrategy = require('passport-windowsauth');
-const router = express.Router();
 const port = 5000;
 const app = express();
 //CORS middleware
@@ -19,12 +17,14 @@ app.use(bodyParser.json());
 //passport middleware
 app.use(passport.initialize());
 //initialize routes
-/*const settings = require('./routes/settings');
-app.use('/settings', settings);*/
+const settings = require('./routes/settings');
+app.use('/settings', settings);
 const assets = require('./routes/assets');
 app.use('/assets', assets);
 const users = require('./routes/users');
-app.use('/users', users);
+app.use('/users', users.router);
+const assignments = require('./routes/assignments');
+app.use('/assignments', assignments);
 //set client file
 /*app.use(express.static(path.join(__dirname, '/client/angular-prod')));
 app.get('/*', function(req, res) {
@@ -85,9 +85,6 @@ app.post('/login2', (req, res) => {
     }
   });
 });*/
-app.post('/create_table', (req, res) => {
-    db.createTableIfNotExists(req.body.tableName, req.body.fields, req.body.types).then(resolved => res.json(resolved), rejected => res.json(rejected));
-});
 app.get('*', (req, res) => {
 });
 app.listen(port, () => {

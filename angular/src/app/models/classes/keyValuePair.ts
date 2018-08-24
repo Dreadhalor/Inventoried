@@ -16,4 +16,14 @@ export class KeyValuePair implements IKeyValuePair {
     return new KeyValuePair(this.id,this.value);
   }
 
+  asInterface(){
+    return {
+      id: this.id,
+      value: this.value
+    };
+  }
+  static fromInterface(ikeyvaluepair: IKeyValuePair){
+    return new KeyValuePair(ikeyvaluepair.id, ikeyvaluepair.value);
+  }
+
 }

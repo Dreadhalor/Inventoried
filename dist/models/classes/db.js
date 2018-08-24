@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const durable_1 = require("./durable");
-const sql = exports.sql = require('mssql/msnodesqlv8');
+const sql = require('mssql/msnodesqlv8');
 let pool = null;
 exports.connect = (config) => pool = new sql.ConnectionPool(config, (err) => {
     //Error handling goes here
@@ -9,45 +8,13 @@ exports.connect = (config) => pool = new sql.ConnectionPool(config, (err) => {
         return err;
     return true;
 });
-exports.Schema = (fields) => {
-    let columns = Object.keys(fields);
-    //console.log(columns);
-    let fieldFormats = columns.map(key => [key, fields[key].toString()]);
-    //console.log(fieldFormats);
-    return fieldFormats;
-};
-const saveDurable = exports.saveDurable = (durable) => {
-    let data = durable_1.Durable.sqlFieldsWithValues(durable);
-    return create(data.tableName, data.fields, data.types, data.values, durable.id);
-};
-const getDurables = exports.getDurables = () => {
-    let query = '';
-    return read('durables', query);
-};
-const updateDurable = exports.updateDurable = (durable) => {
-    let data = durable_1.Durable.sqlFieldsWithValues(durable);
-    return update('durables', data.fields, data.types, data.values, [data.fields[0], data.types[0], data.values[0]]);
-};
-const deleteDurable = exports.deleteDurable = (id) => {
-    return deleteItem('durables', id);
-};
-exports.model = (tableName, fields) => {
-    //return createTable(tableName,fields);
-    return add(tableName, ['field1', 'field2', 'field3'], ['val1', 'val2', 'val3']);
-};
 const doesTableExist = exports.doesTableExist = (tableName) => {
     let query = `select case when exists ` +
         `(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}') ` +
         `then cast(1 as bit) else cast(0 as bit) end`;
     return executeQuery(query).then((resolve) => resolve.recordset[0][''], reject => false);
 };
-function add(tableName, fields, values) {
-    let query = `insert into "${tableName}" ${formatArgs(fields, `"`)} ${formatArgs(values, `'`)}`;
-    console.log(query);
-    return executeQuery(query);
-}
 function pairArgs(args1, args2) {
-    //console.log(args1);
     let pairs = args1.map((arg, index) => `${arg} ${args2[index]}`);
     return pairs;
 }
@@ -86,6 +53,25 @@ function executeQuery(query) {
         }
     });
 }
+const bulkAddition = exports.bulkAddition = (tableName, columnNames, dataTypes, rows) => {
+    return new Promise((resolve, reject) => {
+        const table = new sql.Table(tableName);
+        table.create = true;
+        columnNames.forEach((column, index) => {
+            table.columns.add(column, parseDataType(dataTypes[index]), { nullable: false });
+        });
+        rows.forEach(row => {
+            let [x, ...remaining] = row;
+            table.rows.add(x, ...remaining);
+        });
+        const request = new sql.Request(pool);
+        request.bulk(table, (err, result) => {
+            if (err)
+                reject(err);
+            resolve(result);
+        });
+    });
+};
 const formatIfTableExists = (tableName, innerQuery, exists) => {
     let query = `if ${exists ? `` : `not `}exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}')
     begin
@@ -100,6 +86,11 @@ const formatCreateTable = (tableName, fields, types) => {
 const formatCreateTableIfNotExists = (tableName, fields, types) => {
     let query = formatCreateTable(tableName, fields, types);
     query = formatIfTableExists(tableName, query, false);
+    return query;
+};
+const formatDropTableIfExists = (tableName) => {
+    let innerQuery = `drop table ${tableName};`;
+    let query = formatIfTableExists(tableName, innerQuery, true);
     return query;
 };
 const formatIfNotDuplicate = (tableName, innerQuery, id) => {
@@ -174,9 +165,10 @@ const parseDataType = (type) => {
     switch (type) {
         case 'varchar(max)': return sql.VarChar(sql.MAX);
         case 'bit': return sql.Bit;
+        case 'int': return sql.Int;
     }
 };
-const create = (tableName, fields, types, values, id) => {
+const create = exports.create = (tableName, fields, types, values, id) => {
     let createTable = formatCreateTableIfNotExists(tableName, fields, types);
     let insertValues = (id) ? formatInsertValuesIfNotDuplicate(tableName, values, id) : formatInsertValuesPrepareString(tableName, values);
     let prepString = `${createTable} ${insertValues}`;
@@ -184,12 +176,12 @@ const create = (tableName, fields, types, values, id) => {
     let formattedValues = formatValues(values);
     return executePreparedStatement(ps, prepString, formattedValues);
 };
-const read = (tableName, query) => {
+const read = exports.read = (tableName, query) => {
     let innerQuery = `select * from ${tableName}${query ? ` where ${query}` : ``};`;
     let result = formatIfTableExists(tableName, innerQuery, true);
     return executeQuery(result);
 };
-const update = (tableName, fields, types, values, idVals) => {
+const update = exports.update = (tableName, fields, types, values, idVals) => {
     let prepString = formatUpdateValuesPrepareString(tableName, fields);
     let prepTypes = types.slice(1);
     let prepVals = values.slice(1);
@@ -199,8 +191,11 @@ const update = (tableName, fields, types, values, idVals) => {
     formattedValues.id = idVals[2];
     return executePreparedStatement(ps, prepString, formattedValues);
 };
-const deleteItem = (tableName, id) => {
+const deleteItem = exports.deleteItem = (tableName, id) => {
     return executeQuery(`delete from ${tableName} where id = '${id}'`);
 };
-//delete
+const dropTable = exports.dropTable = (tableName) => {
+    let query = formatDropTableIfExists(tableName);
+    return executeQuery(query);
+};
 //# sourceMappingURL=db.js.map

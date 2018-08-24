@@ -5,6 +5,7 @@ import { Assignment } from '../../models/classes/assignment';
 import { Globals } from '../../globals';
 import { SeedValues } from '../seedvalues';
 import { IUser } from '../../models/interfaces/IUser';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,8 @@ export class UserService {
   set users(val){ this._users = val; }
 
   pendingAssignments = [];
+
+  dataChange = new Subject<any>();
 
   constructor(
     private http: HttpClient
@@ -31,6 +34,7 @@ export class UserService {
       this.http.get<IUser[]>(Globals.request_prefix + 'users/get_all_users').subscribe(
         (iusers) => {
           iusers.forEach(iuser => this.addUser(new User(iuser)));
+          this.dataChange.next();
           resolve();
         },
         (error) => reject()
@@ -57,7 +61,10 @@ export class UserService {
   assign(assignment: Assignment){
     if (assignment){
       let user = this.getUser(assignment.userId);
-      if (user) user.assign(assignment.id);
+      if (user){
+        user.assign(assignment.id);
+        
+      }
       else this.pendingAssignments.push(assignment);
     }
   }

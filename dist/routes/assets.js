@@ -4,16 +4,18 @@ const consumable_1 = require("./../models/classes/consumable");
 const durable_1 = require("../models/classes/durable");
 const express = require('express');
 const router = express.Router();
-const db = require('../models/classes/db');
+const dbClient = require('../models/classes/db-client');
 router.post('/add_asset', (req, res) => {
     let asset = req.body.asset;
     if (asset) {
         let type = typeCheck(asset);
         if (type == 'durable') {
-            db.saveDurable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            //save durable
+            dbClient.saveDurable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
         if (type == 'consumable') {
             //save consumable
+            dbClient.saveConsumable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
     }
 });
@@ -22,10 +24,12 @@ router.post('/update_asset', (req, res) => {
     if (asset) {
         let type = typeCheck(asset);
         if (type == 'durable') {
-            db.updateDurable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            //update durable
+            dbClient.updateDurable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
         if (type == 'consumable') {
-            //save consumable
+            //update consumable
+            dbClient.updateConsumable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
     }
 });
@@ -34,15 +38,26 @@ router.post('/delete_asset', (req, res) => {
     if (asset) {
         let type = typeCheck(asset);
         if (type == 'durable') {
-            db.deleteDurable(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            //delete durable
+            dbClient.deleteDurable(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
         if (type == 'consumable') {
-            //save consumable
+            //delete consumable
+            dbClient.deleteConsumable(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
     }
 });
 router.get('/get_durables', (req, res) => {
-    db.getDurables().then(resolved => {
+    dbClient.getDurables().then(resolved => {
+        let result = resolved.recordset;
+        if (result)
+            res.json(result);
+        else
+            res.json([]);
+    }, rejected => res.json(rejected)).catch(exception => res.json(exception));
+});
+router.get('/get_consumables', (req, res) => {
+    dbClient.getConsumables().then(resolved => {
         let result = resolved.recordset;
         if (result)
             res.json(result);

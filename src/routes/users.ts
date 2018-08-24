@@ -5,19 +5,33 @@ const router = express.Router();
 const config = require('../config');
 
 const ActiveDirectory = require('activedirectory2');
-let ad;// = new ActiveDirectory(config.activedirectory2);
+let ad = new ActiveDirectory(config.activedirectory2);
 
 router.get('/get_all_users', async (req, res) => {
-  ad = new ActiveDirectory(config.activedirectory2);
-  ad.findUsers((err, users) => {
+  ad.findUsers({paged: true}, (err, users) => {
     if (err) return res.send('ERROR: ' + JSON.stringify(err));
     if ((!users) || (users.length == 0)) return res.send('No users found.');
     return res.json(users.map(user => formatLDAPData(user)));
   });
-  ad = null;
 });
 
-module.exports = router;
+const getUser = exports.getUser = (userId: string) => {
+  var query = `objectGUID=${userId}`;
+  var opts = {
+    includeMembership : ['user'], // Optionally can use 'all'
+    includeDeleted : false
+  };
+  
+  ad.find(query, (err, results) => {
+    if ((err) || (! results)) {
+      console.log('ERROR: ' + JSON.stringify(err));
+      return;
+    }
+    return results;
+  })
+};
+
+module.exports.router = router;
 
 function formatLDAPData(data: any){
   var result: IUser = {

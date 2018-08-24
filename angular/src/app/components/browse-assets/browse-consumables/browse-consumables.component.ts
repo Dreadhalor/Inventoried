@@ -24,12 +24,20 @@ export class BrowseConsumablesComponent implements OnInit {
   ];
   dataSource = new MatTableDataSource(this.assets.consumables);
 
+  subscription = null;
+
   constructor(
     private assets: AssetService,
     private ms: ModalService
   ) { }
 
   ngOnInit() {
+    this.subscription = this.assets.assetsEdited.asObservable().subscribe((edited) => {
+      this.dataSource = new MatTableDataSource(this.assets.consumables);
+    })
+  }
+  ngOnDestroy(){
+    if (this.subscription) this.subscription.unsubscribe();
   }
 
   openEditConsumable(consumable: Consumable){

@@ -28,7 +28,8 @@ export class Durable extends Asset {
     let result = null;
     if (this.categoryId){
       result = this.infoService.getDurablesCategory(this.categoryId);
-      if (!result) this.categoryId = '0';
+      if (!result) return '0';
+      //this.categoryId = '0';
     }
     return result;
   }
@@ -83,6 +84,16 @@ export class Durable extends Asset {
       active: this.active
     }
     return result;
+  }
+
+  static parseSQLIAssets(idurables: any[]): IDurable[]{
+    let fields = ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'];
+    return idurables.map(entry => {
+      let result: any =  {};
+      fields.forEach(field => result[field] = entry[field]);
+      result.tagIds = entry.tagIds.split(',');
+      return result;
+    })
   }
 
   repair(){

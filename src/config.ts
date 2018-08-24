@@ -12,7 +12,7 @@ module.exports = {
     baseDN: 'dc=la-archdiocese,dc=org',
     username: info.user,
     password: info.password,
-    entryParser: formatGUIDParser,
+    entryParser: GUIDtoString,
     attributes: {
       user: [
         'objectGUID',
@@ -44,7 +44,7 @@ module.exports = {
   }
 }
 
-function formatGUIDParser(entry, raw, callback){
+function GUIDtoString(entry, raw, callback){
   if (raw.hasOwnProperty('objectGUID')){
     let guidRaw = raw.objectGUID as number[];
     let parts = [

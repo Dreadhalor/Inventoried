@@ -9,6 +9,7 @@ import { Durable } from '../../models/classes/durable';
 import { Consumable } from '../../models/classes/consumable';
 import { SeedValues } from '../seedvalues';
 import { Subject } from '../../../../node_modules/rxjs';
+import { IConsumable } from '../../models/interfaces/IConsumable';
 
 @Injectable({
   providedIn: 'root'
@@ -43,11 +44,95 @@ export class AssetService {
       this.addDurable(new Durable(idurable));
     })*/
     this.fetchDurables();
-    SeedValues.initConsumables.forEach(iconsumable => {
+    /*SeedValues.initConsumables.forEach(iconsumable => {
       this.addConsumable(new Consumable(iconsumable));
-    })
+    })*/
+    this.fetchConsumables();
   }
 
+  //Durables
+  getDurable(id){
+    return this.durables.find(match => match.id == id);
+  }
+  setDurables(idurables: IDurable[]){
+    idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
+    this.assetsEdited.next();
+  }
+  fetchDurables(){
+    this.http.get(Globals.request_prefix + 'assets/get_durables').
+      subscribe((res: object[]) => {
+        this.setDurables(Durable.parseSQLIAssets(res));
+      },
+      err => console.log(err));
+  }
+  addDurableWithoutPost(durable: Durable){
+    durable.injectService(this.infoService);
+    let assignmentIndex = this.pendingAssignments.findIndex(match => match.assetId == durable.id);
+    if (assignmentIndex >= 0){
+      durable.assign(this.pendingAssignments[assignmentIndex].id);
+      this.pendingAssignments.splice(assignmentIndex,1);
+    }
+    this.durables.push(durable);
+  }
+  addDurable(durable: Durable){
+    this.addDurableWithoutPost(durable);
+    this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: durable.asInterface()}).
+      subscribe(res => {
+        this.assetsEdited.next();
+      },
+      err => console.log(err));
+  }
+  saveDurable(durable: Durable){
+    let index = this.durables.findIndex(match => match.id == durable.id);
+    if (index >= 0) this.durables[index] = durable;
+    this.http.post(Globals.request_prefix + 'assets/update_asset', {asset: durable.asInterface()}).
+      subscribe(
+        res => this.assetsEdited.next(),
+        err => console.log(err));
+  }
+
+  //Consumables
+  getConsumable(id){
+    return this.consumables.find(match => match.id == id);
+  }
+  setConsumables(iconsumables: IConsumable[]){
+    iconsumables.forEach(iconsumable => this.addConsumableWithoutPost(new Consumable(iconsumable)));
+    this.assetsEdited.next();
+  }
+  fetchConsumables(){
+    this.http.get(Globals.request_prefix + 'assets/get_consumables').
+      subscribe((res: object[]) => {
+        this.setConsumables(Consumable.parseSQLIAssets(res));
+      },
+      err => console.log(err));
+  }
+  addConsumableWithoutPost(consumable: Consumable){
+    consumable.injectService(this.infoService);
+    let assignmentIndex = this.pendingAssignments.findIndex(match => match.assetId == consumable.id);
+    if (assignmentIndex >= 0){
+      consumable.assign(this.pendingAssignments[assignmentIndex].id);
+      this.pendingAssignments.splice(assignmentIndex,1);
+    }
+    this.consumables.push(consumable);
+  }
+  addConsumable(consumable: Consumable){
+    this.addConsumableWithoutPost(consumable);
+    this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: consumable.asInterface()}).
+      subscribe(
+        res => this.assetsEdited.next(),
+        err => console.log(err));
+  }
+  saveConsumable(consumable: Consumable){
+    let index = this.consumables.findIndex(match => match.id == consumable.id);
+    if (index >= 0) this.consumables[index] = consumable;
+    this.http.post(Globals.request_prefix + 'assets/update_asset', {asset: consumable.asInterface()}).
+      subscribe(
+        res => this.assetsEdited.next(),
+        err => console.log(err));
+  }
+
+
+  //Assets
   getAsset(id){
     let asset: Asset = this.getDurable(id);
     if (asset) return asset;
@@ -63,80 +148,10 @@ export class AssetService {
   deleteAsset(asset: Asset){
     this.deleteAssetWithoutPosting(asset);
     this.http.post(Globals.request_prefix + 'assets/delete_asset', {asset: asset.asInterface()}).
-      subscribe(res => {
-        console.log(res)
-        this.assetsEdited.next();
-      },
-      err => console.log(err));
+      subscribe(
+        res => this.assetsEdited.next(),
+        err => console.log(err));
   }
-  getDurable(id){
-    return this.durables.find(match => match.id == id);
-  }
-  setDurables(idurables: IDurable[]){
-    idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
-    this.assetsEdited.next();
-  }
-  fetchDurables(){
-    this.http.get(Globals.request_prefix + 'assets/get_durables').
-      subscribe((res: object[]) => {
-        this.setDurables(this.parseSQLIDurables(res));
-      },
-      err => console.log(err));
-  }
-  parseSQLIDurables(idurables: any[]): IDurable[]{
-    let fields = ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'];
-    return idurables.map(entry => {
-      let result: any =  {};
-      fields.forEach(field => result[field] = entry[field]);
-      result.tagIds = entry.tagIds.split(',');
-      return result;
-    })
-  }
-  getConsumable(id){
-    return this.consumables.find(match => match.id == id);
-  }
-
-  addDurableWithoutPost(durable: Durable){
-    durable.injectService(this.infoService);
-    let assignmentIndex = this.pendingAssignments.findIndex(match => match.assetId == durable.id);
-    if (assignmentIndex >= 0){
-      durable.assign(this.pendingAssignments[assignmentIndex].id);
-      this.pendingAssignments.splice(assignmentIndex,1);
-    }
-    this.durables.push(durable);
-  }
-  addDurable(durable: Durable){
-    this.addDurableWithoutPost(durable);
-    this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: durable.asInterface()}).
-      subscribe(res => {
-        console.log(res)
-        this.assetsEdited.next();
-      },
-      err => console.log(err));
-  }
-  saveDurable(durable: Durable){
-    let index = this.durables.findIndex(match => match.id == durable.id);
-    if (index >= 0) this.durables[index] = durable;
-    this.http.post(Globals.request_prefix + 'assets/update_asset', {asset: durable.asInterface()}).
-      subscribe(res => {
-        console.log(res);
-        this.assetsEdited.next();
-      },
-      err => console.log(err));
-  }
-
-  addConsumable(consumable: Consumable){
-    consumable.injectService(this.infoService);
-    this.consumables.push(consumable);
-    /*this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: consumable.asInterface()}).
-      subscribe(res => console.log(res),
-      err => console.log(err));*/
-  }
-  saveConsumable(consumable: Consumable){
-    let index = this.consumables.findIndex(match => match.id == consumable.id);
-    if (index >= 0) this.consumables[index] = consumable;
-  }
-
   assign(assignment: Assignment){
     if (assignment){
       let asset = this.getAsset(assignment.assetId);
