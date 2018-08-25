@@ -11,32 +11,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require('express');
 const router = express.Router();
 const config = require('../config');
+const guidParser = require('../guid-parse');
 const ActiveDirectory = require('activedirectory2');
-let ad = new ActiveDirectory(config.activedirectory2);
+const ADPromise = ActiveDirectory.promiseWrapper;
+let ad = new ADPromise(config.activedirectory2);
 router.get('/get_all_users', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    ad.findUsers({ paged: true }, (err, users) => {
-        if (err)
-            return res.send('ERROR: ' + JSON.stringify(err));
-        if ((!users) || (users.length == 0))
-            return res.send('No users found.');
-        return res.json(users.map(user => formatLDAPData(user)));
-    });
+    ad.findUsers({ paged: true }).then(users => {
+        if (users.length == 0)
+            res.json('No users found.');
+        else
+            res.json(users.map(user => formatLDAPData(user)));
+    }, rejected => res.json(rejected)).catch(exception => res.json(exception));
 }));
-const getUser = exports.getUser = (userId) => {
-    var query = `objectGUID=${userId}`;
+const getUser = (userId) => {
+    let parsedGUID = [];
+    guidParser.parse(userId, parsedGUID);
     var opts = {
-        includeMembership: ['user'],
-        includeDeleted: false
+        includeMembership: ['wewerwe'],
+        filter: new ActiveDirectory.filters.EqualityFilter({
+            attribute: 'objectGUID',
+            value: parsedGUID
+        })
     };
-    ad.find(query, (err, results) => {
-        if ((err) || (!results)) {
-            console.log('ERROR: ' + JSON.stringify(err));
-            return;
-        }
-        return results;
-    });
+    return ad.find(opts).then(results => {
+        if (!results || !results.users || results.users.length == 0)
+            return null;
+        return formatLDAPData(results.users[0]);
+    }, rejected => null).catch(exception => null);
 };
-module.exports.router = router;
 function formatLDAPData(data) {
     var result = {
         id: data.objectGUID,
@@ -57,6 +59,7 @@ function formatLDAPData(data) {
         distinguishedName: formatForEmptyString(data.distinguishedName),
         assignmentIds: []
     };
+    //let assignmentIds
     return result;
 }
 function formatForEmptyString(value) {
@@ -71,4 +74,6 @@ function formatManagerName(manager) {
     }
     return '';
 }
+exports.router = router;
+exports.getUser = getUser;
 //# sourceMappingURL=users.js.map

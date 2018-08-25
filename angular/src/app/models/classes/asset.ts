@@ -72,11 +72,13 @@ export abstract class Asset implements IAsset  {
   get tags(){
     let result: KeyValuePair[] = [];
     if (this.tagIds){
-      for (let i = this.tagIds.length; i >= 0; i--){
+      for (let i = this.tagIds.length - 1; i >= 0; i--){
         let tag = this.infoService.getTag(this.tagIds[i]);
         if (tag){
           result.unshift(tag);
-        } else this.tagIds.splice(i,1);
+        } else {
+          this.tagIds.splice(i,1);
+        }
       }
     } else this.repair();
     return result;

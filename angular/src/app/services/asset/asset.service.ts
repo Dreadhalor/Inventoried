@@ -56,6 +56,7 @@ export class AssetService {
   }
   setDurables(idurables: IDurable[]){
     idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
+    console.log(this.durables);
     this.assetsEdited.next();
   }
   fetchDurables(){

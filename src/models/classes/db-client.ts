@@ -8,8 +8,7 @@ const db = require('./db');
 
 //durables categories
 const getDurablesCategories = exports.getDurablesCategories = () => {
-  let query = '';
-  return db.read('durablesCategories',query);
+  return db.read('durablesCategories',null);
 }
 const setDurablesCategories = exports.setDurablesCategories = (categories: IKeyValuePair[]): Promise<any> => {
   return db.dropTable('durablesCategories').then(
@@ -30,8 +29,7 @@ const setDurablesCategories = exports.setDurablesCategories = (categories: IKeyV
 
 //consumables categories
 const getConsumablesCategories = exports.getConsumablesCategories = () => {
-  let query = '';
-  return db.read('consumablesCategories',query);
+  return db.read('consumablesCategories',null);
 }
 const setConsumablesCategories = exports.setConsumablesCategories = (categories: IKeyValuePair[]): Promise<any> => {
   return db.dropTable('consumablesCategories').then(
@@ -52,8 +50,7 @@ const setConsumablesCategories = exports.setConsumablesCategories = (categories:
 
 //manufacturers
 const getManufacturers = exports.getManufacturers = () => {
-  let query = '';
-  return db.read('manufacturers',query);
+  return db.read('manufacturers',null);
 }
 const setManufacturers = exports.setManufacturers = (manufacturers: IKeyValuePair[]): Promise<any> => {
   return db.dropTable('manufacturers').then(
@@ -74,8 +71,7 @@ const setManufacturers = exports.setManufacturers = (manufacturers: IKeyValuePai
 
 //manufacturers
 const getTags = exports.getTags = () => {
-  let query = '';
-  return db.read('tags',query);
+  return db.read('tags',null);
 }
 const setTags = exports.setTags = (tags: IKeyValuePair[]): Promise<any> => {
   return db.dropTable('tags').then(
@@ -97,15 +93,30 @@ const setTags = exports.setTags = (tags: IKeyValuePair[]): Promise<any> => {
 //durables
 const saveDurable = exports.saveDurable = (durable: IDurable) => {
   let data = Durable.sqlFieldsWithValues(durable);
-  return db.create(data.tableName, data.fields, data.types, data.values, durable.id);
+  return db.create(data.tableName, data.fields, data.types, formatObject(data.durable), durable.id);
 }
 const getDurables = exports.getDurables = () => {
-  let query = '';
-  return db.read('durables',query);
+  return db.read('durables',null).then(
+    resolved => {
+      let result = resolved.recordset;
+      if (result) return result;
+      else return [];
+    }
+  ).catch(exception => null);
+}
+const getDurable = exports.getDurable = (id: string) => {
+  return db.read('durables',byId(id)).then(
+    resolved => {
+      if (!resolved || !resolved.recordset || resolved.recordset.length == 0)
+        return null;
+      return resolved.recordset[0];
+    }
+  ).catch(exception => null);
 }
 const updateDurable = exports.updateDurable = (durable: IDurable) => {
   let data = Durable.sqlFieldsWithValues(durable);
-  return db.update('durables', data.fields, data.types, data.values, [data.fields[0], data.types[0], data.values[0]]);
+  let formattedDurable = formatObject(data.durable);
+  return db.update('durables', data.fields, data.types, formattedDurable, [data.fields[0], data.types[0], formattedDurable[0]]);
 }
 const deleteDurable = exports.deleteDurable = (id: string) => {
   return db.deleteItem('durables',id);
@@ -114,16 +125,72 @@ const deleteDurable = exports.deleteDurable = (id: string) => {
 //consumables
 const saveConsumable = exports.saveConsumable = (consumable: IConsumable) => {
   let data = Consumable.sqlFieldsWithValues(consumable);
-  return db.create(data.tableName, data.fields, data.types, data.values, consumable.id);
+  return db.create(data.tableName, data.fields, data.types, formatObject(data.consumable), consumable.id);
 }
 const getConsumables = exports.getConsumables = () => {
-  let query = '';
-  return db.read('consumables',query);
+  return db.read('consumables',null).then(
+    resolved => {
+      let result = resolved.recordset;
+      if (result) return result;
+      else return [];
+    }
+  ).catch(exception => null);
+}
+const getConsumable = exports.getConsumable = (id: string) => {
+  return db.read('consumables',byId(id)).then(
+    resolved => {
+      if (!resolved || !resolved.recordset || resolved.recordset.length == 0)
+        return null;
+      return resolved.recordset[0];
+    }
+  ).catch(exception => null);
 }
 const updateConsumable = exports.updateConsumable = (consumable: IConsumable) => {
   let data = Consumable.sqlFieldsWithValues(consumable);
-  return db.update('consumables', data.fields, data.types, data.values, [data.fields[0], data.types[0], data.values[0]]);
+  let formattedConsumable = formatObject(data.consumable);
+  return db.update('consumables', data.fields, data.types, formattedConsumable, [data.fields[0], data.types[0], formattedConsumable[0]]);
 }
 const deleteConsumable = exports.deleteConsumable = (id: string) => {
   return db.deleteItem('consumables',id);
 }
+
+//users
+const getAssignmentIds = exports.getAssignmentIds = (userId: string) => {
+  return db.read('userData',null).then(
+    resolved => {
+      if (resolved.recordset && resolved.recordset.assignmentIds)
+        return resolved.recordset.assignmentIds;
+      return [];
+    }
+  ).catch(exception => null);
+}
+
+//formatting
+function byId(id: string){
+  return `id = '${id}'`;
+}
+function formatObject(obj: object): any[]{
+  let keys = Object.keys(obj);
+  let result = [];
+  keys.forEach((key) => {
+    if (typeof obj[key] == 'object')
+      result.push(obj[key].join(','));
+    else result.push(obj[key]);
+  });
+  console.log(result);
+  return result;
+}
+/*function parseFormattedObject(obj: any[], fields: string[], fieldsToSplit: string[]){
+  let result: any =  {};
+  fields.forEach(field => {
+    if (fieldsToSplit.indexOf(field) >= 0)
+      result[field] = entry[field];
+  })
+}
+let fields = ['id', 'label', 'quantity', 'categoryId', 'manufacturerId', 'notes', 'assignmentIds', 'tagIds'];
+    return iconsumables.map(entry => {
+      let result: any =  {};
+      fields.forEach(field => result[field] = entry[field]);
+      result.tagIds = entry.tagIds.split(',');
+      return result;
+    })*/

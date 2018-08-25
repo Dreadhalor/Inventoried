@@ -23,7 +23,7 @@ app.use(passport.initialize());
 const settings = require('./routes/settings');
 app.use('/settings', settings);
 const assets = require('./routes/assets');
-app.use('/assets', assets);
+app.use('/assets', assets.router);
 const users = require('./routes/users');
 app.use('/users', users.router);
 const assignments = require('./routes/assignments');
@@ -54,12 +54,12 @@ passport.use(new WindowsStrategy({
 ));
 
 
-/*app.post('/login',
+app.post('/login',
   passport.authenticate('WindowsAuthentication', {session: false}),
   (req, res) => { res.json({user: req.user}); }
 );
 
-app.post('/login2', (req, res) => {
+/*app.post('/login2', (req, res) => {
   var username = req.body.username;
   var password = req.body.password;
   
@@ -100,3 +100,5 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
+
+//ngrok.io token: Z45rb28xmBXrrGc5komJ_6Z36ekSeUjBEQ8rZHvAn5

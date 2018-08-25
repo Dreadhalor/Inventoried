@@ -23,10 +23,13 @@
   "dependencies": {
     "@types/cors": "^2.8.4",
     "@types/passport": "^0.4.6",
+    "@types/uuid": "^3.4.3",
+    "@types/uuid-parse": "^1.0.0",
     "activedirectory2": "^1.2.6",
     "cors": "^2.8.4",
+    "moment": "^2.22.2",
     "msnodesqlv8": "^0.6.8",
-    "mssql": "^4.1.0",
+    "mssql": "^4.2.1",
     "passport-windowsauth": "^3.0.1",
     "uuid": "^3.3.2"
   },

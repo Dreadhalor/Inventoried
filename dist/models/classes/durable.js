@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const asset_1 = require("./asset");
 let db = require('./db');
 class Durable {
     static sample() {
@@ -21,7 +20,7 @@ class Durable {
             tableName: 'durables',
             fields: ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'],
             types: ['varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'bit'],
-            values: asset_1.Asset.formatAsset(durable)
+            durable: durable
         };
     }
 }

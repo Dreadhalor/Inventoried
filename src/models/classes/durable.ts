@@ -1,4 +1,3 @@
-import { Asset } from './asset';
 import { IDurable } from './../interfaces/IDurable';
 let db = require('./db');
 export class Durable {
@@ -21,7 +20,7 @@ export class Durable {
       tableName: 'durables',
       fields: ['id', 'serialNumber', 'categoryId', 'manufacturerId','notes','assignmentId','tagIds','active'],
       types: ['varchar(max)','varchar(max)','varchar(max)','varchar(max)','varchar(max)','varchar(max)','varchar(max)','bit'],
-      values: Asset.formatAsset(durable)
+      durable: durable
     }
   }
 

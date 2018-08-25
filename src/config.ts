@@ -1,3 +1,5 @@
+let guidParser = require('./guid-parse');
+
 let info = {
   user: 'scott.hetrick@la-archdiocese.org',
   password: 'abc#123',
@@ -41,12 +43,14 @@ module.exports = {
       instanceName: info.serverInstance,
       trustedConnection: true
     }
-  }
+  },
+  dateFormat: 'MMMM Do YYYY'
 }
 
 function GUIDtoString(entry, raw, callback){
   if (raw.hasOwnProperty('objectGUID')){
-    let guidRaw = raw.objectGUID as number[];
+    entry.objectGUID = guidParser.unparse(raw.objectGUID);
+    /*let guidRaw = raw.objectGUID as number[];
     let parts = [
       guidRaw.slice(0,4).reverse(),
       guidRaw.slice(4,6).reverse(),
@@ -63,7 +67,7 @@ function GUIDtoString(entry, raw, callback){
       });
       return mapped;
     })
-    entry.objectGUID = result.join('-');
+    entry.objectGUID = result.join('-');*/
   }
   callback(entry);
 }

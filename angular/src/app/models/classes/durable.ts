@@ -100,7 +100,6 @@ export class Durable extends Asset {
     super.repair();
     this.serialNumber = (this.serialNumber) ? this.serialNumber : '';
     this.assignmentId = (this.assignmentId) ? this.assignmentId : '0';
-    this.tagIds = (this.tagIds) ? this.tagIds : [];
   }
 
 }

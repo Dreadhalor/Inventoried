@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const consumable_1 = require("./../models/classes/consumable");
 const durable_1 = require("../models/classes/durable");
@@ -47,25 +55,32 @@ router.post('/delete_asset', (req, res) => {
         }
     }
 });
-router.get('/get_durables', (req, res) => {
-    dbClient.getDurables().then(resolved => {
-        let result = resolved.recordset;
-        if (result)
-            res.json(result);
+router.get('/get_durables', (req, res) => __awaiter(this, void 0, void 0, function* () {
+    res.json(yield dbClient.getDurables());
+}));
+router.get('/get_consumables', (req, res) => __awaiter(this, void 0, void 0, function* () {
+    res.json(yield dbClient.getConsumables());
+}));
+const getAsset = exports.getAsset = (assetId) => {
+    return Promise.all([
+        dbClient.getDurable(assetId),
+        dbClient.getConsumable(assetId)
+    ]).then(result => {
+        if (result[0])
+            return {
+                type: 'durable',
+                asset: result[0]
+            };
+        if (result[1])
+            return {
+                type: 'consumable',
+                asset: result[1]
+            };
         else
-            res.json([]);
-    }, rejected => res.json(rejected)).catch(exception => res.json(exception));
-});
-router.get('/get_consumables', (req, res) => {
-    dbClient.getConsumables().then(resolved => {
-        let result = resolved.recordset;
-        if (result)
-            res.json(result);
-        else
-            res.json([]);
-    }, rejected => res.json(rejected)).catch(exception => res.json(exception));
-});
-module.exports = router;
+            return null;
+    }).catch(exception => null);
+};
+module.exports.router = router;
 function typeCheck(asset) {
     if (is(asset, durable_1.Durable.sample()))
         return 'durable';

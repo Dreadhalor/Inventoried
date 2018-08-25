@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const asset_1 = require("./asset");
 class Consumable {
     static sample() {
         let sample = {
@@ -20,7 +19,7 @@ class Consumable {
             tableName: 'consumables',
             fields: ['id', 'label', 'quantity', 'categoryId', 'manufacturerId', 'notes', 'assignmentIds', 'tagIds'],
             types: ['varchar(max)', 'varchar(max)', 'int', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)'],
-            values: asset_1.Asset.formatAsset(consumable)
+            consumable: consumable
         };
     }
 }

@@ -20,7 +20,7 @@ app.use(passport.initialize());
 const settings = require('./routes/settings');
 app.use('/settings', settings);
 const assets = require('./routes/assets');
-app.use('/assets', assets);
+app.use('/assets', assets.router);
 const users = require('./routes/users');
 app.use('/users', users.router);
 const assignments = require('./routes/assignments');
@@ -47,12 +47,8 @@ passport.use(new WindowsStrategy({
     else
         return done(null, false);
 }));
-/*app.post('/login',
-  passport.authenticate('WindowsAuthentication', {session: false}),
-  (req, res) => { res.json({user: req.user}); }
-);
-
-app.post('/login2', (req, res) => {
+app.post('/login', passport.authenticate('WindowsAuthentication', { session: false }), (req, res) => { res.json({ user: req.user }); });
+/*app.post('/login2', (req, res) => {
   var username = req.body.username;
   var password = req.body.password;
   

@@ -66,28 +66,33 @@ router.post('/delete_asset', (req, res) => {
   }
 })
 
-router.get('/get_durables', (req, res) => {
-  dbClient.getDurables().then(
-    resolved => {
-      let result = resolved.recordset;
-      if (result) res.json(result);
-      else res.json([]);
-    },
-    rejected => res.json(rejected)
-  ).catch(exception => res.json(exception));
+router.get('/get_durables', async (req, res) => {
+  res.json(await dbClient.getDurables());
 })
-router.get('/get_consumables', (req, res) => {
-  dbClient.getConsumables().then(
-    resolved => {
-      let result = resolved.recordset;
-      if (result) res.json(result);
-      else res.json([]);
-    },
-    rejected => res.json(rejected)
-  ).catch(exception => res.json(exception));
+router.get('/get_consumables', async (req, res) => {
+  res.json(await dbClient.getConsumables());
 })
 
-module.exports = router;
+const getAsset = exports.getAsset = (assetId: string) => {
+  return Promise.all([
+    dbClient.getDurable(assetId),
+    dbClient.getConsumable(assetId)
+  ]).then(
+    result => {
+      if (result[0]) return {
+        type: 'durable',
+        asset: result[0]
+      }
+      if (result[1]) return {
+        type: 'consumable',
+        asset: result[1]
+      }
+      else return null;
+    }
+  ).catch(exception => null);
+};
+
+module.exports.router = router;
 
 function typeCheck(asset: any){
   if (is(asset, Durable.sample())) return 'durable';
