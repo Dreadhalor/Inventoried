@@ -1,10 +1,15 @@
-import { IKeyValuePair } from './../interfaces/IKeyValuePair';
-import { IConsumable } from './../interfaces/IConsumable';
-import { Durable } from "./durable";
-import { IDurable } from "../interfaces/IDurable";
-import { Consumable } from './consumable';
+import { Table } from './table';
+import { IAssignment } from '../models/interfaces/IAssignment';
+import { IKeyValuePair } from '../models/interfaces/IKeyValuePair';
+import { IConsumable } from '../models/interfaces/IConsumable';
+import { Durable } from "../models/classes/durable";
+import { IDurable } from "../models/interfaces/IDurable";
+import { Consumable } from '../models/classes/consumable';
 
 const db = require('./db');
+
+exports.connect = (config) => db.connect(config);
+exports.Table = (schema: any) => new Table(db, schema);
 
 //durables categories
 const getDurablesCategories = exports.getDurablesCategories = () => {
@@ -101,8 +106,8 @@ const getDurables = exports.getDurables = () => {
       let result = resolved.recordset;
       if (result) return result;
       else return [];
-    }
-  ).catch(exception => null);
+    },
+  ).catch(exception => []);
 }
 const getDurable = exports.getDurable = (id: string) => {
   return db.read('durables',byId(id)).then(
@@ -134,7 +139,7 @@ const getConsumables = exports.getConsumables = () => {
       if (result) return result;
       else return [];
     }
-  ).catch(exception => null);
+  ).catch(exception => []);
 }
 const getConsumable = exports.getConsumable = (id: string) => {
   return db.read('consumables',byId(id)).then(
@@ -165,6 +170,11 @@ const getAssignmentIds = exports.getAssignmentIds = (userId: string) => {
   ).catch(exception => null);
 }
 
+//assignments
+const saveAssignment = exports.saveAssignment = (assignment: IAssignment) => {
+
+}
+
 //formatting
 function byId(id: string){
   return `id = '${id}'`;
@@ -177,7 +187,6 @@ function formatObject(obj: object): any[]{
       result.push(obj[key].join(','));
     else result.push(obj[key]);
   });
-  console.log(result);
   return result;
 }
 /*function parseFormattedObject(obj: any[], fields: string[], fieldsToSplit: string[]){

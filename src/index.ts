@@ -5,8 +5,14 @@ import * as cors from 'cors';
 import * as passport from 'passport';
 
 const config = require('./config');
-const db = require('./models/classes/db');
-db.connect(config.mssql);
+
+const dbClient = require('./db/db-client');
+dbClient.connect(config.mssql)
+  .then(connected => console.log('Successfully connected to SQL server.'))
+  .catch(exception => console.log(
+    `SQL server connection error: ${JSON.stringify(exception)}`
+  ));
+  
 const WindowsStrategy = require('passport-windowsauth');
 
 const port = 5000;

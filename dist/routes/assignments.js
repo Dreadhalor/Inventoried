@@ -8,14 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const assignment_1 = require("../models/classes/assignment");
 const moment = require("moment");
 const express = require("express");
 const router = express.Router();
-const dbClient = require('../models/classes/db-client');
+const Assignments = require('../models/tables/Assignments');
 const assets = require('./assets');
 const users = require('./users');
 const config = require('../config');
 router.post('/create_assignment', (req, res) => __awaiter(this, void 0, void 0, function* () {
+    let assignmentId = req.body.id;
     let userId = req.body.userId;
     let assetId = req.body.assetId;
     let checkoutDate = req.body.checkoutDate;
@@ -32,7 +34,7 @@ router.post('/create_assignment', (req, res) => __awaiter(this, void 0, void 0, 
             }).catch(exception => null);
             if (user && asset) { //user & asset are both valid objects in the database
                 //All inputs are valid
-                res.json(yield checkout(user, asset, checkoutDateParsed, dueDateParsed));
+                res.json(yield checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed));
                 //res.json({user,asset});
             }
             else
@@ -52,11 +54,17 @@ const parseDate = (date) => {
     }
     return null;
 };
-const getAssignmentIds = (userId) => {
-    //dbClient.
-};
-const checkout = (user, asset, checkoutDate, dueDate) => {
-    return dbClient.getAssignmentIds(user.id);
+const checkout = (assignmentId, user, asset, checkoutDate, dueDate) => {
+    //return dbClient.getAssignmentIds(user.id);
+    let iassignment = {
+        id: assignmentId,
+        userId: user.id,
+        assetId: asset.asset.id,
+        checkoutDate: checkoutDate.format(config.dateFormat),
+        dueDate: dueDate.format(config.dateFormat)
+    };
+    let assignment = new assignment_1.Assignment(iassignment);
+    return Assignments.save(assignment);
 };
 //Consumable
 /*

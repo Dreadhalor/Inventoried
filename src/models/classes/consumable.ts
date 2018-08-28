@@ -1,4 +1,5 @@
-import { IConsumable } from './../interfaces/IConsumable';
+import { IConsumable } from '../interfaces/IConsumable';
+
 export class Consumable {
   public static sample(){
     let sample: IConsumable = {

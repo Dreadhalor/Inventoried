@@ -1,13 +1,16 @@
+import { Assignment } from '../models/classes/assignment';
+import { IAssignment } from '../models/interfaces/IAssignment';
 import * as moment from 'moment';
 import * as express from 'express';
 const router = express.Router();
 
-const dbClient = require('../models/classes/db-client');
+const Assignments = require('../models/tables/Assignments');
 const assets = require('./assets');
 const users = require('./users');
 const config = require('../config');
 
 router.post('/create_assignment', async (req, res) => {
+  let assignmentId = req.body.id;
   let userId = req.body.userId;
   let assetId = req.body.assetId;
   let checkoutDate = req.body.checkoutDate;
@@ -26,7 +29,7 @@ router.post('/create_assignment', async (req, res) => {
       ).catch(exception => null);
       if (user && asset){ //user & asset are both valid objects in the database
         //All inputs are valid
-        res.json(await checkout(user, asset, checkoutDateParsed, dueDateParsed));
+        res.json(await checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed));
         //res.json({user,asset});
       } else res.send('User and asset are not both valid.')
     }
@@ -45,12 +48,19 @@ const parseDate = (date: string): moment.Moment => {
   return null;
 }
 
-const getAssignmentIds = (userId: string) => {
-  //dbClient.
-}
+const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDate: moment.Moment) => {
+  //return dbClient.getAssignmentIds(user.id);
+  let iassignment: IAssignment = {
+    id: assignmentId,
+    userId: user.id,
+    assetId: asset.asset.id,
+    checkoutDate: checkoutDate.format(config.dateFormat),
+    dueDate: dueDate.format(config.dateFormat)
+  }
+  let assignment = new Assignment(iassignment);
+  return Assignments.save(assignment);
 
-const checkout = (user, asset, checkoutDate: moment.Moment, dueDate: moment.Moment) => {
-  return dbClient.getAssignmentIds(user.id);
+
 }
 
 //Consumable

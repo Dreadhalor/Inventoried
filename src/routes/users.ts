@@ -10,7 +10,7 @@ const ADPromise = ActiveDirectory.promiseWrapper;
 let ad = new ADPromise(config.activedirectory2);
 
 router.get('/get_all_users', async (req, res) => {
-  ad.findUsers({paged: true}).then(
+  ad.findUsers({paged: false}).then(
     users => {
       if (users.length == 0) res.json('No users found.');
       else res.json(users.map(user => formatLDAPData(user)));
@@ -24,7 +24,6 @@ const getUser = (userId: string) => {
   guidParser.parse(userId,parsedGUID);
   
   var opts = {
-    includeMembership: ['wewerwe'],
     filter : new ActiveDirectory.filters.EqualityFilter({
       attribute: 'objectGUID',
       value: parsedGUID

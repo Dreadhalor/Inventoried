@@ -5,8 +5,10 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const passport = require("passport");
 const config = require('./config');
-const db = require('./models/classes/db');
-db.connect(config.mssql);
+const dbClient = require('./db/db-client');
+dbClient.connect(config.mssql)
+    .then(connected => console.log('Successfully connected to SQL server.'))
+    .catch(exception => console.log(`SQL server connection error: ${JSON.stringify(exception)}`));
 const WindowsStrategy = require('passport-windowsauth');
 const port = 5000;
 const app = express();
@@ -86,4 +88,5 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
+//ngrok.io token: Z45rb28xmBXrrGc5komJ_6Z36ekSeUjBEQ8rZHvAn5
 //# sourceMappingURL=index.js.map

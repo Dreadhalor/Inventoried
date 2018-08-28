@@ -8,22 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const consumable_1 = require("./../models/classes/consumable");
+const consumable_1 = require("../models/classes/consumable");
 const durable_1 = require("../models/classes/durable");
+const dbClient = require('../db/db-client');
 const express = require('express');
 const router = express.Router();
-const dbClient = require('../models/classes/db-client');
+const Durables = require('../models/tables/Durables');
+const Consumables = require('../models/tables/Consumables');
 router.post('/add_asset', (req, res) => {
     let asset = req.body.asset;
     if (asset) {
         let type = typeCheck(asset);
         if (type == 'durable') {
             //save durable
-            dbClient.saveDurable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            Durables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
         if (type == 'consumable') {
             //save consumable
-            dbClient.saveConsumable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            Consumables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
     }
 });
@@ -56,11 +58,11 @@ router.post('/delete_asset', (req, res) => {
     }
 });
 router.get('/get_durables', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    res.json(yield dbClient.getDurables());
+    dbClient.getDurables().then(resolve => res.json(resolve)).catch(exception => res.json([]));
 }));
-router.get('/get_consumables', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    res.json(yield dbClient.getConsumables());
-}));
+router.get('/get_consumables', (req, res) => {
+    dbClient.getConsumables().then(resolve => res.json(resolve)).catch(exception => res.json([]));
+});
 const getAsset = exports.getAsset = (assetId) => {
     return Promise.all([
         dbClient.getDurable(assetId),

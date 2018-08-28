@@ -1,13 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const sql = require('mssql/msnodesqlv8');
-let pool = null;
-exports.connect = (config) => pool = new sql.ConnectionPool(config, (err) => {
-    //Error handling goes here
-    if (err)
-        return err;
-    return true;
-});
+module.exports.connect = (config) => sql.connect(config);
 const doesTableExist = exports.doesTableExist = (tableName) => {
     let query = `select case when exists ` +
         `(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}') ` +
@@ -32,7 +24,7 @@ function formatArgs(args, delimiter) {
 function executeQuery(query) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = new sql.Transaction(pool);
+            const transaction = new sql.Transaction();
             transaction.begin(err1 => {
                 if (err1)
                     reject(err1);
@@ -64,7 +56,7 @@ const bulkAddition = exports.bulkAddition = (tableName, columnNames, dataTypes, 
             let [x, ...remaining] = row;
             table.rows.add(x, ...remaining);
         });
-        const request = new sql.Request(pool);
+        const request = new sql.Request();
         request.bulk(table, (err, result) => {
             if (err)
                 reject(err);
@@ -133,7 +125,7 @@ const formatUpdateValuesPrepareString = (tableName, fields) => {
     return query;
 };
 const preparedStatementWithInputs = (types) => {
-    const ps = new sql.PreparedStatement(pool);
+    const ps = new sql.PreparedStatement();
     for (let i = 0; i < types.length; i++) {
         ps.input(`value${i + 1}`, parseDataType(types[i]));
     }
@@ -199,19 +191,19 @@ const dropTable = exports.dropTable = (tableName) => {
     return executeQuery(query);
 };
 const create2 = exports.create2 = (info) => {
-    let createTable = formatCreateTableIfNotExists(info.tableName, info.row.map(column => column.name), info.row.map(column => column.dataType));
+    let createTable = formatCreateTableIfNotExists(info.tableName, info.columns.map(column => column.name), info.columns.map(column => column.dataType));
     let insertValues = formatInsertValuesIfNotDuplicate2(info);
     let prepString = `${createTable} ${insertValues}`;
-    let ps = preparedStatementWithInputs2(undefined, 'value', info.row.map(column => column.dataType));
-    let formattedValues = formatPreparedValues(undefined, 'value', info.row.map(column => column.value));
+    let ps = preparedStatementWithInputs2(undefined, 'value', info.columns.map(column => column.dataType));
+    let formattedValues = formatPreparedValues(undefined, 'value', info.columns.map(column => column.value));
     return executePreparedStatement(ps, prepString, formattedValues);
 };
 const getId = (info) => {
     let idField, idValue;
-    for (let i = 0; i < info.row.length; i++) {
-        if (info.row[i].primary) {
-            idField = info.row[i].name;
-            idValue = info.row[i].value;
+    for (let i = 0; i < info.columns.length; i++) {
+        if (info.columns[i].primary) {
+            idField = info.columns[i].name;
+            idValue = info.columns[i].value;
             break;
         }
     }
@@ -245,7 +237,7 @@ const formatInsertValuesPrepareString2 = (tableName, columnNames, paramCount) =>
     return query;
 };
 const formatInsertValues2 = (info) => {
-    return formatInsertValuesPrepareString2(info.tableName, info.row.map(column => column.name), Object.keys(info.row).length);
+    return formatInsertValuesPrepareString2(info.tableName, info.columns.map(column => column.name), Object.keys(info.columns).length);
 };
 const formatInsertValuesIfNotDuplicate2 = (info) => {
     let query = formatInsertValues2(info);
@@ -254,7 +246,7 @@ const formatInsertValuesIfNotDuplicate2 = (info) => {
 };
 const preparedStatementWithInputs2 = (ps, prefix, types) => {
     if (!ps)
-        ps = new sql.PreparedStatement(pool);
+        ps = new sql.PreparedStatement();
     for (let i = 0; i < types.length; i++) {
         ps.input(`${prefix}${i + 1}`, parseDataType(types[i]));
     }

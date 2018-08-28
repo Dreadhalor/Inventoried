@@ -1,9 +1,12 @@
-import { Consumable } from './../models/classes/consumable';
-import { Durable } from "../models/classes/durable";
+import { Consumable } from '../models/classes/consumable';
+import { Durable } from '../models/classes/durable';
 
+const dbClient = require('../db/db-client');
 const express = require('express');
 const router = express.Router();
-const dbClient = require('../models/classes/db-client');
+
+const Durables = require('../models/tables/Durables');
+const Consumables = require('../models/tables/Consumables');
 
 router.post('/add_asset', (req, res) => {
   let asset = req.body.asset;
@@ -11,14 +14,14 @@ router.post('/add_asset', (req, res) => {
     let type = typeCheck(asset);
     if (type == 'durable'){
       //save durable
-      dbClient.saveDurable(asset).then(
+      Durables.save(asset).then(
         resolved => res.json(resolved),
         rejected => res.json(rejected)
       ).catch(exception => res.json(exception));
     }
     if (type == 'consumable'){
       //save consumable
-      dbClient.saveConsumable(asset).then(
+      Consumables.save(asset).then(
         resolved => res.json(resolved),
         rejected => res.json(rejected)
       ).catch(exception => res.json(exception));
@@ -67,10 +70,14 @@ router.post('/delete_asset', (req, res) => {
 })
 
 router.get('/get_durables', async (req, res) => {
-  res.json(await dbClient.getDurables());
+  dbClient.getDurables().then(
+    resolve => res.json(resolve)
+  ).catch(exception => res.json([]));
 })
-router.get('/get_consumables', async (req, res) => {
-  res.json(await dbClient.getConsumables());
+router.get('/get_consumables', (req, res) => {
+  dbClient.getConsumables().then(
+    resolve => res.json(resolve)
+  ).catch(exception => res.json([]));
 })
 
 const getAsset = exports.getAsset = (assetId: string) => {

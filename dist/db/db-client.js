@@ -1,12 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const table_1 = require("./table");
-const durable_1 = require("./durable");
-const consumable_1 = require("./consumable");
+const durable_1 = require("../models/classes/durable");
+const consumable_1 = require("../models/classes/consumable");
 const db = require('./db');
-exports.Table = (schema) => {
-    return new table_1.Table(db, schema);
-};
+exports.connect = (config) => db.connect(config);
+exports.Table = (schema) => new table_1.Table(db, schema);
 //durables categories
 const getDurablesCategories = exports.getDurablesCategories = () => {
     return db.read('durablesCategories', null);
@@ -87,7 +86,7 @@ const getDurables = exports.getDurables = () => {
             return result;
         else
             return [];
-    }).catch(exception => null);
+    }).catch(exception => []);
 };
 const getDurable = exports.getDurable = (id) => {
     return db.read('durables', byId(id)).then(resolved => {
@@ -116,7 +115,7 @@ const getConsumables = exports.getConsumables = () => {
             return result;
         else
             return [];
-    }).catch(exception => null);
+    }).catch(exception => []);
 };
 const getConsumable = exports.getConsumable = (id) => {
     return db.read('consumables', byId(id)).then(resolved => {

@@ -1,17 +1,6 @@
-import { Durable } from './durable';
-import { IDurable } from './../interfaces/IDurable';
-import { exec } from 'child_process';
 const sql = require('mssql/msnodesqlv8');
-let pool = null;
 
-exports.connect = (config) =>
-  pool = new sql.ConnectionPool(config,
-    (err) => {
-      //Error handling goes here
-      if (err) return err;
-      return true;
-    }
-  );
+module.exports.connect = (config) => sql.connect(config);
 
 const doesTableExist = exports.doesTableExist = (tableName: string) => {
   let query = `select case when exists ` +
@@ -40,7 +29,7 @@ function formatArgs(args: string[], delimiter: string){
 function executeQuery(query){
   return new Promise((resolve,reject) => {
     try {
-      const transaction = new sql.Transaction(pool);
+      const transaction = new sql.Transaction();
       transaction.begin(err1 => {
         if (err1) reject(err1);
         let request = new sql.Request(transaction);
@@ -52,7 +41,7 @@ function executeQuery(query){
           })
         })
       })
-    } catch (err4) {reject(err4);}
+    } catch (err4){ reject(err4); }
   });
 }
 
@@ -67,7 +56,7 @@ const bulkAddition = exports.bulkAddition = (tableName: string, columnNames: str
       let [x, ...remaining] = row;
       table.rows.add(x, ...remaining);
     })
-    const request = new sql.Request(pool);
+    const request = new sql.Request();
     request.bulk(table, (err, result) => {
       if (err) reject(err);
       resolve(result);
@@ -137,7 +126,7 @@ const formatUpdateValuesPrepareString = (tableName: string, fields: string[]) =>
   return query;
 }
 const preparedStatementWithInputs = (types: string[]) => {
-  const ps = new sql.PreparedStatement(pool);
+  const ps = new sql.PreparedStatement();
   for (let i = 0; i < types.length; i++){
     ps.input(`value${i+1}`,parseDataType(types[i]));
   }
@@ -162,7 +151,7 @@ const formatValues = (values: any[]): any => {
   values.forEach((value,index) => { formattedValues[`value${index+1}`] = value; });
   return formattedValues;
 }
-const parseDataType = (type: string) => {
+const parseDataType = exports.parseDataType = (type: string) => {
   switch (type){
     case 'varchar(max)': return sql.VarChar(sql.MAX);
     case 'bit': return sql.Bit;
@@ -198,4 +187,94 @@ const deleteItem = exports.deleteItem = (tableName: string, id: any) => {
 const dropTable = exports.dropTable = (tableName: string) => {
   let query = formatDropTableIfExists(tableName);
   return executeQuery(query);
+}
+
+
+
+
+
+
+
+
+
+const create2 = exports.create2 = (info: any) => {
+  let createTable = formatCreateTableIfNotExists(
+    info.tableName,
+    info.columns.map(column => column.name),
+    info.columns.map(column => column.dataType)
+  );
+  let insertValues = formatInsertValuesIfNotDuplicate2(info);
+  let prepString = `${createTable} ${insertValues}`;
+  let ps = preparedStatementWithInputs2(
+    undefined,
+    'value',
+    info.columns.map(column => column.dataType)
+  );
+  let formattedValues = formatPreparedValues(
+    undefined,
+    'value',
+    info.columns.map(column => column.value)
+  );
+  return executePreparedStatement(ps, prepString, formattedValues);
+}
+
+const getId = (info: any) => {
+  let idField, idValue;
+  for (let i = 0; i < info.columns.length; i++){
+    if (info.columns[i].primary){
+      idField = info.columns[i].name;
+      idValue = info.columns[i].value;
+      break;
+    }
+  }
+  let result = {field: idField, value: idValue};
+  return result;
+}
+
+const formatIfNotDuplicate2 = (info: any, innerQuery: string) => {
+  let id = getId(info);
+  let query =
+    `if not exists (select * from ${info.tableName} where ${id.field} = '${id.value}')
+    begin
+      ${innerQuery}
+    end;`;
+  return query;
+}
+const formatInsertValuesPrepareString2 = (tableName: string, columnNames: string[], paramCount: number) => {
+  let query = `insert into "${tableName}" (`;
+  for (let i = 0; i < paramCount; i++) {
+    query += `${columnNames[i]}`;
+    if (i < paramCount - 1) query += `, `;
+  };
+  query += `) values (`;
+  for (let i = 0; i < paramCount; i++) {
+    query += `@value${i+1}`;
+    if (i < paramCount - 1) query += `, `;
+  };
+  query += `);`
+  return query;
+}
+const formatInsertValues2 = (info: any) => {
+  return formatInsertValuesPrepareString2(
+    info.tableName,
+    info.columns.map(column => column.name),
+    Object.keys(info.columns).length
+  );
+}
+const formatInsertValuesIfNotDuplicate2 = (info: any) => {
+  let query = formatInsertValues2(info);
+  query = formatIfNotDuplicate2(info, query);
+  return query;
+}
+const preparedStatementWithInputs2 = (ps: any, prefix: string, types: any[]) => {
+  if (!ps) ps = new sql.PreparedStatement();
+  for (let i = 0; i < types.length; i++){
+    ps.input(`${prefix}${i+1}`,parseDataType(types[i]));
+  }
+  return ps;
+}
+const formatPreparedValues = (array: object, prefix: string, values: any[]): any => {
+  if (!array) array = {};
+  values.forEach((value,index) => { array[`${prefix}${index+1}`] = value; });
+  return array;
 }

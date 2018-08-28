@@ -16,7 +16,7 @@ const ActiveDirectory = require('activedirectory2');
 const ADPromise = ActiveDirectory.promiseWrapper;
 let ad = new ADPromise(config.activedirectory2);
 router.get('/get_all_users', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    ad.findUsers({ paged: true }).then(users => {
+    ad.findUsers({ paged: false }).then(users => {
         if (users.length == 0)
             res.json('No users found.');
         else
@@ -27,7 +27,6 @@ const getUser = (userId) => {
     let parsedGUID = [];
     guidParser.parse(userId, parsedGUID);
     var opts = {
-        includeMembership: ['wewerwe'],
         filter: new ActiveDirectory.filters.EqualityFilter({
             attribute: 'objectGUID',
             value: parsedGUID
