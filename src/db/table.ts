@@ -13,6 +13,7 @@ export class Table {
       this.columns.push({
         name: column.name,
         dataType: column.dataType,
+        array: !!column.array,
         primary: !!column.primary
       });
     });
@@ -29,22 +30,22 @@ export class Table {
     }
     return columns;
   }
+  primaryKey(){
+    let pk = this.columns.find(match => match.primary);
+    return pk;
+  }
 
   fields(){
     return this.columns.map(column => column.name);
-  }
-  types(){
-    return this.columns.map(column => column.dataType);
   }
   oneHotPrimaryKeyArray(){
     return this.columns.map(column => column.primary);
   }
   formatObject(obj: object){
     let result = {};
-    let id = {};
     this.columns.forEach(column => {
       let val = obj[column.name];
-      if (typeof val == 'object'){
+      if (column.array || typeof val == 'object'){
         val = val.map(v => `${v}`).join(',');
       }
       result[column.name] = val;
@@ -77,11 +78,52 @@ export class Table {
         tableName: this.tableName,
         columns: this.formatRow(formattedItem)
       }
-      return this.db.create2(info);
+      return this.db.save2(info);
     } return Promise.reject('Item properties are incorrect.');
   }
-  findByPrimaryKey(id: string){
+  findById(id: string){
+    let pk = this.primaryKey();
+    pk.value = id;
+    return this.processRecordsets(this.db.findByColumn(this.tableName, pk));
+  }
+  pullAll(){
+    return this.processRecordsets(this.db.pullAll(this.tableName));
+  }
+  deleteById(id: string){
+    let pk = this.primaryKey();
+    pk.value = id;
+    return this.processRecordsets(this.db.deleteByColumn(this.tableName, pk));
+  }
 
+  processRecordsets(result: any){
+    return result.then(
+      resolved => {
+        if (resolved.recordset && resolved.recordset.length > 0)
+          return this.parseObjects(resolved.recordset);
+        return [];
+      }
+    ).catch(exception => [])
+  }
+  parseObjects(objs: object[]){
+    let result = [];
+    objs.forEach(obj => {
+      let parsedObj = {};
+      let keys = Object.keys(obj)
+      keys.forEach(key => {
+        let index = this.columns.findIndex(match => match.name == key);
+        if (index >= 0){
+          if (this.columns[index].array){
+            parsedObj[key] = this.splitField(obj[key]);
+          }
+          else parsedObj[key] = obj[key];
+        }
+      })
+      result.push(parsedObj);
+    })
+    return result; 
+  }
+  splitField(merged: string){
+    return merged.split(',').filter((entry) => entry != '');
   }
 
 }

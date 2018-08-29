@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { ICheckoutData } from '../../models/interfaces/ICheckoutData';
-import { Subject } from '../../../../node_modules/rxjs';
-import { IModalDeployment } from '../../models/interfaces/IModalDeployment';
+import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
+import { IModalDeployment } from "../models/interfaces/IModalDeployment";
+import { ICheckoutData } from "../models/interfaces/ICheckoutData";
 
 @Injectable({
   providedIn: 'root'

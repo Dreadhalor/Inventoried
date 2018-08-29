@@ -1,12 +1,12 @@
 import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
-import { AssignmentService } from '../../../services/assignment/assignment.service';
+import { AssignmentService } from '../../../services/assignment.service';
 import { Component, OnInit, Inject } from '@angular/core';
-import { AssetService } from '../../../services/asset/asset.service';
+import { AssetService } from '../../../services/asset.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MAT_DIALOG_DATA } from '@angular/material';
 
 import * as moment from 'moment';
-import { ModalService } from '../../../services/modal/modal.service';
+import { ModalService } from '../../../services/modal.service';
 
 @Component({
   selector: 'checkout',

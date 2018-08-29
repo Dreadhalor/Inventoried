@@ -1,7 +1,8 @@
-import { KeyValuePair } from '../../models/classes/keyValuePair';
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Globals } from '../../globals';
+import { Injectable } from "@angular/core";
+import { KeyValuePair } from "../models/classes/keyValuePair";
+import { Globals } from "../globals";
+import { HttpClient } from "@angular/common/http";
+
 
 @Injectable({
   providedIn: 'root'

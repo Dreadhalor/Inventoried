@@ -3,6 +3,7 @@ export interface ITableSchema {
   columns: {
     name: string,
     dataType: string,
+    array?: boolean,
     primary?: boolean
   }[]
 }

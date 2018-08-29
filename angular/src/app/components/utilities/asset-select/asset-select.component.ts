@@ -1,7 +1,7 @@
 import { Consumable } from './../../../models/classes/consumable';
 import { Asset } from '../../../models/classes/asset';
 import { Component, OnInit, EventEmitter, ElementRef, ViewChild, Input, Output } from '@angular/core';
-import { AssetService } from '../../../services/asset/asset.service';
+import { AssetService } from '../../../services/asset.service';
 import { Durable } from '../../../models/classes/durable';
 import { Globals } from '../../../globals';
 

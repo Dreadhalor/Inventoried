@@ -217,6 +217,48 @@ const create2 = exports.create2 = (info: any) => {
   );
   return executePreparedStatement(ps, prepString, formattedValues);
 }
+const formatUpdateValuesPrepareString2 = (info: any) => {
+  let id = getId(info);
+  let paramCount = info.columns.length;
+  let query = `update "${info.tableName}" set `;
+  for (let i = 0; i < paramCount; i++) {
+    if (!info.columns[i].primary){
+      query += `${info.columns[i].name} = @${info.columns[i].name}`;
+      if (i < paramCount - 1) query += `, `;
+    }
+  };
+  query += ` where ${id.field} = @${id.field};`;
+  return query;
+}
+const formatIfElseDuplicate = (info: any, dupeQuery: string, noDupeQuery: string) => {
+  let id = getId(info);
+  let query =
+    `if exists (select * from ${info.tableName} where ${id.field} = @${id.field})
+    begin
+      ${dupeQuery}
+    end;
+    else begin
+      ${noDupeQuery}
+    end`;
+  return query;
+}
+
+const save2 = exports.save2 = (info) => {
+  let save = formatIfElseDuplicate(
+    info,
+    formatUpdateValuesPrepareString2(info),
+    formatInsertValuesPrepareString3(info)
+  );
+  let tableCreate = formatCreateTableIfNotExists(
+    info.tableName,
+    info.columns.map(column => column.name),
+    info.columns.map(column => column.dataType)
+  );
+  let result = `${tableCreate} ${save}`;
+  let ps = preparedStatementWithInputs3(undefined, info);
+  let values = formatPreparedValues2(info);
+  return executePreparedStatement(ps, result, values);
+}
 
 const getId = (info: any) => {
   let idField, idValue;
@@ -240,6 +282,21 @@ const formatIfNotDuplicate2 = (info: any, innerQuery: string) => {
     end;`;
   return query;
 }
+const formatInsertValuesPrepareString3 = (info) => {
+  let paramCount = info.columns.length;
+  let query = `insert into "${info.tableName}" (`;
+  for (let i = 0; i < paramCount; i++) {
+    query += `${info.columns[i].name}`;
+    if (i < paramCount - 1) query += `, `;
+  };
+  query += `) values (`;
+  for (let i = 0; i < paramCount; i++) {
+    query += `@${info.columns[i].name}`;
+    if (i < paramCount - 1) query += `, `;
+  };
+  query += `);`
+  return query;
+}
 const formatInsertValuesPrepareString2 = (tableName: string, columnNames: string[], paramCount: number) => {
   let query = `insert into "${tableName}" (`;
   for (let i = 0; i < paramCount; i++) {
@@ -254,6 +311,20 @@ const formatInsertValuesPrepareString2 = (tableName: string, columnNames: string
   query += `);`
   return query;
 }
+const preparedStatementWithInputs3 = (ps: any, info) => {
+  if (!ps) ps = new sql.PreparedStatement();
+  info.columns.forEach(column => ps.input(column.name, parseDataType(column.dataType)))
+  return ps;
+}
+const formatPreparedValues2 = (info: any): any => {
+  let result = {};
+  info.columns.forEach(column => result[column.name] = column.value);
+  return result;
+}
+
+
+
+
 const formatInsertValues2 = (info: any) => {
   return formatInsertValuesPrepareString2(
     info.tableName,
@@ -269,7 +340,7 @@ const formatInsertValuesIfNotDuplicate2 = (info: any) => {
 const preparedStatementWithInputs2 = (ps: any, prefix: string, types: any[]) => {
   if (!ps) ps = new sql.PreparedStatement();
   for (let i = 0; i < types.length; i++){
-    ps.input(`${prefix}${i+1}`,parseDataType(types[i]));
+    ps.input(`${prefix}${i+1}`, parseDataType(types[i]));
   }
   return ps;
 }
@@ -277,4 +348,25 @@ const formatPreparedValues = (array: object, prefix: string, values: any[]): any
   if (!array) array = {};
   values.forEach((value,index) => { array[`${prefix}${index+1}`] = value; });
   return array;
+}
+
+const findByColumn = exports.findByColumn = (tableName: string, column: any) => {
+  let innerQuery = `select * from ${tableName} where ${column.name} = @value1`;
+  let fullQuery = formatIfTableExists(tableName, innerQuery, true);
+  let statement = preparedStatementWithInputs2(undefined, 'value', [column.dataType]);
+  let formattedValues = formatPreparedValues(undefined, 'value', [column.value])
+  return executePreparedStatement(statement, fullQuery, formattedValues);
+}
+const pullAll = exports.pullAll = (tableName: string) => {
+  let innerQuery = `select * from ${tableName}`;
+  let fullQuery = formatIfTableExists(tableName, innerQuery, true);
+  return executeQuery(fullQuery);
+}
+
+const deleteByColumn = exports.deleteByColumn = (tableName: string, column: any) => {
+  let innerQuery = `delete from ${tableName} where ${column.name} = @value1`;
+  let fullQuery = formatIfTableExists(tableName, innerQuery, true);
+  let statement = preparedStatementWithInputs2(undefined, 'value', [column.dataType]);
+  let formattedValues = formatPreparedValues(undefined, 'value', [column.value])
+  return executePreparedStatement(statement, fullQuery, formattedValues);
 }

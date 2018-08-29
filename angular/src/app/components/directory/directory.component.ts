@@ -1,12 +1,13 @@
-import { Consumable } from '../../models/classes/consumable';
-import { AssignmentService } from '../../services/assignment/assignment.service';
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { UserService } from '../../services/user/user.service';
-import { Durable } from '../../models/classes/durable';
-import { AssetService } from '../../services/asset/asset.service';
-import { Asset } from '../../models/classes/asset';
-import { ModalService } from '../../services/modal/modal.service';
-import { MatTableDataSource, MatPaginator } from '@angular/material';
+import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
+import { MatTableDataSource, MatPaginator } from "@angular/material";
+import { UserService } from "../../services/user.service";
+import { AssetService } from "../../services/asset.service";
+import { AssignmentService } from "../../services/assignment.service";
+import { ModalService } from "../../services/modal.service";
+import { Asset } from "../../models/classes/asset";
+import { Durable } from "../../models/classes/durable";
+import { Consumable } from "../../models/classes/consumable";
+
 
 @Component({
   selector: 'directory',

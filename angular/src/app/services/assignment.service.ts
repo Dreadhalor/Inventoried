@@ -1,11 +1,11 @@
-import { MultiAssigned } from './../../models/interfaces/MultiAssigned';
-import { UserService } from '../user/user.service';
-import { AssetService } from '../asset/asset.service';
-import { Injectable } from '@angular/core';
-import { Assignment } from '../../models/classes/assignment';
-import { Durable } from '../../models/classes/durable';
-import { Consumable } from '../../models/classes/consumable';
-import { Globals } from '../../globals';
+import { Injectable } from "@angular/core";
+import { Assignment } from "../models/classes/assignment";
+import { AssetService } from "./asset.service";
+import { UserService } from "./user.service";
+import { Durable } from "../models/classes/durable";
+import { Consumable } from "../models/classes/consumable";
+import { MultiAssigned } from "../models/interfaces/MultiAssigned";
+
 
 @Injectable({
   providedIn: 'root'

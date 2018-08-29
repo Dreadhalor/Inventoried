@@ -1,7 +1,6 @@
 import { Consumable } from '../models/classes/consumable';
 import { Durable } from '../models/classes/durable';
 
-const dbClient = require('../db/db-client');
 const express = require('express');
 const router = express.Router();
 
@@ -34,14 +33,14 @@ router.post('/update_asset', (req, res) => {
     let type = typeCheck(asset);
     if (type == 'durable'){
       //update durable
-      dbClient.updateDurable(asset).then(
+      Durables.save(asset).then(
         resolved => res.json(resolved),
         rejected => res.json(rejected)
       ).catch(exception => res.json(exception));
     }
     if (type == 'consumable'){
       //update consumable
-      dbClient.updateConsumable(asset).then(
+      Consumables.save(asset).then(
         resolved => res.json(resolved),
         rejected => res.json(rejected)
       ).catch(exception => res.json(exception));
@@ -54,14 +53,14 @@ router.post('/delete_asset', (req, res) => {
     let type = typeCheck(asset);
     if (type == 'durable'){
       //delete durable
-      dbClient.deleteDurable(asset.id).then(
+      Durables.deleteById(asset.id).then(
         resolved => res.json(resolved),
         rejected => res.json(rejected)
       ).catch(exception => res.json(exception));
     }
     if (type == 'consumable'){
       //delete consumable
-      dbClient.deleteConsumable(asset.id).then(
+      Consumables.deleteById(asset.id).then(
         resolved => res.json(resolved),
         rejected => res.json(rejected)
       ).catch(exception => res.json(exception));
@@ -69,21 +68,21 @@ router.post('/delete_asset', (req, res) => {
   }
 })
 
-router.get('/get_durables', async (req, res) => {
-  dbClient.getDurables().then(
+router.get('/get_durables', (req, res) => {
+  Durables.pullAll().then(
     resolve => res.json(resolve)
   ).catch(exception => res.json([]));
 })
 router.get('/get_consumables', (req, res) => {
-  dbClient.getConsumables().then(
+  Consumables.pullAll().then(
     resolve => res.json(resolve)
   ).catch(exception => res.json([]));
 })
 
 const getAsset = exports.getAsset = (assetId: string) => {
   return Promise.all([
-    dbClient.getDurable(assetId),
-    dbClient.getConsumable(assetId)
+    Durables.findById(assetId),
+    Consumables.findById(assetId)
   ]).then(
     result => {
       if (result[0]) return {

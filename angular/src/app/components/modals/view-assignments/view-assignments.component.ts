@@ -1,11 +1,10 @@
-import { EditConsumableComponent } from './../edit-consumable/edit-consumable.component';
-import { MultiAssigned } from './../../../models/interfaces/MultiAssigned';
-import { Component, OnInit, Inject } from '@angular/core';
-import { InfoService } from '../../../services/info/info.service';
-import { AssetService } from '../../../services/asset/asset.service';
-import { AssignmentService } from '../../../services/assignment/assignment.service';
-import { MAT_DIALOG_DATA } from '@angular/material';
-import { ModalService } from '../../../services/modal/modal.service';
+import { Component, OnInit, Inject } from "@angular/core";
+import { MultiAssigned } from "../../../models/interfaces/MultiAssigned";
+import { InfoService } from "../../../services/info.service";
+import { AssetService } from "../../../services/asset.service";
+import { AssignmentService } from "../../../services/assignment.service";
+import { ModalService } from "../../../services/modal.service";
+import { MAT_DIALOG_DATA } from "@angular/material";
 
 @Component({
   selector: 'view-assignments',

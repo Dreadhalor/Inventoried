@@ -1,14 +1,15 @@
-import { Injectable } from '@angular/core';
-import { ModalService } from '../modal/modal.service';
-import { Globals } from '../../globals';
-import { MatDialog } from '../../../../node_modules/@angular/material';
-import { EditDurableComponent } from '../../components/modals/edit-durable/edit-durable.component';
-import { IModalDeployment } from '../../models/interfaces/IModalDeployment';
-import { EditConsumableComponent } from '../../components/modals/edit-consumable/edit-consumable.component';
-import { CheckoutComponent } from '../../components/modals/checkout/checkout.component';
-import { ViewAssignmentsComponent } from '../../components/modals/view-assignments/view-assignments.component';
-import { EditAssignmentComponent } from '../../components/modals/edit-assignment/edit-assignment.component';
-import { AddAssetComponent } from '../../components/modals/add-asset/add-asset.component';
+import { Injectable } from "@angular/core";
+import { ModalService } from "./modal.service";
+import { MatDialog } from "@angular/material";
+import { IModalDeployment } from "../models/interfaces/IModalDeployment";
+import { AddAssetComponent } from "../components/modals/add-asset/add-asset.component";
+import { EditDurableComponent } from "../components/modals/edit-durable/edit-durable.component";
+import { EditConsumableComponent } from "../components/modals/edit-consumable/edit-consumable.component";
+import { CheckoutComponent } from "../components/modals/checkout/checkout.component";
+import { ViewAssignmentsComponent } from "../components/modals/view-assignments/view-assignments.component";
+import { EditAssignmentComponent } from "../components/modals/edit-assignment/edit-assignment.component";
+import { Globals } from "../globals";
+
 
 @Injectable({
   providedIn: 'root'

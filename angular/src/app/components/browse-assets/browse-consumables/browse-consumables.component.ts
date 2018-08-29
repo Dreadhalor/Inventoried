@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { Consumable } from '../../../models/classes/consumable';
-import { AssetService } from '../../../services/asset/asset.service';
-import { Globals } from '../../../globals';
-import { EditConsumableComponent } from '../../modals/edit-consumable/edit-consumable.component';
-import { ModalService } from '../../../services/modal/modal.service';
-import { MatTableDataSource } from '@angular/material';
+import { Component, OnInit } from "@angular/core";
+import { MatTableDataSource } from "@angular/material";
+import { AssetService } from "../../../services/asset.service";
+import { ModalService } from "../../../services/modal.service";
+import { Consumable } from "../../../models/classes/consumable";
+
 
 @Component({
   selector: 'browse-consumables',

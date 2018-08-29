@@ -1,8 +1,9 @@
-import { InfoService } from '../../services/info/info.service';
-import { Component, OnInit } from '@angular/core';
-import { AssetService } from '../../services/asset/asset.service';
-import { AssignmentService } from '../../services/assignment/assignment.service';
-import { ModalService } from '../../services/modal/modal.service';
+import { Component, OnInit } from "@angular/core";
+import { AssetService } from "../../services/asset.service";
+import { InfoService } from "../../services/info.service";
+import { AssignmentService } from "../../services/assignment.service";
+import { ModalService } from "../../services/modal.service";
+
 
 @Component({
   selector: 'browse-assets',

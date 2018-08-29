@@ -1,16 +1,7 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const consumable_1 = require("../models/classes/consumable");
 const durable_1 = require("../models/classes/durable");
-const dbClient = require('../db/db-client');
 const express = require('express');
 const router = express.Router();
 const Durables = require('../models/tables/Durables');
@@ -35,11 +26,11 @@ router.post('/update_asset', (req, res) => {
         let type = typeCheck(asset);
         if (type == 'durable') {
             //update durable
-            dbClient.updateDurable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            Durables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
         if (type == 'consumable') {
             //update consumable
-            dbClient.updateConsumable(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            Consumables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
     }
 });
@@ -49,24 +40,24 @@ router.post('/delete_asset', (req, res) => {
         let type = typeCheck(asset);
         if (type == 'durable') {
             //delete durable
-            dbClient.deleteDurable(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            Durables.deleteById(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
         if (type == 'consumable') {
             //delete consumable
-            dbClient.deleteConsumable(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            Consumables.deleteById(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
         }
     }
 });
-router.get('/get_durables', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    dbClient.getDurables().then(resolve => res.json(resolve)).catch(exception => res.json([]));
-}));
+router.get('/get_durables', (req, res) => {
+    Durables.pullAll().then(resolve => res.json(resolve)).catch(exception => res.json([]));
+});
 router.get('/get_consumables', (req, res) => {
-    dbClient.getConsumables().then(resolve => res.json(resolve)).catch(exception => res.json([]));
+    Consumables.pullAll().then(resolve => res.json(resolve)).catch(exception => res.json([]));
 });
 const getAsset = exports.getAsset = (assetId) => {
     return Promise.all([
-        dbClient.getDurable(assetId),
-        dbClient.getConsumable(assetId)
+        Durables.findById(assetId),
+        Consumables.findById(assetId)
     ]).then(result => {
         if (result[0])
             return {

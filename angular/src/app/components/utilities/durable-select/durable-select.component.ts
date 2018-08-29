@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, Input } from '@angular/core';
-import { AssetService } from '../../../services/asset/asset.service';
+import { AssetService } from '../../../services/asset.service';
 import { Durable } from '../../../models/classes/durable';
 
 @Component({

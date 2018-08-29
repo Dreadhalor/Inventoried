@@ -1,11 +1,12 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { User } from '../../models/classes/user';
-import { Assignment } from '../../models/classes/assignment';
-import { Globals } from '../../globals';
-import { SeedValues } from '../seedvalues';
-import { IUser } from '../../models/interfaces/IUser';
-import { Subject } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
+import { IUser } from "../models/interfaces/IUser";
+import { Globals } from "../globals";
+import { User } from "../models/classes/user";
+import { SeedValues } from "./seedvalues";
+import { Assignment } from "../models/classes/assignment";
+import { HttpClient } from "@angular/common/http";
+
 
 @Injectable({
   providedIn: 'root'

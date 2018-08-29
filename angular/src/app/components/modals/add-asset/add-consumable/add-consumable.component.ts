@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { InfoService } from '../../../../services/info/info.service';
+import { InfoService } from '../../../../services/info.service';
 import { Consumable } from '../../../../models/classes/consumable';
 
 @Component({

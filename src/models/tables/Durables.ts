@@ -11,7 +11,7 @@ const schema: ITableSchema = {
     {name: 'manufacturerId', dataType: 'varchar(max)'},
     {name: 'notes', dataType: 'varchar(max)'},
     {name: 'assignmentId', dataType: 'varchar(max)'},
-    {name: 'tagIds', dataType: 'varchar(max)'},
+    {name: 'tagIds', dataType: 'varchar(max)', array: true},
     {name: 'active', dataType: 'bit'}
   ]
 }

@@ -10,8 +10,8 @@ const schema = {
         { name: 'categoryId', dataType: 'varchar(max)' },
         { name: 'manufacturerId', dataType: 'varchar(max)' },
         { name: 'notes', dataType: 'varchar(max)' },
-        { name: 'assignmentIds', dataType: 'varchar(max)' },
-        { name: 'tagIds', dataType: 'varchar(max)' }
+        { name: 'assignmentIds', dataType: 'varchar(max)', array: true },
+        { name: 'tagIds', dataType: 'varchar(max)', array: true }
     ]
 };
 module.exports = dbClient.Table(schema);

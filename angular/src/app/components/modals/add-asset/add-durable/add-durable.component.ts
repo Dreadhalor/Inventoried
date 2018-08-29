@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Durable } from '../../../../models/classes/durable';
-import { InfoService } from '../../../../services/info/info.service';
+import { InfoService } from '../../../../services/info.service';
 import { Globals } from '../../../../globals';
 
 @Component({

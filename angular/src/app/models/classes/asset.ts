@@ -1,6 +1,6 @@
 import { IAsset } from '../interfaces/IAsset';
-import { UtilitiesService } from "../../services/utilities/utilities.service";
-import { InfoService } from '../../services/info/info.service';
+import { UtilitiesService } from "../../services/utilities.service";
+import { InfoService } from '../../services/info.service';
 import { KeyValuePair } from './keyValuePair';
 
 export abstract class Asset implements IAsset  {

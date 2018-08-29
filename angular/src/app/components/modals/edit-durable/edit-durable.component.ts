@@ -1,11 +1,11 @@
-import { ICheckoutData } from '../../../models/interfaces/ICheckoutData';
-import { AssignmentService } from '../../../services/assignment/assignment.service';
-import { InfoService } from '../../../services/info/info.service';
-import { Durable } from '../../../models/classes/durable';
-import { Component, OnInit, Inject } from '@angular/core';
-import { AssetService } from '../../../services/asset/asset.service';
-import { MAT_DIALOG_DATA } from '@angular/material';
-import { ModalService } from '../../../services/modal/modal.service';
+import { Component, OnInit, Inject } from "@angular/core";
+import { Durable } from "../../../models/classes/durable";
+import { InfoService } from "../../../services/info.service";
+import { AssetService } from "../../../services/asset.service";
+import { AssignmentService } from "../../../services/assignment.service";
+import { ModalService } from "../../../services/modal.service";
+import { MAT_DIALOG_DATA } from "@angular/material";
+import { ICheckoutData } from "../../../models/interfaces/ICheckoutData";
 
 @Component({
   selector: 'edit-durable',

@@ -1,15 +1,15 @@
-import { IDurable } from './../../../../../src/models/interfaces/IDurable';
-import { Globals } from './../../globals';
-import { HttpClient } from '@angular/common/http';
-import { Asset } from '../../models/classes/asset';
-import { Assignment } from '../../models/classes/assignment';
-import { InfoService } from '../info/info.service';
-import { Injectable } from '@angular/core';
-import { Durable } from '../../models/classes/durable';
-import { Consumable } from '../../models/classes/consumable';
-import { SeedValues } from '../seedvalues';
-import { Subject } from '../../../../node_modules/rxjs';
-import { IConsumable } from '../../models/interfaces/IConsumable';
+import { Injectable } from "@angular/core";
+import { Durable } from "../models/classes/durable";
+import { Consumable } from "../models/classes/consumable";
+import { Subject } from "rxjs";
+import { InfoService } from "./info.service";
+import { HttpClient } from "@angular/common/http";
+import { IDurable } from "../models/interfaces/IDurable";
+import { Globals } from "../globals";
+import { IConsumable } from "../models/interfaces/IConsumable";
+import { Asset } from "../models/classes/asset";
+import { Assignment } from "../models/classes/assignment";
+
 
 @Injectable({
   providedIn: 'root'
@@ -56,15 +56,14 @@ export class AssetService {
   }
   setDurables(idurables: IDurable[]){
     idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
-    console.log(this.durables);
+    console.log(idurables);
     this.assetsEdited.next();
   }
   fetchDurables(){
     this.http.get(Globals.request_prefix + 'assets/get_durables').
-      subscribe((res: object[]) => {
-        this.setDurables(Durable.parseSQLIAssets(res));
-      },
-      err => console.log(err));
+      subscribe(
+        (res: IDurable[]) => this.setDurables(res),
+        err => console.log(err));
   }
   addDurableWithoutPost(durable: Durable){
     durable.injectService(this.infoService);
@@ -102,10 +101,9 @@ export class AssetService {
   }
   fetchConsumables(){
     this.http.get(Globals.request_prefix + 'assets/get_consumables').
-      subscribe((res: object[]) => {
-        this.setConsumables(Consumable.parseSQLIAssets(res));
-      },
-      err => console.log(err));
+      subscribe(
+        (res: IConsumable[]) => this.setConsumables(res),
+        err => console.log(err));
   }
   addConsumableWithoutPost(consumable: Consumable){
     consumable.injectService(this.infoService);

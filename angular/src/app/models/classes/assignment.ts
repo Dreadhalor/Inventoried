@@ -1,4 +1,4 @@
-import { UtilitiesService } from "../../services/utilities/utilities.service";
+import { UtilitiesService } from "../../services/utilities.service";
 import { IAssignment } from "../interfaces/IAssignment";
 
 export class Assignment {

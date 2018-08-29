@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AssetService } from '../../../services/asset/asset.service';
-import { Durable } from '../../../models/classes/durable';
-import { ModalService } from '../../../services/modal/modal.service';
-import { MatTableDataSource } from '@angular/material';
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { MatTableDataSource } from "@angular/material";
+import { AssetService } from "../../../services/asset.service";
+import { ModalService } from "../../../services/modal.service";
+import { Durable } from "../../../models/classes/durable";
+
 
 @Component({
   selector: 'browse-durables',

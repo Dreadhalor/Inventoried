@@ -1,8 +1,8 @@
 import { Assignment } from '../../../models/classes/assignment';
 import { Component, OnInit, Inject } from '@angular/core';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { AssignmentService } from '../../../services/assignment/assignment.service';
-import { AssetService } from '../../../services/asset/asset.service';
+import { AssignmentService } from '../../../services/assignment.service';
+import { AssetService } from '../../../services/asset.service';
 import { MAT_DIALOG_DATA } from '@angular/material';
 import { Asset } from '../../../models/classes/asset';
 
