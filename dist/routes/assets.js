@@ -49,7 +49,9 @@ router.post('/delete_asset', (req, res) => {
     }
 });
 router.get('/get_durables', (req, res) => {
-    Durables.pullAll().then(resolve => res.json(resolve)).catch(exception => res.json([]));
+    Durables.pullAll().then(resolve => {
+        res.json(resolve);
+    }).catch(exception => res.json([]));
 });
 router.get('/get_consumables', (req, res) => {
     Consumables.pullAll().then(resolve => res.json(resolve)).catch(exception => res.json([]));

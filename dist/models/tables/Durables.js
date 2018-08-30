@@ -10,7 +10,7 @@ const schema = {
         { name: 'manufacturerId', dataType: 'varchar(max)' },
         { name: 'notes', dataType: 'varchar(max)' },
         { name: 'assignmentId', dataType: 'varchar(max)' },
-        { name: 'tagIds', dataType: 'varchar(max)', array: true },
+        { name: 'tagIds', dataType: 'varbinary(max)' },
         { name: 'active', dataType: 'bit' }
     ]
 };

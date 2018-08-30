@@ -55,14 +55,17 @@ export class AssetService {
     return this.durables.find(match => match.id == id);
   }
   setDurables(idurables: IDurable[]){
-    console.log(idurables);
+    //console.log(idurables);
     idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
     this.assetsEdited.next();
   }
   fetchDurables(){
     this.http.get(Globals.request_prefix + 'assets/get_durables').
       subscribe(
-        (res: IDurable[]) => this.setDurables(res),
+        res => {
+          console.log(res);
+          this.setDurables(res as IDurable[])
+        },
         err => console.log(err));
   }
   addDurableWithoutPost(durable: Durable){

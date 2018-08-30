@@ -156,6 +156,7 @@ const formatValues = (values) => {
 const parseDataType = exports.parseDataType = (type) => {
     switch (type) {
         case 'varchar(max)': return sql.VarChar(sql.MAX);
+        case 'varbinary(max)': return sql.VarBinary(sql.MAX);
         case 'bit': return sql.Bit;
         case 'int': return sql.Int;
     }

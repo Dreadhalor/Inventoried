@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class Table {
     constructor(db, schema) {
+        this.delimiter = String.fromCharCode(156);
         this.columns = [];
         this.db = db;
         this.tableName = schema.tableName;
@@ -9,7 +10,6 @@ class Table {
             this.columns.push({
                 name: column.name,
                 dataType: column.dataType,
-                array: !!column.array,
                 primary: !!column.primary
             });
         });
@@ -40,8 +40,8 @@ class Table {
         let result = {};
         this.columns.forEach(column => {
             let val = obj[column.name];
-            if (column.array || typeof val == 'object') {
-                val = val.map(v => `${v}`).join(',');
+            if (typeof val == 'object') {
+                val = Buffer.from(val.map(v => `${v}`).join(this.delimiter));
             }
             result[column.name] = val;
         });
@@ -93,8 +93,9 @@ class Table {
     }
     processRecordsets(result) {
         return result.then(resolved => {
-            if (resolved.recordset && resolved.recordset.length > 0)
+            if (resolved.recordset && resolved.recordset.length > 0) {
                 return this.parseObjects(resolved.recordset);
+            }
             return [];
         }).catch(exception => []);
     }
@@ -104,21 +105,18 @@ class Table {
             let parsedObj = {};
             let keys = Object.keys(obj);
             keys.forEach(key => {
-                let index = this.columns.findIndex(match => match.name == key);
-                if (index >= 0) {
-                    if (this.columns[index].array) {
-                        parsedObj[key] = this.splitField(obj[key]);
-                    }
-                    else
-                        parsedObj[key] = obj[key];
-                }
+                if (Buffer.isBuffer(obj[key]))
+                    parsedObj[key] = this.parseBuffer(obj[key]);
+                else
+                    parsedObj[key] = obj[key];
             });
             result.push(parsedObj);
         });
         return result;
     }
-    splitField(merged) {
-        return merged.split(',').filter((entry) => entry != '');
+    parseBuffer(buffer) {
+        let split = buffer.toString().split(this.delimiter).filter((entry) => entry != '');
+        return split;
     }
 }
 exports.Table = Table;
