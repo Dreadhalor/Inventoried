@@ -227,6 +227,7 @@ const formatUpdateValuesPrepareString2 = (info: any) => {
       if (i < paramCount - 1) query += `, `;
     }
   };
+  //query += ` output inserted.* into @output`;
   query += ` where ${id.field} = @${id.field};`;
   return query;
 }
@@ -243,8 +244,34 @@ const formatIfElseDuplicate = (info: any, dupeQuery: string, noDupeQuery: string
   return query;
 }
 
+const formatUpdateElseInsert = (info: any) => {
+  let declare = `declare @output table (id varchar(max), serialNumber varchar(max), categoryId varchar(max), manufacturerId varchar(max), notes varchar(max), assignmentId varchar(max), tagIds varchar(max), active bit);`;
+  let createTable = formatCreateTableIfNotExists2(info);
+  let update = formatUpdateValuesPrepareString2(info);
+  let insert = formatInsertValuesPrepareString3(info);
+  let result = `${declare}\n${createTable}\n${update}\nif @@rowcount=0\nbegin ${insert}\nend`;
+  let ps = preparedStatementWithInputs3(info);
+  //ps.output('test',sql.VarChar(sql.MAX));
+  console.log(result);
+  let values = formatPreparedValues2(info);
+  return executePreparedStatement(ps, result, values);
+}
+const formatCreateTableIfNotExists2 = (info: any) => {
+  let ifNotExists =  `if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${info.tableName}')\nbegin `;
+  let createTable = `create table "${info.tableName}" (`;
+  let columnCount = info.columns.length;
+  for (let i = 0; i < columnCount; i++){
+    createTable += `${info.columns[i].name} ${info.columns[i].dataType}`;
+    if (i < columnCount - 1) createTable += `, `;
+  }
+  createTable += `);`;
+  ifNotExists += createTable;
+  ifNotExists += `\nend`;
+  return ifNotExists;
+}
+
 const save2 = exports.save2 = (info) => {
-  let save = formatIfElseDuplicate(
+  /*let save = formatIfElseDuplicate(
     info,
     formatUpdateValuesPrepareString2(info),
     formatInsertValuesPrepareString3(info)
@@ -255,9 +282,10 @@ const save2 = exports.save2 = (info) => {
     info.columns.map(column => column.dataType)
   );
   let result = `${tableCreate} ${save}`;
-  let ps = preparedStatementWithInputs3(undefined, info);
-  let values = formatPreparedValues2(info);
-  return executePreparedStatement(ps, result, values);
+  let ps = preparedStatementWithInputs3(info);
+  let values = formatPreparedValues2(info);*/
+  return formatUpdateElseInsert(info);
+  //return executePreparedStatement(ps, result, values);
 }
 
 const getId = (info: any) => {
@@ -289,7 +317,9 @@ const formatInsertValuesPrepareString3 = (info) => {
     query += `${info.columns[i].name}`;
     if (i < paramCount - 1) query += `, `;
   };
-  query += `) values (`;
+  query += `) `;
+  //query += ` output inserted.* into @output`;
+  query += ` values (`;
   for (let i = 0; i < paramCount; i++) {
     query += `@${info.columns[i].name}`;
     if (i < paramCount - 1) query += `, `;
@@ -311,8 +341,8 @@ const formatInsertValuesPrepareString2 = (tableName: string, columnNames: string
   query += `);`
   return query;
 }
-const preparedStatementWithInputs3 = (ps: any, info) => {
-  if (!ps) ps = new sql.PreparedStatement();
+const preparedStatementWithInputs3 = (info) => {
+  let ps = new sql.PreparedStatement();
   info.columns.forEach(column => ps.input(column.name, parseDataType(column.dataType)))
   return ps;
 }

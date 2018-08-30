@@ -78,7 +78,7 @@ export class Table {
         tableName: this.tableName,
         columns: this.formatRow(formattedItem)
       }
-      return this.db.save2(info);
+      return this.processRecordsets(this.db.save2(info));
     } return Promise.reject('Item properties are incorrect.');
   }
   findById(id: string){

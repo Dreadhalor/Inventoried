@@ -55,8 +55,8 @@ export class AssetService {
     return this.durables.find(match => match.id == id);
   }
   setDurables(idurables: IDurable[]){
-    idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
     console.log(idurables);
+    idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
     this.assetsEdited.next();
   }
   fetchDurables(){
@@ -78,6 +78,7 @@ export class AssetService {
     this.addDurableWithoutPost(durable);
     this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: durable.asInterface()}).
       subscribe(res => {
+        console.log(res);
         this.assetsEdited.next();
       },
       err => console.log(err));
@@ -87,7 +88,10 @@ export class AssetService {
     if (index >= 0) this.durables[index] = durable;
     this.http.post(Globals.request_prefix + 'assets/update_asset', {asset: durable.asInterface()}).
       subscribe(
-        res => this.assetsEdited.next(),
+        res => {
+          console.log(res);
+          this.assetsEdited.next();
+        },
         err => console.log(err));
   }
 
