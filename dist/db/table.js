@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class Table {
     constructor(db, schema) {
-        this.delimiter = String.fromCharCode(156);
         this.columns = [];
         this.db = db;
         this.tableName = schema.tableName;
@@ -40,8 +39,8 @@ class Table {
         let result = {};
         this.columns.forEach(column => {
             let val = obj[column.name];
-            if (typeof val == 'object') {
-                val = Buffer.from(val.map(v => `${v}`).join(this.delimiter));
+            if (column.dataType.includes('[]')) {
+                val = JSON.stringify(val);
             }
             result[column.name] = val;
         });
@@ -105,18 +104,20 @@ class Table {
             let parsedObj = {};
             let keys = Object.keys(obj);
             keys.forEach(key => {
-                if (Buffer.isBuffer(obj[key]))
-                    parsedObj[key] = this.parseBuffer(obj[key]);
-                else
-                    parsedObj[key] = obj[key];
+                let found = this.columns.find(match => match.name == key);
+                if (found) {
+                    let str = found.dataType.includes('[]');
+                    if (str)
+                        parsedObj[key] = JSON.parse(obj[key]);
+                    else
+                        parsedObj[key] = obj[key];
+                    console.log(parsedObj[key]);
+                }
             });
             result.push(parsedObj);
         });
+        console.log(result);
         return result;
-    }
-    parseBuffer(buffer) {
-        let split = buffer.toString().split(this.delimiter).filter((entry) => entry != '');
-        return split;
     }
 }
 exports.Table = Table;

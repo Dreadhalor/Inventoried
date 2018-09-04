@@ -2,8 +2,6 @@ import { ITableSchema } from '../models/interfaces/ITableSchema';
 
 export class Table {
 
-  delimiter = String.fromCharCode(156);
-
   tableName: string;
   columns: any[] = [];
   db: any;
@@ -46,8 +44,8 @@ export class Table {
     let result = {};
     this.columns.forEach(column => {
       let val = obj[column.name];
-      if (typeof val == 'object'){
-        val = Buffer.from(val.map(v => `${v}`).join(this.delimiter));
+      if (column.dataType.includes('[]')){
+        val = JSON.stringify(val);
       }
       result[column.name] = val;
     })
@@ -112,16 +110,18 @@ export class Table {
       let parsedObj = {};
       let keys = Object.keys(obj)
       keys.forEach(key => {
-        if (Buffer.isBuffer(obj[key])) parsedObj[key] = this.parseBuffer(obj[key]);
-        else parsedObj[key] = obj[key];
+        let found = this.columns.find(match => match.name == key);
+        if (found){
+          let str = found.dataType.includes('[]');
+          if (str) parsedObj[key] = JSON.parse(obj[key]);
+          else parsedObj[key] = obj[key];
+          console.log(parsedObj[key]);
+        }
       })
       result.push(parsedObj);
     })
+    console.log(result);
     return result; 
-  }
-  parseBuffer(buffer: Buffer){
-    let split = buffer.toString().split(this.delimiter).filter((entry) => entry != '');
-    return split;
   }
 
 }

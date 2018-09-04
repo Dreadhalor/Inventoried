@@ -50,7 +50,7 @@ const bulkAddition = exports.bulkAddition = (tableName: string, columnNames: str
     const table = new sql.Table(tableName);
     table.create = true;
     columnNames.forEach((column, index) => {
-      table.columns.add(column, parseDataType(dataTypes[index]), {nullable: false});
+      table.columns.add(column, parseDataType(dataTypes[index], false), {nullable: false});
     })
     rows.forEach(row => {
       let [x, ...remaining] = row;
@@ -128,7 +128,7 @@ const formatUpdateValuesPrepareString = (tableName: string, fields: string[]) =>
 const preparedStatementWithInputs = (types: string[]) => {
   const ps = new sql.PreparedStatement();
   for (let i = 0; i < types.length; i++){
-    ps.input(`value${i+1}`,parseDataType(types[i]));
+    ps.input(`value${i+1}`,parseDataType(types[i], false));
   }
   return ps;
 }
@@ -151,9 +151,19 @@ const formatValues = (values: any[]): any => {
   values.forEach((value,index) => { formattedValues[`value${index+1}`] = value; });
   return formattedValues;
 }
-const parseDataType = exports.parseDataType = (type: string) => {
+const parseDataType = exports.parseDataType = (type: string, stringify: boolean) => {
+  if (stringify){
+    switch (type){
+      case 'varchar(max)[]':
+        return 'varchar(max)';
+      default: return type;
+    }
+  }
   switch (type){
-    case 'varchar(max)': return sql.VarChar(sql.MAX);
+    case 'varchar(max)':
+    case 'varchar(max)[]':
+      return sql.VarChar(sql.MAX);
+    case 'nvarchar(max)': return sql.NVarChar(sql.MAX);
     case 'varbinary(max)': return sql.VarBinary(sql.MAX);
     case 'bit': return sql.Bit;
     case 'int': return sql.Int;
@@ -177,7 +187,7 @@ const update = exports.update = (tableName: string, fields: string[], types: str
   let prepTypes = types.slice(1);
   let prepVals = values.slice(1);
   let ps = preparedStatementWithInputs(prepTypes);
-  ps.input('id',parseDataType(idVals[1]));
+  ps.input('id',parseDataType(idVals[1], false));
   let formattedValues = formatValues(prepVals);
   formattedValues.id = idVals[2];
   return executePreparedStatement(ps, prepString, formattedValues);
@@ -202,14 +212,14 @@ const create2 = exports.create2 = (info: any) => {
   let createTable = formatCreateTableIfNotExists(
     info.tableName,
     info.columns.map(column => column.name),
-    info.columns.map(column => column.dataType)
+    info.columns.map(column => parseDataType(column.dataType, true))
   );
   let insertValues = formatInsertValuesIfNotDuplicate2(info);
   let prepString = `${createTable} ${insertValues}`;
   let ps = preparedStatementWithInputs2(
     undefined,
     'value',
-    info.columns.map(column => column.dataType)
+    info.columns.map(column => parseDataType(column.dataType, true))
   );
   let formattedValues = formatPreparedValues(
     undefined,
@@ -262,7 +272,7 @@ const formatCreateTableIfNotExists2 = (info: any) => {
   let createTable = `create table "${info.tableName}" (`;
   let columnCount = info.columns.length;
   for (let i = 0; i < columnCount; i++){
-    createTable += `${info.columns[i].name} ${info.columns[i].dataType}`;
+    createTable += `${info.columns[i].name} ${parseDataType(info.columns[i].dataType, true)}`;
     if (i < columnCount - 1) createTable += `, `;
   }
   createTable += `);`;
@@ -344,7 +354,7 @@ const formatInsertValuesPrepareString2 = (tableName: string, columnNames: string
 }
 const preparedStatementWithInputs3 = (info) => {
   let ps = new sql.PreparedStatement();
-  info.columns.forEach(column => ps.input(column.name, parseDataType(column.dataType)))
+  info.columns.forEach(column => ps.input(column.name, parseDataType(column.dataType, false)))
   return ps;
 }
 const formatPreparedValues2 = (info: any): any => {
@@ -371,7 +381,7 @@ const formatInsertValuesIfNotDuplicate2 = (info: any) => {
 const preparedStatementWithInputs2 = (ps: any, prefix: string, types: any[]) => {
   if (!ps) ps = new sql.PreparedStatement();
   for (let i = 0; i < types.length; i++){
-    ps.input(`${prefix}${i+1}`, parseDataType(types[i]));
+    ps.input(`${prefix}${i+1}`, parseDataType(types[i], false));
   }
   return ps;
 }
@@ -384,7 +394,7 @@ const formatPreparedValues = (array: object, prefix: string, values: any[]): any
 const findByColumn = exports.findByColumn = (tableName: string, column: any) => {
   let innerQuery = `select * from ${tableName} where ${column.name} = @value1`;
   let fullQuery = formatIfTableExists(tableName, innerQuery, true);
-  let statement = preparedStatementWithInputs2(undefined, 'value', [column.dataType]);
+  let statement = preparedStatementWithInputs2(undefined, 'value', [parseDataType(column.dataType, true)]);
   let formattedValues = formatPreparedValues(undefined, 'value', [column.value])
   return executePreparedStatement(statement, fullQuery, formattedValues);
 }
@@ -397,7 +407,7 @@ const pullAll = exports.pullAll = (tableName: string) => {
 const deleteByColumn = exports.deleteByColumn = (tableName: string, column: any) => {
   let innerQuery = `delete from ${tableName} where ${column.name} = @value1`;
   let fullQuery = formatIfTableExists(tableName, innerQuery, true);
-  let statement = preparedStatementWithInputs2(undefined, 'value', [column.dataType]);
+  let statement = preparedStatementWithInputs2(undefined, 'value', [parseDataType(column.dataType, true)]);
   let formattedValues = formatPreparedValues(undefined, 'value', [column.value])
   return executePreparedStatement(statement, fullQuery, formattedValues);
 }
