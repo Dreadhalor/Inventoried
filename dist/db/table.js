@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const fse = require("fs-extra");
+const replace = require("replace-in-file");
 class Table {
     constructor(db, schema) {
         this.columns = [];
@@ -13,6 +15,7 @@ class Table {
             });
         });
         this.columns = this.singularizePrimaryKey(this.columns);
+        this.createUpdateTrigger();
     }
     singularizePrimaryKey(columns) {
         let primary = false;
@@ -111,13 +114,33 @@ class Table {
                         parsedObj[key] = JSON.parse(obj[key]);
                     else
                         parsedObj[key] = obj[key];
-                    console.log(parsedObj[key]);
                 }
             });
             result.push(parsedObj);
         });
-        console.log(result);
         return result;
+    }
+    createUpdateTrigger() {
+        let triggerName = `update_trigger_${this.tableName}`;
+        let destDirectory = `src/db/scripts/generated/tables/${this.tableName}`;
+        let destFile = `${triggerName}.sql`;
+        let destPath = `${destDirectory}/${destFile}`;
+        fse.remove(destDirectory).then((removed) => fse.copy('src/db/scripts/templates/update_trigger.sql', destPath)).then(success => {
+            const options = {
+                files: destPath,
+                from: [
+                    /<database_name>/g,
+                    /<table_name>/g,
+                    /<trigger_name>/g
+                ],
+                to: [
+                    this.db.databaseName,
+                    this.tableName,
+                    triggerName
+                ]
+            };
+            return replace(options);
+        }).catch(exception => console.log(exception));
     }
 }
 exports.Table = Table;

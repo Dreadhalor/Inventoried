@@ -8,7 +8,7 @@ const config = require('./config');
 const dbClient = require('./db/db-client');
 dbClient.connect(config.mssql)
     .then(connected => console.log('Successfully connected to SQL server.'))
-    .catch(exception => console.log(`SQL server connection error: ${JSON.stringify(exception)}`));
+    .catch(exception => console.log(`SQL server connection error -> ${exception}`));
 const WindowsStrategy = require('passport-windowsauth');
 const port = 5000;
 const app = express();

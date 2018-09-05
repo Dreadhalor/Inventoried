@@ -5,7 +5,7 @@ let info = {
   password: 'abc#123',
   serverHost: 'localhost',
   serverInstance: 'SQLEXPRESS',
-  database: 'test'
+  database: 'Inventoried'
 };
 
 module.exports = {

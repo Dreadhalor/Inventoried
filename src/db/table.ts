@@ -1,4 +1,6 @@
 import { ITableSchema } from '../models/interfaces/ITableSchema';
+import * as fse from 'fs-extra';
+import * as replace from 'replace-in-file';
 
 export class Table {
 
@@ -17,6 +19,7 @@ export class Table {
       });
     });
     this.columns = this.singularizePrimaryKey(this.columns);
+    this.createUpdateTrigger();
   }
 
   singularizePrimaryKey(columns: any[]){
@@ -115,13 +118,41 @@ export class Table {
           let str = found.dataType.includes('[]');
           if (str) parsedObj[key] = JSON.parse(obj[key]);
           else parsedObj[key] = obj[key];
-          console.log(parsedObj[key]);
         }
       })
       result.push(parsedObj);
     })
-    console.log(result);
     return result; 
+  }
+
+  createUpdateTrigger(){
+    let triggerName = `update_trigger_${this.tableName}`;
+    let destDirectory = `src/db/scripts/generated/tables/${this.tableName}`;
+    let destFile = `${triggerName}.sql`;
+    let destPath = `${destDirectory}/${destFile}`;
+    fse.remove(destDirectory).then(
+      (removed) => fse.copy(
+        'src/db/scripts/templates/update_trigger.sql',
+        destPath
+      )
+    ).then(
+      success => {
+        const options = {
+          files: destPath,
+          from: [
+            /<database_name>/g,
+            /<table_name>/g,
+            /<trigger_name>/g
+          ],
+          to: [
+            this.db.databaseName,
+            this.tableName,
+            triggerName
+          ]
+        };
+        return replace(options);
+      }
+    ).catch(exception => console.log(exception));
   }
 
 }

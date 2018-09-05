@@ -1,6 +1,47 @@
 const sql = require('mssql/msnodesqlv8');
+const fse = require('fs-extra');
+const replace = require('replace-in-file');
+let databaseName = exports.databaseName;
 
-module.exports.connect = (config) => sql.connect(config);
+module.exports.connect = (config) => {
+
+  setDatabaseName(config.database);
+  let destDirectory = `src/db/scripts/generated/database`;
+  let destFile = `create_database_${databaseName}.sql`;
+  let destPath = `${destDirectory}/${destFile}`;
+  config.database = 'master';
+  return sql.connect(config).then(
+    (connected) => fse.remove(destDirectory)
+  ).then(
+    (removed) => fse.copy(
+      'src/db/scripts/templates/create_database.sql',
+      destPath
+    )
+  ).then(
+    copied => {
+      const options = {
+        files: destPath,
+        from: /<database_name>/g,
+        to: databaseName
+      };
+      return replace(options);
+    }
+  ).then(
+    replaced => fse.readFile(destPath,'utf8')
+  ).then(
+    query => executeQueryAsPreparedStatement(query)
+  ).then(
+    dbExists => {
+      config.database = databaseName;
+      return sql.close().then(sql.connect(config));
+    }
+  );
+
+}
+const setDatabaseName = (name) => {
+  databaseName = name;
+  exports.databaseName = databaseName;
+}
 
 const doesTableExist = exports.doesTableExist = (tableName: string) => {
   let query = `select case when exists ` +
@@ -132,6 +173,9 @@ const preparedStatementWithInputs = (types: string[]) => {
   }
   return ps;
 }
+const executeQueryAsPreparedStatement = (query: string) => {
+  return executePreparedStatement(new sql.PreparedStatement(),query,{});
+}
 const executePreparedStatement = (ps: any, str: string, vals: object) => {
   return new Promise((resolve, reject) => {
     ps.prepare(str, err => {
@@ -262,8 +306,6 @@ const formatUpdateElseInsert = (info: any) => {
   let insert = formatInsertValuesPrepareString3(info);
   let result = `${declare}\n${createTable}\n${update}\nif @@rowcount=0\nbegin ${insert}\nend`;
   let ps = preparedStatementWithInputs3(info);
-  //ps.output('test',sql.VarChar(sql.MAX));
-  console.log(result);
   let values = formatPreparedValues2(info);
   return executePreparedStatement(ps, result, values);
 }
