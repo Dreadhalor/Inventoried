@@ -127,32 +127,29 @@ export class Table {
 
   createUpdateTrigger(){
     let triggerName = `update_trigger_${this.tableName}`;
+    let srcPath = 'src/db/scripts/templates/update_trigger.sql';
     let destDirectory = `src/db/scripts/generated/tables/${this.tableName}`;
     let destFile = `${triggerName}.sql`;
     let destPath = `${destDirectory}/${destFile}`;
-    fse.remove(destDirectory).then(
-      (removed) => fse.copy(
-        'src/db/scripts/templates/update_trigger.sql',
-        destPath
-      )
-    ).then(
-      success => {
-        const options = {
-          files: destPath,
-          from: [
-            /<database_name>/g,
-            /<table_name>/g,
-            /<trigger_name>/g
-          ],
-          to: [
-            this.db.databaseName,
-            this.tableName,
-            triggerName
-          ]
-        };
-        return replace(options);
-      }
-    ).catch(exception => console.log(exception));
+    let substitutionOptions = {
+      files: destPath,
+      from: [
+        /<database_name>/g,
+        /<table_name>/g,
+        /<trigger_name>/g
+      ],
+      to: [
+        this.db.databaseName,
+        this.tableName,
+        triggerName
+      ]
+    };
+
+    fse.ensureDir(destDirectory)
+      .then(directory => fse.emptyDir(destDirectory))
+      .then(emptied => fse.copy(srcPath, destPath))
+      .then(success => replace(substitutionOptions))
+      .catch(exception => console.log(exception));
   }
 
 }

@@ -9,33 +9,26 @@ module.exports.connect = (config) => {
   let destDirectory = `src/db/scripts/generated/database`;
   let destFile = `create_database_${databaseName}.sql`;
   let destPath = `${destDirectory}/${destFile}`;
+  let srcPath = 'src/db/scripts/templates/create_database.sql';
+  const substitutionOptions = {
+    files: destPath,
+    from: /<database_name>/g,
+    to: databaseName
+  };
   config.database = 'master';
-  return sql.connect(config).then(
-    (connected) => fse.remove(destDirectory)
-  ).then(
-    (removed) => fse.copy(
-      'src/db/scripts/templates/create_database.sql',
-      destPath
-    )
-  ).then(
-    copied => {
-      const options = {
-        files: destPath,
-        from: /<database_name>/g,
-        to: databaseName
-      };
-      return replace(options);
-    }
-  ).then(
-    replaced => fse.readFile(destPath,'utf8')
-  ).then(
-    query => executeQueryAsPreparedStatement(query)
-  ).then(
-    dbExists => {
-      config.database = databaseName;
-      return sql.close().then(sql.connect(config));
-    }
-  );
+  return sql.connect(config)
+    .then(connected => fse.ensureDir(destDirectory))
+    .then(directory => fse.emptyDir(destDirectory))
+    .then(emptied => fse.copy(srcPath, destPath))
+    .then(copied => replace(substitutionOptions))
+    .then(replaced => fse.readFile(destPath,'utf8'))
+    .then(query => executeQueryAsPreparedStatement(query))
+    .then(
+      dbExists => {
+        config.database = databaseName;
+        return sql.close().then(sql.connect(config));
+      }
+    );
 
 }
 const setDatabaseName = (name) => {
