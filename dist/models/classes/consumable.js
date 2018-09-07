@@ -18,7 +18,7 @@ class Consumable {
         return {
             tableName: 'consumables',
             fields: ['id', 'label', 'quantity', 'categoryId', 'manufacturerId', 'notes', 'assignmentIds', 'tagIds'],
-            types: ['varchar(max)', 'varchar(max)', 'int', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)'],
+            types: ['varchar(max)', 'varchar(max)', 'int', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)[]', 'varchar(max)[]'],
             consumable: consumable
         };
     }

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const rxjs_1 = require("rxjs");
 const consumable_1 = require("../models/classes/consumable");
 const durable_1 = require("../models/classes/durable");
 const express = require('express');
@@ -8,7 +7,6 @@ const router = express.Router();
 const Durables = require('../models/tables/Durables');
 const Consumables = require('../models/tables/Consumables');
 const Users = require('./users');
-const edits = exports.edits = new rxjs_1.Subject();
 router.post('/add_asset', (req, res) => {
     let authorization = req.headers.authorization;
     Users.checkAdminAuthorization(authorization)
@@ -18,14 +16,7 @@ router.post('/add_asset', (req, res) => {
             let type = typeCheck(asset);
             if (type == 'durable') {
                 //save durable
-                Durables.save(asset).then(resolved => {
-                    res.json(resolved);
-                    edits.next({
-                        editType: 'add',
-                        assetType: 'durable',
-                        edit: resolved
-                    });
-                }, rejected => res.json(rejected)).catch(exception => res.json(exception));
+                Durables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
             }
             if (type == 'consumable') {
                 //save consumable

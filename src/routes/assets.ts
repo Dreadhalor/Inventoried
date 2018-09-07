@@ -9,8 +9,6 @@ const Durables = require('../models/tables/Durables');
 const Consumables = require('../models/tables/Consumables');
 const Users = require('./users');
 
-const edits = exports.edits = new Subject<any>();
-
 router.post('/add_asset', (req, res) => {
   let authorization = req.headers.authorization;
   Users.checkAdminAuthorization(authorization)
@@ -21,14 +19,7 @@ router.post('/add_asset', (req, res) => {
         if (type == 'durable'){
           //save durable
           Durables.save(asset).then(
-            resolved => {
-              res.json(resolved);
-              edits.next({
-                editType: 'add',
-                assetType: 'durable',
-                edit: resolved
-              });
-            },
+            resolved => res.json(resolved),
             rejected => res.json(rejected)
           ).catch(exception => res.json(exception));
         }

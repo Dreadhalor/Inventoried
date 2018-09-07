@@ -151,11 +151,11 @@ export class AssetService {
       {asset: consumable.asInterface()},
       {headers: this.auth.getHeaders()}
     ).subscribe(
-        res => {
-          console.log(res);
-          this.assetsEdited.next()
-        },
-        err => console.log(err));
+      res => {
+        console.log(res);
+        this.assetsEdited.next()
+      },
+      err => console.log(err));
   }
 
 
@@ -179,7 +179,10 @@ export class AssetService {
       {asset: asset.asInterface()},
       {headers: this.auth.getHeaders()}
     ).subscribe(
-        res => this.assetsEdited.next(),
+        res => {
+          console.log(res);
+          this.assetsEdited.next();
+        },
         err => console.log(err));
   }
   assign(assignment: Assignment){

@@ -39,13 +39,15 @@ import { EditAssignmentComponent } from './components/modals/edit-assignment/edi
 import { ViewAssignmentsComponent } from './components/modals/view-assignments/view-assignments.component';
 import { EditAssignmentContentComponent } from './components/modals/edit-assignment/edit-assignment-content/edit-assignment-content.component';
 import { ButtonTightComponent } from './components/utilities/button-tight/button-tight.component';
-import { LoginComponent } from './login/login.component';
+import { LoginComponent } from './components/login/login.component';
+import { HistoryComponent } from './components/history/history.component';
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'directory', component: DirectoryComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'history', component: HistoryComponent },
   { path: '**', redirectTo: 'browse-assets', pathMatch: 'full' }
 ]
 
@@ -87,7 +89,8 @@ var routes: Routes = [
     ViewAssignmentsComponent,
     EditAssignmentContentComponent,
     ButtonTightComponent,
-    LoginComponent
+    LoginComponent,
+    HistoryComponent
   ],
   imports: [
     BrowserModule,

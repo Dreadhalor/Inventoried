@@ -3,7 +3,8 @@ const fse = require('fs-extra');
 const replace = require('replace-in-file');
 let databaseName = exports.databaseName;
 
-exports.connected = false;
+let connected = false;
+let callbacks = [];
 
 module.exports.connect = (config) => {
 
@@ -32,15 +33,30 @@ module.exports.connect = (config) => {
       }
     )
     .then(closed => sql.connect(config))
-    .then(connected => {
-      exports.connected = true;
-      return connected;
-    });
+    .then(connected => hasConnected());
 
 }
 const setDatabaseName = (name) => {
   databaseName = name;
   exports.databaseName = databaseName;
+}
+const onConnected = exports.onConnected = (fxn) => {
+  if (fxn){
+    if (connected){
+      fxn();
+    }
+    else {
+      callbacks.unshift(fxn);
+    }
+  }
+}
+const hasConnected = () => {
+  connected = true;
+  let len = callbacks.length - 1;
+  for (let i = len; i >= 0; i--){
+    callbacks[i]();
+    callbacks.splice(i,1);
+  }
 }
 
 const doesTableExist = exports.doesTableExist = (tableName: string) => {
@@ -442,5 +458,3 @@ const deleteByColumn = exports.deleteByColumn = (tableName: string, column: any)
   let formattedValues = formatPreparedValues(undefined, 'value', [column.value])
   return executePreparedStatement(statement, fullQuery, formattedValues);
 }
-
-exports.batch = (query) => {return sql.batch(query);}

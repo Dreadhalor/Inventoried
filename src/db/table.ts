@@ -19,7 +19,7 @@ export class Table {
       });
     });
     this.columns = this.singularizePrimaryKey(this.columns);
-    setTimeout(() => this.createTable(),1000);
+    db.onConnected(() => this.constructTable());
   }
 
   singularizePrimaryKey(columns: any[]){
@@ -80,7 +80,21 @@ export class Table {
         tableName: this.tableName,
         columns: this.formatRow(formattedItem)
       }
-      return this.processRecordsets(this.db.save2(info));
+      return this.processRecordsets(this.db.save2(info))
+        .then(processed => {
+          let result;
+          if (processed.length > 1)
+            result = {
+              operation: 'update',
+              deleted: processed[0],
+              inserted: processed[1]
+            }
+          else result = {
+            operation: 'create',
+            inserted: processed[0]
+          };
+          return result;
+        })
     } return Promise.reject('Item properties are incorrect.');
   }
   findById(id: string){
@@ -94,7 +108,13 @@ export class Table {
   deleteById(id: string){
     let pk = this.primaryKey();
     pk.value = id;
-    return this.processRecordsets(this.db.deleteByColumn(this.tableName, pk));
+    return this.processRecordsets(this.db.deleteByColumn(this.tableName, pk))
+      .then(processed => {
+        return {
+          operation: 'delete',
+          deleted: processed[0]
+        };
+      })
   }
 
   processRecordsets(result: any){
@@ -106,9 +126,6 @@ export class Table {
         return [];
       }
     ).catch(exception => [])
-  }
-  identifyRecordsetTypes(editType: string, recordset: any){
-    
   }
   parseObjects(objs: object[]){
     let result = [];
@@ -154,7 +171,7 @@ export class Table {
       .then(query => this.db.executeQueryAsPreparedStatement(query))
       .catch(exception => console.log(exception));
   }
-  createTable(){
+  constructTable(){
     let destDirectory = `src/db/scripts/generated/tables/${this.tableName}`;
     let srcPath = 'src/db/scripts/templates/create_table.sql';
     let destFile = `create_table_${this.tableName}.sql`;
