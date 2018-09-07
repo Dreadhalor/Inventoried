@@ -1,3 +1,4 @@
+import { AuthService } from './auth.service';
 import { Injectable } from "@angular/core";
 import { Durable } from "../models/classes/durable";
 import { Consumable } from "../models/classes/consumable";
@@ -37,6 +38,7 @@ export class AssetService {
   public assetsEdited = new Subject<any>();
 
   constructor(
+    private auth: AuthService,
     private infoService: InfoService,
     private http: HttpClient
   ) {
@@ -55,13 +57,14 @@ export class AssetService {
     return this.durables.find(match => match.id == id);
   }
   setDurables(idurables: IDurable[]){
-    //console.log(idurables);
     idurables.forEach(idurable => this.addDurableWithoutPost(new Durable(idurable)));
     this.assetsEdited.next();
   }
   fetchDurables(){
-    this.http.get(Globals.request_prefix + 'assets/get_durables').
-      subscribe(
+    this.http.get(
+      Globals.request_prefix + 'assets/get_durables',
+      {headers: this.auth.getHeaders()}
+    ).subscribe(
         res => {
           console.log(res);
           this.setDurables(res as IDurable[])
@@ -79,8 +82,11 @@ export class AssetService {
   }
   addDurable(durable: Durable){
     this.addDurableWithoutPost(durable);
-    this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: durable.asInterface()}).
-      subscribe(res => {
+    this.http.post(
+      Globals.request_prefix + 'assets/add_asset',
+      {asset: durable.asInterface()},
+      {headers: this.auth.getHeaders()}
+    ).subscribe(res => {
         console.log(res);
         this.assetsEdited.next();
       },
@@ -89,8 +95,11 @@ export class AssetService {
   saveDurable(durable: Durable){
     let index = this.durables.findIndex(match => match.id == durable.id);
     if (index >= 0) this.durables[index] = durable;
-    this.http.post(Globals.request_prefix + 'assets/update_asset', {asset: durable.asInterface()}).
-      subscribe(
+    this.http.post(
+      Globals.request_prefix + 'assets/update_asset',
+      {asset: durable.asInterface()},
+      {headers: this.auth.getHeaders()}
+    ).subscribe(
         res => {
           console.log(res);
           this.assetsEdited.next();
@@ -107,7 +116,10 @@ export class AssetService {
     this.assetsEdited.next();
   }
   fetchConsumables(){
-    this.http.get(Globals.request_prefix + 'assets/get_consumables').
+    this.http.get(
+      Globals.request_prefix + 'assets/get_consumables',
+      {headers: this.auth.getHeaders()}
+    ).
       subscribe(
         (res: IConsumable[]) => this.setConsumables(res),
         err => console.log(err));
@@ -123,17 +135,26 @@ export class AssetService {
   }
   addConsumable(consumable: Consumable){
     this.addConsumableWithoutPost(consumable);
-    this.http.post(Globals.request_prefix + 'assets/add_asset', {asset: consumable.asInterface()}).
-      subscribe(
+    this.http.post(
+      Globals.request_prefix + 'assets/add_asset',
+      {asset: consumable.asInterface()},
+      {headers: this.auth.getHeaders()}
+    ).subscribe(
         res => this.assetsEdited.next(),
         err => console.log(err));
   }
   saveConsumable(consumable: Consumable){
     let index = this.consumables.findIndex(match => match.id == consumable.id);
     if (index >= 0) this.consumables[index] = consumable;
-    this.http.post(Globals.request_prefix + 'assets/update_asset', {asset: consumable.asInterface()}).
-      subscribe(
-        res => this.assetsEdited.next(),
+    this.http.post(
+      Globals.request_prefix + 'assets/update_asset',
+      {asset: consumable.asInterface()},
+      {headers: this.auth.getHeaders()}
+    ).subscribe(
+        res => {
+          console.log(res);
+          this.assetsEdited.next()
+        },
         err => console.log(err));
   }
 
@@ -153,8 +174,11 @@ export class AssetService {
   }
   deleteAsset(asset: Asset){
     this.deleteAssetWithoutPosting(asset);
-    this.http.post(Globals.request_prefix + 'assets/delete_asset', {asset: asset.asInterface()}).
-      subscribe(
+    this.http.post(
+      Globals.request_prefix + 'assets/delete_asset',
+      {asset: asset.asInterface()},
+      {headers: this.auth.getHeaders()}
+    ).subscribe(
         res => this.assetsEdited.next(),
         err => console.log(err));
   }

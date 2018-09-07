@@ -3,7 +3,8 @@
     href="#">
     {{title}}
   </a>
-  <div class="navbar-nav">
+  <div *ngIf="auth.loggedIn"
+    class="navbar-nav">
     <a class="nav-item nav-link"
       routerLink="/settings"
       routerLinkActive="active">
@@ -19,5 +20,18 @@
       routerLinkActive="active">
       Directory
     </a>
+  </div>
+  <div class="navbar-nav ml-auto">
+    <a *ngIf="!auth.loggedIn"
+      class="nav-item nav-link"
+      routerLink="/login"
+      routerLinkActive="active">
+      Log In
+    </a>
+    <button *ngIf="auth.loggedIn"
+      class="btn btn-outline-success ml-2"
+      (click)="logOutButtonClicked()">
+      Log out
+    </button>
   </div>
 </nav>

@@ -15,7 +15,7 @@ class Table {
             });
         });
         this.columns = this.singularizePrimaryKey(this.columns);
-        this.createUpdateTrigger();
+        setTimeout(() => this.createTable(), 1000);
     }
     singularizePrimaryKey(columns) {
         let primary = false;
@@ -101,6 +101,8 @@ class Table {
             return [];
         }).catch(exception => []);
     }
+    identifyRecordsetTypes(editType, recordset) {
+    }
     parseObjects(objs) {
         let result = [];
         objs.forEach(obj => {
@@ -139,10 +141,43 @@ class Table {
                 triggerName
             ]
         };
+        fse.copy(srcPath, destPath)
+            .then(success => replace(substitutionOptions))
+            .then(replaced => fse.readFile(destPath, 'utf8'))
+            .then(query => this.db.executeQueryAsPreparedStatement(query))
+            .catch(exception => console.log(exception));
+    }
+    createTable() {
+        let destDirectory = `src/db/scripts/generated/tables/${this.tableName}`;
+        let srcPath = 'src/db/scripts/templates/create_table.sql';
+        let destFile = `create_table_${this.tableName}.sql`;
+        let destPath = `${destDirectory}/${destFile}`;
+        let args = '';
+        this.columns.forEach((column, index) => {
+            args += `${column.name} ${this.db.parseDataType(column.dataType, true)}`;
+            if (index < this.columns.length - 1)
+                args += `,\n\t\t`;
+        });
+        let substitutionOptions = {
+            files: destPath,
+            from: [
+                /<database_name>/g,
+                /<table_name>/g,
+                /<args>/g
+            ],
+            to: [
+                this.db.databaseName,
+                this.tableName,
+                args
+            ]
+        };
         fse.ensureDir(destDirectory)
             .then(directory => fse.emptyDir(destDirectory))
             .then(emptied => fse.copy(srcPath, destPath))
             .then(success => replace(substitutionOptions))
+            .then(replaced => fse.readFile(destPath, 'utf8'))
+            .then(query => this.db.executeQueryAsPreparedStatement(query))
+            .then(tableCreated => this.createUpdateTrigger())
             .catch(exception => console.log(exception));
     }
 }

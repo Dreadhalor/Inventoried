@@ -2,6 +2,7 @@ const sql = require('mssql/msnodesqlv8');
 const fse = require('fs-extra');
 const replace = require('replace-in-file');
 let databaseName = exports.databaseName;
+exports.connected = false;
 module.exports.connect = (config) => {
     setDatabaseName(config.database);
     let destDirectory = `src/db/scripts/generated/database`;
@@ -20,10 +21,15 @@ module.exports.connect = (config) => {
         .then(emptied => fse.copy(srcPath, destPath))
         .then(copied => replace(substitutionOptions))
         .then(replaced => fse.readFile(destPath, 'utf8'))
-        .then(query => executeQueryAsPreparedStatement(query))
+        .then(query => executeQueryAsPreparedStatementOnMaster(query))
         .then(dbExists => {
         config.database = databaseName;
-        return sql.close().then(sql.connect(config));
+        return sql.close();
+    })
+        .then(closed => sql.connect(config))
+        .then(connected => {
+        exports.connected = true;
+        return connected;
     });
 };
 const setDatabaseName = (name) => {
@@ -51,7 +57,7 @@ function formatArgs(args, delimiter) {
     });
     return argsString;
 }
-function executeQuery(query) {
+const executeQuery = exports.executeQuery = (query) => {
     return new Promise((resolve, reject) => {
         try {
             const transaction = new sql.Transaction();
@@ -74,7 +80,7 @@ function executeQuery(query) {
             reject(err4);
         }
     });
-}
+};
 const bulkAddition = exports.bulkAddition = (tableName, columnNames, dataTypes, rows) => {
     return new Promise((resolve, reject) => {
         const table = new sql.Table(tableName);
@@ -161,7 +167,10 @@ const preparedStatementWithInputs = (types) => {
     }
     return ps;
 };
-const executeQueryAsPreparedStatement = (query) => {
+const executeQueryAsPreparedStatement = exports.executeQueryAsPreparedStatement = (query) => {
+    return executePreparedStatement(new sql.PreparedStatement(), query, {});
+};
+const executeQueryAsPreparedStatementOnMaster = (query) => {
     return executePreparedStatement(new sql.PreparedStatement(), query, {});
 };
 const executePreparedStatement = (ps, str, vals) => {
@@ -294,21 +303,7 @@ const formatCreateTableIfNotExists2 = (info) => {
     return ifNotExists;
 };
 const save2 = exports.save2 = (info) => {
-    /*let save = formatIfElseDuplicate(
-      info,
-      formatUpdateValuesPrepareString2(info),
-      formatInsertValuesPrepareString3(info)
-    );
-    let tableCreate = formatCreateTableIfNotExists(
-      info.tableName,
-      info.columns.map(column => column.name),
-      info.columns.map(column => column.dataType)
-    );
-    let result = `${tableCreate} ${save}`;
-    let ps = preparedStatementWithInputs3(info);
-    let values = formatPreparedValues2(info);*/
     return formatUpdateElseInsert(info);
-    //return executePreparedStatement(ps, result, values);
 };
 const getId = (info) => {
     let idField, idValue;
@@ -420,4 +415,5 @@ const deleteByColumn = exports.deleteByColumn = (tableName, column) => {
     let formattedValues = formatPreparedValues(undefined, 'value', [column.value]);
     return executePreparedStatement(statement, fullQuery, formattedValues);
 };
+exports.batch = (query) => { return sql.batch(query); };
 //# sourceMappingURL=db.js.map

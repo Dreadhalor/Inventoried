@@ -1,60 +1,95 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const rxjs_1 = require("rxjs");
 const consumable_1 = require("../models/classes/consumable");
 const durable_1 = require("../models/classes/durable");
 const express = require('express');
 const router = express.Router();
 const Durables = require('../models/tables/Durables');
 const Consumables = require('../models/tables/Consumables');
+const Users = require('./users');
+const edits = exports.edits = new rxjs_1.Subject();
 router.post('/add_asset', (req, res) => {
-    let asset = req.body.asset;
-    if (asset) {
-        let type = typeCheck(asset);
-        if (type == 'durable') {
-            //save durable
-            Durables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+    let authorization = req.headers.authorization;
+    Users.checkAdminAuthorization(authorization)
+        .then(admin => {
+        let asset = req.body.asset;
+        if (asset) {
+            let type = typeCheck(asset);
+            if (type == 'durable') {
+                //save durable
+                Durables.save(asset).then(resolved => {
+                    res.json(resolved);
+                    edits.next({
+                        editType: 'add',
+                        assetType: 'durable',
+                        edit: resolved
+                    });
+                }, rejected => res.json(rejected)).catch(exception => res.json(exception));
+            }
+            if (type == 'consumable') {
+                //save consumable
+                Consumables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            }
         }
-        if (type == 'consumable') {
-            //save consumable
-            Consumables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
-        }
-    }
+    })
+        .catch(invalid => {
+        console.log('unauthorized.');
+    });
 });
 router.post('/update_asset', (req, res) => {
-    let asset = req.body.asset;
-    if (asset) {
-        let type = typeCheck(asset);
-        if (type == 'durable') {
-            //update durable
-            Durables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+    let authorization = req.headers.authorization;
+    Users.checkAdminAuthorization(authorization)
+        .then(admin => {
+        let asset = req.body.asset;
+        if (asset) {
+            let type = typeCheck(asset);
+            if (type == 'durable') {
+                //update durable
+                Durables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            }
+            if (type == 'consumable') {
+                //update consumable
+                Consumables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            }
         }
-        if (type == 'consumable') {
-            //update consumable
-            Consumables.save(asset).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
-        }
-    }
+    })
+        .catch(invalid => {
+        console.log('unauthorized.');
+    });
 });
 router.post('/delete_asset', (req, res) => {
-    let asset = req.body.asset;
-    if (asset) {
-        let type = typeCheck(asset);
-        if (type == 'durable') {
-            //delete durable
-            Durables.deleteById(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+    let authorization = req.headers.authorization;
+    Users.checkAdminAuthorization(authorization)
+        .then(admin => {
+        let asset = req.body.asset;
+        if (asset) {
+            let type = typeCheck(asset);
+            if (type == 'durable') {
+                //delete durable
+                Durables.deleteById(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            }
+            if (type == 'consumable') {
+                //delete consumable
+                Consumables.deleteById(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
+            }
         }
-        if (type == 'consumable') {
-            //delete consumable
-            Consumables.deleteById(asset.id).then(resolved => res.json(resolved), rejected => res.json(rejected)).catch(exception => res.json(exception));
-        }
-    }
+    })
+        .catch(exception => console.log('unauthorized.'));
 });
 router.get('/get_durables', (req, res) => {
-    Durables.pullAll().then(resolve => {
-        res.json(resolve);
-    }).catch(exception => res.json([]));
+    let authorization = req.headers.authorization;
+    Users.checkAdminAuthorization(authorization)
+        .then(admin => Durables.pullAll())
+        .then(durables => res.json(durables))
+        .catch(exception => res.json([]));
 });
 router.get('/get_consumables', (req, res) => {
-    Consumables.pullAll().then(resolve => res.json(resolve)).catch(exception => res.json([]));
+    let authorization = req.headers.authorization;
+    Users.checkAdminAuthorization(authorization)
+        .then(admin => Consumables.pullAll())
+        .then(consumables => res.json(consumables))
+        .catch(exception => res.json([]));
 });
 const getAsset = exports.getAsset = (assetId) => {
     return Promise.all([

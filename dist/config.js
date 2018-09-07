@@ -42,29 +42,23 @@ module.exports = {
             trustedConnection: true
         }
     },
+    windowsauth: {
+        ldap: {
+            url: 'ldap://la-archdiocese.org/"DC=la-archdiocese,DC=org',
+            base: 'DC=la-archdiocese,DC=org',
+            bindDN: info.user,
+            bindCredentials: info.password
+        },
+        integrated: false,
+        usernameField: 'username',
+        passwordField: 'password'
+    },
+    secret: 'secretOrPrivateKey',
     dateFormat: 'MMMM Do YYYY'
 };
 function GUIDtoString(entry, raw, callback) {
     if (raw.hasOwnProperty('objectGUID')) {
         entry.objectGUID = guidParser.unparse(raw.objectGUID);
-        /*let guidRaw = raw.objectGUID as number[];
-        let parts = [
-          guidRaw.slice(0,4).reverse(),
-          guidRaw.slice(4,6).reverse(),
-          guidRaw.slice(6,8).reverse(),
-          guidRaw.slice(8,10),
-          guidRaw.slice(10,16)
-        ];
-        let result = parts.map(part => {
-          let mapped = '';
-          part.forEach(byte => {
-            let padded = '00' + byte.toString(16);
-            let trimmed = padded.substring(padded.length - 2);
-            mapped += trimmed;
-          });
-          return mapped;
-        })
-        entry.objectGUID = result.join('-');*/
     }
     callback(entry);
 }

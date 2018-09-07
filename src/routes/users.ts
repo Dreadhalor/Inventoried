@@ -4,10 +4,14 @@ const express = require('express');
 const router = express.Router();
 const config = require('../config');
 const guidParser = require('../guid-parse');
-
+const WindowsStrategy = require('passport-windowsauth');
 const ActiveDirectory = require('activedirectory2');
 const ADPromise = ActiveDirectory.promiseWrapper;
 let ad = new ADPromise(config.activedirectory2);
+let jwt = require('jsonwebtoken');
+let promisify = require('util').promisify;
+
+import * as passport from 'passport';
 
 router.get('/get_all_users', async (req, res) => {
   ad.findUsers({paged: false}).then(
@@ -77,5 +81,60 @@ function formatManagerName(manager: string){
   return '';
 }
 
+passport.use(new WindowsStrategy(
+  config.windowsauth,
+  (user, done) => {
+    if (user) {
+      return done(null, user);
+    } else return done(null, false);
+  }
+));
+
+router.post('/login',
+  passport.authenticate('WindowsAuthentication', {session: false}),
+  (req, res) => { res.json({user: req.user}); }
+);
+
+router.post('/authenticate', (req, res) => {
+  ad.authenticate(req.body.username, req.body.password).then(
+    authentication => {
+      let token = jwt.sign(req.body.username, config.secret);
+      res.json({
+        error: null,
+        result: token
+      });
+    }
+  ).catch(exception => {
+    res.json({
+      error: exception
+    });
+  });
+})
+
 exports.router = router;
 exports.getUser = getUser;
+
+const isAdmin = (username: string) => {
+  return ad.isUserMemberOf(username, 'Applied Technology')
+  .then(result => {
+    return {
+      error: null,
+      result: result
+    }
+  })
+  .catch(exception => {
+    return {
+      error: exception
+    }
+  })
+}
+
+const checkAuthorization = exports.checkAuthorization = (token: string) => {
+  if (!token) return Promise.reject();
+  return promisify(jwt.verify)(token, config.secret);
+}
+const checkAdminAuthorization = exports.checkAdminAuthorization = (token: string) => {
+  if (!token) return Promise.reject();
+  return promisify(jwt.verify)(token, config.secret)
+    .then(username => isAdmin(username));
+}

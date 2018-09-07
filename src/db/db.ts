@@ -3,6 +3,8 @@ const fse = require('fs-extra');
 const replace = require('replace-in-file');
 let databaseName = exports.databaseName;
 
+exports.connected = false;
+
 module.exports.connect = (config) => {
 
   setDatabaseName(config.database);
@@ -22,13 +24,18 @@ module.exports.connect = (config) => {
     .then(emptied => fse.copy(srcPath, destPath))
     .then(copied => replace(substitutionOptions))
     .then(replaced => fse.readFile(destPath,'utf8'))
-    .then(query => executeQueryAsPreparedStatement(query))
+    .then(query => executeQueryAsPreparedStatementOnMaster(query))
     .then(
       dbExists => {
         config.database = databaseName;
-        return sql.close().then(sql.connect(config));
+        return sql.close();
       }
-    );
+    )
+    .then(closed => sql.connect(config))
+    .then(connected => {
+      exports.connected = true;
+      return connected;
+    });
 
 }
 const setDatabaseName = (name) => {
@@ -60,7 +67,7 @@ function formatArgs(args: string[], delimiter: string){
   return argsString;
 }
 
-function executeQuery(query){
+const executeQuery = exports.executeQuery = (query) => {
   return new Promise((resolve,reject) => {
     try {
       const transaction = new sql.Transaction();
@@ -166,7 +173,10 @@ const preparedStatementWithInputs = (types: string[]) => {
   }
   return ps;
 }
-const executeQueryAsPreparedStatement = (query: string) => {
+const executeQueryAsPreparedStatement = exports.executeQueryAsPreparedStatement = (query: string) => {
+  return executePreparedStatement(new sql.PreparedStatement(),query,{});
+}
+const executeQueryAsPreparedStatementOnMaster = (query: string) => {
   return executePreparedStatement(new sql.PreparedStatement(),query,{});
 }
 const executePreparedStatement = (ps: any, str: string, vals: object) => {
@@ -317,21 +327,7 @@ const formatCreateTableIfNotExists2 = (info: any) => {
 }
 
 const save2 = exports.save2 = (info) => {
-  /*let save = formatIfElseDuplicate(
-    info,
-    formatUpdateValuesPrepareString2(info),
-    formatInsertValuesPrepareString3(info)
-  );
-  let tableCreate = formatCreateTableIfNotExists(
-    info.tableName,
-    info.columns.map(column => column.name),
-    info.columns.map(column => column.dataType)
-  );
-  let result = `${tableCreate} ${save}`;
-  let ps = preparedStatementWithInputs3(info);
-  let values = formatPreparedValues2(info);*/
   return formatUpdateElseInsert(info);
-  //return executePreparedStatement(ps, result, values);
 }
 
 const getId = (info: any) => {
@@ -446,3 +442,5 @@ const deleteByColumn = exports.deleteByColumn = (tableName: string, column: any)
   let formattedValues = formatPreparedValues(undefined, 'value', [column.value])
   return executePreparedStatement(statement, fullQuery, formattedValues);
 }
+
+exports.batch = (query) => {return sql.batch(query);}

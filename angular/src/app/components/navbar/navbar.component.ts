@@ -1,3 +1,4 @@
+import { AuthService } from './../../services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { Globals } from '../../globals';
 import { Router } from '@angular/router';
@@ -9,13 +10,19 @@ import { Router } from '@angular/router';
 })
 export class NavbarComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private auth: AuthService
+  ) { }
 
   ngOnInit() {
   }
 
   get title(){
     return Globals.title;
+  }
+
+  logOutButtonClicked(){
+    this.auth.logOut();
   }
 
 }
