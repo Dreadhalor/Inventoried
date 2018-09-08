@@ -41,6 +41,7 @@ import { EditAssignmentContentComponent } from './components/modals/edit-assignm
 import { ButtonTightComponent } from './components/utilities/button-tight/button-tight.component';
 import { LoginComponent } from './components/login/login.component';
 import { HistoryComponent } from './components/history/history.component';
+import { HistoryPanelComponent } from './components/history/history-panel/history-panel.component';
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
@@ -90,7 +91,8 @@ var routes: Routes = [
     EditAssignmentContentComponent,
     ButtonTightComponent,
     LoginComponent,
-    HistoryComponent
+    HistoryComponent,
+    HistoryPanelComponent
   ],
   imports: [
     BrowserModule,

@@ -32,6 +32,8 @@ const users = require('./routes/users');
 app.use('/users', users.router);
 const assignments = require('./routes/assignments');
 app.use('/assignments', assignments);
+const history = require('./routes/history');
+app.use('/history', history.router);
 
 //set client file
 /*app.use(express.static(path.join(__dirname, '/client/angular-prod')));
@@ -39,8 +41,7 @@ app.get('/*', function(req, res) {
   res.sendFile(path.join(__dirname, '/client/angular-prod/index.html'));
 });*/
 
-app.get('*', (req, res) => {
-});
+app.get('*', (req, res) => {});
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);

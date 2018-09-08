@@ -9,7 +9,7 @@ module.exports.connect = (config) => {
     let destDirectory = `src/db/scripts/generated/database`;
     let destFile = `create_database_${databaseName}.sql`;
     let destPath = `${destDirectory}/${destFile}`;
-    let srcPath = 'src/db/scripts/templates/create_database.sql';
+    let srcPath = 'src/db/scripts/templates/create_database.template.sql';
     const substitutionOptions = {
         files: destPath,
         from: /<database_name>/g,
@@ -215,6 +215,7 @@ const parseDataType = exports.parseDataType = (type, stringify) => {
     if (stringify) {
         switch (type) {
             case 'varchar(max)[]':
+            case 'object':
                 return 'varchar(max)';
             default: return type;
         }
@@ -222,6 +223,7 @@ const parseDataType = exports.parseDataType = (type, stringify) => {
     switch (type) {
         case 'varchar(max)':
         case 'varchar(max)[]':
+        case 'object':
             return sql.VarChar(sql.MAX);
         case 'nvarchar(max)': return sql.NVarChar(sql.MAX);
         case 'varbinary(max)': return sql.VarBinary(sql.MAX);
@@ -273,7 +275,7 @@ const formatUpdateValuesPrepareString2 = (info) => {
     let query = `update "${info.tableName}" set `;
     for (let i = 0; i < paramCount; i++) {
         if (!info.columns[i].primary) {
-            query += `${info.columns[i].name} = @${info.columns[i].name}`;
+            query += `"${info.columns[i].name}" = @${info.columns[i].name}`;
             if (i < paramCount - 1)
                 query += `, `;
         }
@@ -295,13 +297,13 @@ const formatIfElseDuplicate = (info, dupeQuery, noDupeQuery) => {
     return query;
 };
 const formatUpdateElseInsert = (info) => {
-    let declare = `declare @output table (id varchar(max), serialNumber varchar(max), categoryId varchar(max), manufacturerId varchar(max), notes varchar(max), assignmentId varchar(max), tagIds varchar(max), active bit);`;
     let createTable = formatCreateTableIfNotExists2(info);
     let update = formatUpdateValuesPrepareString2(info);
     let insert = formatInsertValuesPrepareString3(info);
-    let result = `${declare}\n${createTable}\n${update}\nif @@rowcount=0\nbegin ${insert}\nend`;
+    let result = `${createTable}\n${update}\nif @@rowcount=0\nbegin ${insert}\nend`;
     let ps = preparedStatementWithInputs3(info);
     let values = formatPreparedValues2(info);
+    console.log(result);
     return executePreparedStatement(ps, result, values);
 };
 const formatCreateTableIfNotExists2 = (info) => {
@@ -379,6 +381,11 @@ const formatInsertValuesPrepareString2 = (tableName, columnNames, paramCount) =>
     ;
     query += `);`;
     return query;
+};
+const prepareQueryAndExecute = exports.prepareQueryAndExecute = (query, info) => {
+    let ps = preparedStatementWithInputs3(info);
+    let values = formatPreparedValues2(info);
+    return executePreparedStatement(ps, query, values);
 };
 const preparedStatementWithInputs3 = (info) => {
     let ps = new sql.PreparedStatement();

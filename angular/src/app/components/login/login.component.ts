@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
   }
 
-  loginButtonClicked(){
+  loginSubmitted(){
     this.auth.logIn(this.user, this.pass).then(
       authenticated => console.log(authenticated)
     ).catch(exception => console.log(exception));

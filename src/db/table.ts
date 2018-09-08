@@ -8,6 +8,26 @@ export class Table {
   columns: any[] = [];
   db: any;
 
+  srcPaths = {
+    createTable: 'src/db/scripts/templates/create_table.template.sql',
+    createUpdateTrigger: 'src/db/scripts/templates/update_trigger.template.sql',
+    saveQuery: 'src/db/scripts/templates/save.template.sql'
+  }
+  get destDirs(){
+    return {
+      createTable: `src/db/scripts/generated/tables/${this.tableName}`,
+      createUpdateTrigger: `src/db/scripts/generated/tables/${this.tableName}`,
+      saveQuery: `src/db/scripts/generated/tables/${this.tableName}`
+    }
+  }
+  get destFiles(){
+    return {
+      createTable: `create_table_${this.tableName}.sql`,
+      createUpdateTrigger: `update_trigger_${this.tableName}.sql`,
+      saveQuery: `save_${this.tableName}.sql`
+    }
+  }
+
   constructor(db: any, schema: ITableSchema){
     this.db = db;
     this.tableName = schema.tableName;
@@ -47,7 +67,7 @@ export class Table {
     let result = {};
     this.columns.forEach(column => {
       let val = obj[column.name];
-      if (column.dataType.includes('[]')){
+      if (this.shouldStringify(column)){
         val = JSON.stringify(val);
       }
       result[column.name] = val;
@@ -80,16 +100,19 @@ export class Table {
         tableName: this.tableName,
         columns: this.formatRow(formattedItem)
       }
-      return this.processRecordsets(this.db.save2(info))
+      return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/save_${this.tableName}.sql`,'utf8')
+        .then(file => this.processRecordsets(this.db.prepareQueryAndExecute(file,info)))
         .then(processed => {
           let result;
           if (processed.length > 1)
             result = {
+              table: this.tableName,
               operation: 'update',
               deleted: processed[0],
               inserted: processed[1]
             }
           else result = {
+            table: this.tableName,
             operation: 'create',
             inserted: processed[0]
           };
@@ -111,6 +134,7 @@ export class Table {
     return this.processRecordsets(this.db.deleteByColumn(this.tableName, pk))
       .then(processed => {
         return {
+          table: this.tableName,
           operation: 'delete',
           deleted: processed[0]
         };
@@ -127,6 +151,9 @@ export class Table {
       }
     ).catch(exception => [])
   }
+  shouldStringify(column){
+    return column.dataType.includes('[]') || column.dataType == 'object';
+  }
   parseObjects(objs: object[]){
     let result = [];
     objs.forEach(obj => {
@@ -135,8 +162,7 @@ export class Table {
       keys.forEach(key => {
         let found = this.columns.find(match => match.name == key);
         if (found){
-          let str = found.dataType.includes('[]');
-          if (str) parsedObj[key] = JSON.parse(obj[key]);
+          if (this.shouldStringify(found)) parsedObj[key] = JSON.parse(obj[key]);
           else parsedObj[key] = obj[key];
         }
       })
@@ -145,40 +171,14 @@ export class Table {
     return result; 
   }
 
-  createUpdateTrigger(){
-    let triggerName = `update_trigger_${this.tableName}`;
-    let srcPath = 'src/db/scripts/templates/update_trigger.sql';
-    let destDirectory = `src/db/scripts/generated/tables/${this.tableName}`;
-    let destFile = `${triggerName}.sql`;
-    let destPath = `${destDirectory}/${destFile}`;
-    let substitutionOptions = {
-      files: destPath,
-      from: [
-        /<database_name>/g,
-        /<table_name>/g,
-        /<trigger_name>/g
-      ],
-      to: [
-        this.db.databaseName,
-        this.tableName,
-        triggerName
-      ]
-    };
-
-    fse.copy(srcPath, destPath)
-      .then(success => replace(substitutionOptions))
-      .then(replaced => fse.readFile(destPath,'utf8'))
-      .then(query => this.db.executeQueryAsPreparedStatement(query))
-      .catch(exception => console.log(exception));
-  }
   constructTable(){
-    let destDirectory = `src/db/scripts/generated/tables/${this.tableName}`;
-    let srcPath = 'src/db/scripts/templates/create_table.sql';
-    let destFile = `create_table_${this.tableName}.sql`;
+    let srcPath = this.srcPaths.createTable;
+    let destDirectory = this.destDirs.createTable;
+    let destFile = this.destFiles.createTable;
     let destPath = `${destDirectory}/${destFile}`
     let args = '';
     this.columns.forEach((column, index) => {
-      args += `${column.name} ${this.db.parseDataType(column.dataType, true)}`
+      args += `[${column.name}] ${this.db.parseDataType(column.dataType, true)}`
       if (index < this.columns.length - 1) args += `,\n\t\t`;
     })
     let substitutionOptions = {
@@ -201,8 +201,77 @@ export class Table {
       .then(success => replace(substitutionOptions))
       .then(replaced => fse.readFile(destPath,'utf8'))
       .then(query => this.db.executeQueryAsPreparedStatement(query))
-      .then(tableCreated => this.createUpdateTrigger())
+      .then(tableCreated => Promise.all([
+          this.createUpdateTrigger(),
+          this.createSaveQuery()
+        ])
+      )
       .catch(exception => console.log(exception));
+  }
+  createUpdateTrigger(){
+    let triggerName = `update_trigger_${this.tableName}`;
+    let srcPath = this.srcPaths.createUpdateTrigger;
+    let destDirectory = this.destDirs.createUpdateTrigger;
+    let destFile = this.destFiles.createUpdateTrigger;
+    let destPath = `${destDirectory}/${destFile}`;
+    let substitutionOptions = {
+      files: destPath,
+      from: [
+        /<database_name>/g,
+        /<table_name>/g,
+        /<trigger_name>/g
+      ],
+      to: [
+        this.db.databaseName,
+        this.tableName,
+        triggerName
+      ]
+    };
+
+    return fse.copy(srcPath, destPath)
+      .then(success => replace(substitutionOptions))
+      .then(replaced => fse.readFile(destPath,'utf8'))
+      .then(query => this.db.executeQueryAsPreparedStatement(query))
+  }
+  createSaveQuery(){
+    let srcPath = this.srcPaths.saveQuery;
+    let destDirectory = this.destDirs.saveQuery;
+    let destFile = this.destFiles.saveQuery;
+    let destPath = `${destDirectory}/${destFile}`;
+    let args = '', fields = '', values = '';
+    this.columns.forEach((column, index) => {
+      let primary = this.columns[index].primary;
+      if (!primary) args += `[${column.name}] = @${column.name}`;
+      fields += `[${column.name}]`;
+      values += `@${column.name}`;
+      if (index < this.columns.length - 1){
+        if (!primary) args += `,\n\t`;
+        fields += `,\n\t\t`;
+        values += `,\n\t\t`;
+      }
+    })
+    let substitutionOptions = {
+      files: destPath,
+      from: [
+        /<database_name>/g,
+        /<table_name>/g,
+        /<args>/g,
+        /<fields>/g,
+        /<values>/g,
+        /<primary>/g
+      ],
+      to: [
+        this.db.databaseName,
+        this.tableName,
+        args,
+        fields,
+        values,
+        this.primaryKey().name
+      ]
+    };
+
+    return fse.copy(srcPath, destPath)
+      .then(success => replace(substitutionOptions));
   }
 
 }

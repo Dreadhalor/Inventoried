@@ -47,49 +47,10 @@
     </table>
   </ng-template>
 
-    <mat-paginator #paginator
-      [hidden]="us.users.length == 0"
-      [pageSizeOptions]="pageSizeOptions"
-      showFirstLastButtons>
-    </mat-paginator>
-
-
-  <!--table class="table table-striped table-hover">
-    <thead>
-      <th scope="col">
-        Id
-      </th>
-      <th scope="col">
-        Full Name
-      </th>
-      <th scope="col">
-        Email
-      </th>
-      <th scope="col">
-        Assignments
-      </th>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of us.users">
-        <td>
-          {{user.id}}
-        </td>
-        <td>
-          {{user.fullName}}
-        </td>
-        <td>
-          {{user.email}}
-        </td>
-        <td>
-          <button *ngFor="let assignmentId of user.assignmentIds"
-            type="button"
-            class="btn btn-link btn-sm"
-            (click)="openEditAsset(assignments.getAssetFromAssignmentId(assignmentId))">
-            {{assignments.getAssetText(assignmentId)}}
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table-->
+  <mat-paginator #paginator
+    [hidden]="us.users.length == 0"
+    [pageSizeOptions]="pageSizeOptions"
+    showFirstLastButtons>
+  </mat-paginator>
 
 </div>

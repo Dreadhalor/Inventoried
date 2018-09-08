@@ -43,6 +43,11 @@ const getUser = (userId: string) => {
     rejected => null
   ).catch(exception => null);
 };
+const getUserByUsername = (username: string) => {
+  return ad.findUser(username).then(
+    results => formatLDAPData(results)
+  ).catch(exception => null);
+}
 
 function formatLDAPData(data: any){
   var result: IUser = {
@@ -98,7 +103,7 @@ router.post('/login',
 router.post('/authenticate', (req, res) => {
   ad.authenticate(req.body.username, req.body.password).then(
     authentication => {
-      let token = jwt.sign(req.body.username, config.secret);
+      let token = jwt.sign(req.body.username.toLowerCase(), config.secret);
       res.json({
         error: null,
         result: token
@@ -119,7 +124,7 @@ const isAdmin = (username: string) => {
   .then(result => {
     return {
       error: null,
-      result: result
+      result: (result) ? username : false
     }
   })
   .catch(exception => {
@@ -134,7 +139,6 @@ const checkAuthorization = exports.checkAuthorization = (token: string) => {
   return promisify(jwt.verify)(token, config.secret);
 }
 const checkAdminAuthorization = exports.checkAdminAuthorization = (token: string) => {
-  if (!token) return Promise.reject();
-  return promisify(jwt.verify)(token, config.secret)
+  return checkAuthorization(token)
     .then(username => isAdmin(username));
 }

@@ -1,7 +1,3 @@
-import { IConsumable } from './models/interfaces/IConsumable';
-import { IDurable } from "./models/interfaces/IDurable";
-import { IAssignment } from './models/interfaces/IAssignment';
-
 export class Globals {
 
   public static dialogWidth = '500px';

@@ -1,34 +1,36 @@
 <mat-card class="mx-auto my-5"
   style="max-width:400px">
-  <mat-card-content>
-    <mat-form-field appearance="outline"
-      class="w-100 mt-1 mat-form-field-no-padding">
-      <mat-label>Email</mat-label>
-      <input matInput
-        required
-        spellcheck="false"
-        placeholder="Email"
-        [(ngModel)]="user"
-        name="labelTextfield">
-    </mat-form-field>
+  <form (ngSubmit)="loginSubmitted()">
+    <mat-card-content>
+      <mat-form-field appearance="outline"
+        class="w-100 mt-1 mat-form-field-no-padding">
+        <mat-label>Email</mat-label>
+        <input matInput
+          required
+          spellcheck="false"
+          placeholder="Email"
+          [(ngModel)]="user"
+          name="labelTextfield">
+      </mat-form-field>
 
-    <mat-form-field appearance="outline"
-      class="w-100 mt-1 mat-form-field-no-padding">
-      <mat-label>Password</mat-label>
-      <input matInput
-        type="password"
-        required
-        spellcheck="false"
-        placeholder="Password"
-        [(ngModel)]="pass"
-        name="labelTextfield">
-    </mat-form-field>
-  </mat-card-content>
-  <mat-card-actions align="end">
-      <button mat-stroked-button
-      color="basic"
-      (click)="loginButtonClicked()">
-      Log in
-    </button>
-  </mat-card-actions>
+      <mat-form-field appearance="outline"
+        class="w-100 mt-1 mat-form-field-no-padding">
+        <mat-label>Password</mat-label>
+        <input matInput
+          type="password"
+          required
+          spellcheck="false"
+          placeholder="Password"
+          [(ngModel)]="pass"
+          name="labelTextfield">
+      </mat-form-field>
+    </mat-card-content>
+    <mat-card-actions align="end">
+        <button mat-stroked-button
+        type="submit"
+        color="basic">
+        Log in
+      </button>
+    </mat-card-actions>
+  </form>
 </mat-card>

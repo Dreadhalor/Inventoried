@@ -12,7 +12,7 @@ EXEC('
     FOR UPDATE, INSERT, DELETE
   AS
     BEGIN
-      if exists (select * from deleted union all select * from inserted)
-      select * from deleted union all select * from inserted
+      IF EXISTS (SELECT * FROM DELETED UNION ALL SELECT * FROM INSERTED)
+      SELECT * FROM DELETED UNION ALL SELECT * FROM INSERTED
     END
 ')

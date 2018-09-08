@@ -56,7 +56,8 @@ module.exports = {
     passwordField: 'password'
   },
   secret: 'secretOrPrivateKey',
-  dateFormat: 'MMMM Do YYYY'
+  dateFormat: 'MMMM Do YYYY',
+  historyFormat: 'dddd, MMMM Do YYYY, h:mm:ss a'
 }
 
 function GUIDtoString(entry, raw, callback){

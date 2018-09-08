@@ -1,3 +1,15 @@
-<p>
-  history works!
-</p>
+<div class="full-height px-5 pb-4 y-scroll">
+
+  <h1 class="page-title">
+    History
+  </h1>
+
+  <ul class="list-group">
+    <li *ngFor="let entry of hs.history"
+      class="list-group-item py-0 px-2">
+      <history-panel [entry]="entry">
+      </history-panel>
+    </li>
+  </ul>
+
+</div>
