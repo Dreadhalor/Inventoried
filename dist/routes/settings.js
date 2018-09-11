@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const router = express.Router();
-const dbClient = require('../models/classes/db-client');
+const dbClient = require('../db/db-client');
 router.post('/set_settings', (req, res) => {
     let settings = req.body.settings;
     if (settings) {

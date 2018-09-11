@@ -45,7 +45,7 @@ export class Consumable extends Asset implements MultiAssigned {
     let result = null;
     if (this.categoryId){
       result = this.infoService.getConsumablesCategory(this.categoryId);
-      if (!result) return '0';//this.categoryId = '0';
+      if (!result) return '0';
     }
     return result;
   }

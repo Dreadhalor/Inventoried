@@ -48,7 +48,7 @@ export class Durable extends Asset {
   get activeVal(){ return (this._active) ? 'Yes' : 'No'; }
   set active(val){ this._active = val; }
 
-  get name(){ return `${this.categoryVal} ${this.serialNumber}`;}
+  get name(){ return `${(this.categoryVal) ? this.categoryVal : 'Durable'} ${this.serialNumber}`;}
 
   copy(): Durable {
     let result = new Durable({

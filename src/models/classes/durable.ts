@@ -1,5 +1,4 @@
 import { IDurable } from '../interfaces/IDurable';
-let db = require('./db');
 
 export class Durable {
   public static sample(){

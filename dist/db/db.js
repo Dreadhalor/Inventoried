@@ -74,28 +74,23 @@ function formatArgs(args, delimiter) {
     return argsString;
 }
 const executeQuery = exports.executeQuery = (query) => {
-    return new Promise((resolve, reject) => {
-        try {
-            const transaction = new sql.Transaction();
-            transaction.begin(err1 => {
-                if (err1)
-                    reject(err1);
-                let request = new sql.Request(transaction);
-                request.query(query, (err2, result) => {
-                    if (err2)
-                        reject(err2);
-                    transaction.commit(err3 => {
-                        if (err3)
-                            reject(err3);
-                        resolve(result);
-                    });
-                });
-            });
-        }
-        catch (err4) {
-            reject(err4);
-        }
-    });
+    /*return new Promise((resolve,reject) => {
+      try {
+        const transaction = new sql.Transaction();
+        transaction.begin(err1 => {
+          if (err1) reject(err1);
+          let request = new sql.Request(transaction);
+          request.query(query, (err2, result) => {
+            if (err2) reject(err2);
+            transaction.commit(err3 => {
+              if (err3) reject(err3);
+              resolve(result);
+            })
+          })
+        })
+      } catch (err4){ reject(err4); }
+    });*/
+    return new sql.Request().query(query);
 };
 const bulkAddition = exports.bulkAddition = (tableName, columnNames, dataTypes, rows) => {
     return new Promise((resolve, reject) => {
@@ -190,21 +185,14 @@ const executeQueryAsPreparedStatementOnMaster = (query) => {
     return executePreparedStatement(new sql.PreparedStatement(), query, {});
 };
 const executePreparedStatement = (ps, str, vals) => {
-    return new Promise((resolve, reject) => {
-        ps.prepare(str, err => {
-            if (err)
-                reject(err);
-            ps.execute(vals, (err, result) => {
-                if (err)
-                    reject(err);
-                ps.unprepare(err => {
-                    if (err)
-                        reject(err);
-                    resolve(result);
-                });
-            });
-        });
-    });
+    let result;
+    return ps.prepare(str)
+        .then(prepared => ps.execute(vals))
+        .then(executed => {
+        result = executed;
+        return ps.unprepare();
+    })
+        .then(unprepared => result);
 };
 const formatValues = (values) => {
     let formattedValues = [];
@@ -281,7 +269,6 @@ const formatUpdateValuesPrepareString2 = (info) => {
         }
     }
     ;
-    //query += ` output inserted.* into @output`;
     query += ` where ${id.field} = @${id.field};`;
     return query;
 };
@@ -303,7 +290,6 @@ const formatUpdateElseInsert = (info) => {
     let result = `${createTable}\n${update}\nif @@rowcount=0\nbegin ${insert}\nend`;
     let ps = preparedStatementWithInputs3(info);
     let values = formatPreparedValues2(info);
-    console.log(result);
     return executePreparedStatement(ps, result, values);
 };
 const formatCreateTableIfNotExists2 = (info) => {

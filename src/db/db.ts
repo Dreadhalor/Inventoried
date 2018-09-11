@@ -84,7 +84,7 @@ function formatArgs(args: string[], delimiter: string){
 }
 
 const executeQuery = exports.executeQuery = (query) => {
-  return new Promise((resolve,reject) => {
+  /*return new Promise((resolve,reject) => {
     try {
       const transaction = new sql.Transaction();
       transaction.begin(err1 => {
@@ -99,7 +99,8 @@ const executeQuery = exports.executeQuery = (query) => {
         })
       })
     } catch (err4){ reject(err4); }
-  });
+  });*/
+  return new sql.Request().query(query);
 }
 
 const bulkAddition = exports.bulkAddition = (tableName: string, columnNames: string[], dataTypes: string[], rows: any[][]) => {
@@ -195,19 +196,15 @@ const executeQueryAsPreparedStatement = exports.executeQueryAsPreparedStatement 
 const executeQueryAsPreparedStatementOnMaster = (query: string) => {
   return executePreparedStatement(new sql.PreparedStatement(),query,{});
 }
-const executePreparedStatement = (ps: any, str: string, vals: object) => {
-  return new Promise((resolve, reject) => {
-    ps.prepare(str, err => {
-      if (err) reject(err);
-        ps.execute(vals, (err, result) => {
-        if (err) reject(err);
-        ps.unprepare(err => {
-          if (err) reject(err);
-          resolve(result);
-        })
-      })
+const executePreparedStatement = (ps: any, str: string, vals: any) => {
+  let result;
+  return ps.prepare(str)
+    .then(prepared => ps.execute(vals))
+    .then(executed => {
+      result = executed;
+      return ps.unprepare();
     })
-  })
+    .then(unprepared => result);
 }
 const formatValues = (values: any[]): any => {
   let formattedValues = [];
@@ -303,7 +300,6 @@ const formatUpdateValuesPrepareString2 = (info: any) => {
       if (i < paramCount - 1) query += `, `;
     }
   };
-  //query += ` output inserted.* into @output`;
   query += ` where ${id.field} = @${id.field};`;
   return query;
 }
@@ -327,7 +323,6 @@ const formatUpdateElseInsert = (info: any) => {
   let result = `${createTable}\n${update}\nif @@rowcount=0\nbegin ${insert}\nend`;
   let ps = preparedStatementWithInputs3(info);
   let values = formatPreparedValues2(info);
-  console.log(result);
   return executePreparedStatement(ps, result, values);
 }
 const formatCreateTableIfNotExists2 = (info: any) => {

@@ -3,11 +3,12 @@
 </h4>
 <mat-dialog-content>
   <div class="d-flex-row">
-    <asset-select
-      [(assetIds)]="assetIds">
+    <asset-select [(assetIds)]="assetIds"
+    class="flex-1">
     </asset-select>
+    <div style="width:20px"></div>
     <user-select [(userId)]="userId"
-      class="ml-auto">
+      class="ml-auto flex-1">
     </user-select>
   </div>
   <div class="text-center">

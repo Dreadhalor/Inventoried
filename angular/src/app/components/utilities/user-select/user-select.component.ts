@@ -1,6 +1,7 @@
 import { AssignmentService } from '../../../services/assignment.service';
 import { UserService } from '../../../services/user.service';
 import { Component, OnInit, ElementRef, ViewChild, EventEmitter, Output, Input } from '@angular/core';
+import { User } from '../../../models/classes/user';
 
 @Component({
   selector: 'user-select',
@@ -15,7 +16,7 @@ export class UserSelectComponent implements OnInit {
 
   filteredDictionary = [];
 
-  _userId;
+  _userId = null;
   @Input() get userId(){ return this._userId; }
   @Output() userIdChange = new EventEmitter<any>();
   set userId(val){
@@ -23,7 +24,15 @@ export class UserSelectComponent implements OnInit {
     this.userIdChange.emit(val);
   }
 
-  textfield = '';
+  _textfield = '';
+  get textfield(){ return this._textfield; }
+  get textfieldFormatted(){ return this.textfield.toLowerCase(); }
+  set textfield(v: any){
+    if (v instanceof User) v = v.name;
+    this._textfield = v;
+    if (this.us.getUserByName(v)) this.userId = v;
+    else this.userId = null;
+  }
 
   get user(){
     return this.us.getUser(this.userId);
@@ -45,8 +54,7 @@ export class UserSelectComponent implements OnInit {
   }
 
   filter(){
-    this.filteredDictionary = [];
-    if (this.textfield) this.us.users.forEach(user => {if (user.name.includes(this.textfield)) this.filteredDictionary.push(user)});
+    if (this.textfield) this.filteredDictionary = this.us.users.filter(user => user.name.toLowerCase().includes(this.textfieldFormatted));
     else this.filteredDictionary = this.us.users;
   }
 

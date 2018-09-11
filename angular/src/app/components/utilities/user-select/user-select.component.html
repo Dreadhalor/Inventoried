@@ -1,19 +1,19 @@
-<mat-form-field>
+<mat-form-field class="w-100">
   <mat-label>User</mat-label>
 
   <input #input
     matInput
+    spellcheck="false"
     [placeholder]="placeholder"
     [matAutocomplete]="auto"
     [(ngModel)]="textfield"
     name="userSelect"
-    #popover="ngbPopover"
-    [ngbPopover]="getPopoverContent()"
-    triggers="mouseenter:mouseleave"
-    placement="bottom"
-    container="body"
-    (input)="filter()"
-    (click)="popover.close()">
+    (input)="filter()">
+
+    <i *ngIf="userId"
+      matSuffix
+      class="fas fa-check text-success">
+    </i>
 </mat-form-field>
 
 <mat-autocomplete #auto="matAutocomplete"
@@ -21,7 +21,7 @@
   <virtual-scroll [items]="filteredDictionary"
     (vsUpdate)="viewPortItems = $event">
     <mat-option *ngFor="let user of viewPortItems"
-      [value]="user.id">
+      [value]="user">
       {{user.name}}
     </mat-option>
   </virtual-scroll>
@@ -45,3 +45,10 @@
     </ul>
   </ng-container>
 </ng-template>
+
+<!--#popover="ngbPopover"
+    [ngbPopover]="getPopoverContent()"
+    triggers="mouseenter:mouseleave"
+    placement="bottom"
+    container="body"
+    (click)="popover.close()"-->

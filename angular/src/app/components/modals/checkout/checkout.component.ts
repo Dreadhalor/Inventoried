@@ -22,7 +22,7 @@ export class CheckoutComponent implements OnInit {
   dateStringFormat: string = 'MMMM Do YYYY';
 
   assetIds: string[] = [];
-  userId;
+  userId = null;
 
   get from(){ return moment(this.momentFormat(this.pickedFromDate)); }
   get fromString(){ return this.from.format(this.dayStringFormat); }

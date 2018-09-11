@@ -34,7 +34,7 @@ router.post('/add_asset', (req, res) => {
         }
     })
         .catch(invalid => {
-        console.log('unauthorized.');
+        console.log(invalid);
     });
 });
 router.post('/update_asset', (req, res) => {

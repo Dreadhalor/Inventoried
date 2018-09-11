@@ -69,11 +69,13 @@ class Table {
         return result;
     }
     formatRow(obj) {
-        let info = this.columns.map(column => {
+        let columns = this.columns.map(column => {
+            //DEEP COPYING NECESSARY FOR CLOSELY-SPACED EDITS
+            column = Table.deepCopy(column);
             column.value = obj[column.name];
             return column;
         });
-        return info;
+        return columns;
     }
     equals(array1, array2) {
         let a1 = array1.length, a2 = array2.length;
@@ -96,7 +98,8 @@ class Table {
                 columns: this.formatRow(formattedItem)
             };
             return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/save_${this.tableName}.sql`, 'utf8')
-                .then(file => this.processRecordsets(this.db.prepareQueryAndExecute(file, info)))
+                .then(file => this.db.prepareQueryAndExecute(file, info))
+                .then(executed => this.processRecordsets(executed))
                 .then(processed => {
                 let result;
                 if (processed.length > 1)
@@ -120,15 +123,18 @@ class Table {
     findById(id) {
         let pk = this.primaryKey();
         pk.value = id;
-        return this.processRecordsets(this.db.findByColumn(this.tableName, pk));
+        return this.db.findByColumn(this.tableName, pk)
+            .then(found => this.processRecordsets(found));
     }
     pullAll() {
-        return this.processRecordsets(this.db.pullAll(this.tableName));
+        return this.db.pullAll(this.tableName)
+            .then(pulled => this.processRecordsets(pulled));
     }
     deleteById(id) {
         let pk = this.primaryKey();
         pk.value = id;
-        return this.processRecordsets(this.db.deleteByColumn(this.tableName, pk))
+        return this.db.deleteByColumn(this.tableName, pk)
+            .then(deleted => this.processRecordsets(deleted))
             .then(processed => {
             return {
                 table: this.tableName,
@@ -138,12 +144,11 @@ class Table {
         });
     }
     processRecordsets(result) {
-        return result.then(resolved => {
-            if (resolved.recordset && resolved.recordset.length > 0) {
-                return this.parseObjects(resolved.recordset);
-            }
-            return [];
-        }).catch(exception => []);
+        if (result &&
+            result.recordset &&
+            result.recordset.length > 0)
+            return this.parseObjects(result.recordset);
+        return [];
     }
     shouldStringify(column) {
         return column.dataType.includes('[]') || column.dataType == 'object';
@@ -266,6 +271,36 @@ class Table {
         };
         return fse.copy(srcPath, destPath)
             .then(success => replace(substitutionOptions));
+    }
+    static deepCopy(obj) {
+        var copy;
+        // Handle the 3 simple types, and null or undefined
+        if (null == obj || "object" != typeof obj)
+            return obj;
+        // Handle Date
+        if (obj instanceof Date) {
+            copy = new Date();
+            copy.setTime(obj.getTime());
+            return copy;
+        }
+        // Handle Array
+        if (obj instanceof Array) {
+            copy = [];
+            for (var i = 0, len = obj.length; i < len; i++) {
+                copy[i] = this.deepCopy(obj[i]);
+            }
+            return copy;
+        }
+        // Handle Object
+        if (obj instanceof Object) {
+            copy = {};
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr))
+                    copy[attr] = this.deepCopy(obj[attr]);
+            }
+            return copy;
+        }
+        throw new Error("Unable to copy obj! Its type isn't supported.");
     }
 }
 exports.Table = Table;

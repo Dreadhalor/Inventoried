@@ -63,7 +63,7 @@ export class Table {
   oneHotPrimaryKeyArray(){
     return this.columns.map(column => column.primary);
   }
-  formatObject(obj: object){
+  formatObject(obj: object): any {
     let result = {};
     this.columns.forEach(column => {
       let val = obj[column.name];
@@ -74,12 +74,14 @@ export class Table {
     })
     return result;
   }
-  formatRow(obj: object){
-    let info = this.columns.map(column => {
+  formatRow(obj: any){
+    let columns = this.columns.map(column => {
+      //DEEP COPYING NECESSARY FOR CLOSELY-SPACED EDITS
+      column = Table.deepCopy(column);
       column.value = obj[column.name];
       return column;
     });
-    return info;
+    return columns;
   }
 
   equals(array1: string[], array2: string[]){
@@ -95,43 +97,47 @@ export class Table {
     if (!item) return Promise.reject('Item is null');
     let itemKeys = Object.keys(item);
     if (this.equals(itemKeys, this.fields())){
-      let formattedItem = this.formatObject(item);
+      let formattedItem = this.formatObject(item)
       let info = {
         tableName: this.tableName,
         columns: this.formatRow(formattedItem)
-      }
+      };
       return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/save_${this.tableName}.sql`,'utf8')
-        .then(file => this.processRecordsets(this.db.prepareQueryAndExecute(file,info)))
-        .then(processed => {
-          let result;
-          if (processed.length > 1)
-            result = {
-              table: this.tableName,
-              operation: 'update',
-              deleted: processed[0],
-              inserted: processed[1]
-            }
-          else result = {
+      .then(file => this.db.prepareQueryAndExecute(file,info))
+      .then(executed => this.processRecordsets(executed))
+      .then(processed => {
+        let result;
+        if (processed.length > 1)
+          result = {
             table: this.tableName,
-            operation: 'create',
-            inserted: processed[0]
-          };
-          return result;
-        })
+            operation: 'update',
+            deleted: processed[0],
+            inserted: processed[1]
+          }
+        else result = {
+          table: this.tableName,
+          operation: 'create',
+          inserted: processed[0]
+        };
+        return result;
+      })
     } return Promise.reject('Item properties are incorrect.');
   }
   findById(id: string){
     let pk = this.primaryKey();
     pk.value = id;
-    return this.processRecordsets(this.db.findByColumn(this.tableName, pk));
+    return this.db.findByColumn(this.tableName, pk)
+      .then(found => this.processRecordsets(found));
   }
   pullAll(){
-    return this.processRecordsets(this.db.pullAll(this.tableName));
+    return this.db.pullAll(this.tableName)
+      .then(pulled => this.processRecordsets(pulled));
   }
   deleteById(id: string){
     let pk = this.primaryKey();
     pk.value = id;
-    return this.processRecordsets(this.db.deleteByColumn(this.tableName, pk))
+    return this.db.deleteByColumn(this.tableName, pk)
+      .then(deleted => this.processRecordsets(deleted))
       .then(processed => {
         return {
           table: this.tableName,
@@ -141,15 +147,12 @@ export class Table {
       })
   }
 
-  processRecordsets(result: any){
-    return result.then(
-      resolved => {
-        if (resolved.recordset && resolved.recordset.length > 0){
-          return this.parseObjects(resolved.recordset);
-        }
-        return [];
-      }
-    ).catch(exception => [])
+  processRecordsets(result){
+    if (result &&
+        result.recordset &&
+        result.recordset.length > 0)
+        return this.parseObjects(result.recordset);
+    return [];
   }
   shouldStringify(column){
     return column.dataType.includes('[]') || column.dataType == 'object';
@@ -272,6 +275,35 @@ export class Table {
 
     return fse.copy(srcPath, destPath)
       .then(success => replace(substitutionOptions));
+  }
+
+  public static deepCopy(obj) {
+    var copy;
+    // Handle the 3 simple types, and null or undefined
+    if (null == obj || "object" != typeof obj) return obj;
+    // Handle Date
+    if (obj instanceof Date) {
+        copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+    // Handle Array
+    if (obj instanceof Array) {
+        copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = this.deepCopy(obj[i]);
+        }
+        return copy;
+    }
+    // Handle Object
+    if (obj instanceof Object) {
+        copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = this.deepCopy(obj[attr]);
+        }
+        return copy;
+    }
+    throw new Error("Unable to copy obj! Its type isn't supported.");
   }
 
 }

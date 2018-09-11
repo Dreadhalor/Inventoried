@@ -13,7 +13,7 @@ import { HttpClient } from "@angular/common/http";
 })
 export class UserService {
 
-  private _users = [];
+  private _users: User[] = [];
   get users(){ return this._users; }
   set users(val){ this._users = val; }
 
@@ -55,14 +55,11 @@ export class UserService {
     this.users.push(user);
   }
 
-  getUser(id): User{
+  getUser(id): User {
     return this.users.find(match => match.id == id);
   }
-  getUserName(id): string {
-    console.log(id);
-    let user = this.getUser(id);
-    if (user) return user.name;
-    return null;
+  getUserByName(name: string): User {
+    return this.users.find(match => match.name.toLowerCase() == name.toLowerCase());
   }
 
   assign(assignment: Assignment){

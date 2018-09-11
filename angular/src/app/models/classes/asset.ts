@@ -9,6 +9,7 @@ export abstract class Asset implements IAsset  {
     iAsset: IAsset
   ){
     if (iAsset.id) this._id = iAsset.id;
+    console.log(this._id);
     if (iAsset.categoryId) this.categoryId = iAsset.categoryId;
     if (iAsset.manufacturerId) this.manufacturerId = iAsset.manufacturerId;
     if (iAsset.notes) this.notes = iAsset.notes;
