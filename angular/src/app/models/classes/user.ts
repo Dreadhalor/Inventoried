@@ -25,7 +25,7 @@ export class User implements MultiAssigned {
     this._assignmentIds = val;
   }
 
-  get name(){ return this.email; }
+  get name(){ return this.fullName; }
 
   assign(assignmentId){
     this.assignmentIds.push(assignmentId);

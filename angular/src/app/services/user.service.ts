@@ -58,6 +58,12 @@ export class UserService {
   getUser(id): User{
     return this.users.find(match => match.id == id);
   }
+  getUserName(id): string {
+    console.log(id);
+    let user = this.getUser(id);
+    if (user) return user.name;
+    return null;
+  }
 
   assign(assignment: Assignment){
     if (assignment){

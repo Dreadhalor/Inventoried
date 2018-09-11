@@ -20,7 +20,7 @@ let jwt = require('jsonwebtoken');
 let promisify = require('util').promisify;
 const passport = require("passport");
 router.get('/get_all_users', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    ad.findUsers({ paged: false }).then(users => {
+    ad.findUsers({ paged: true }).then(users => {
         if (users.length == 0)
             res.json('No users found.');
         else

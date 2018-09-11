@@ -14,7 +14,7 @@ let promisify = require('util').promisify;
 import * as passport from 'passport';
 
 router.get('/get_all_users', async (req, res) => {
-  ad.findUsers({paged: false}).then(
+  ad.findUsers({paged: true}).then(
     users => {
       if (users.length == 0) res.json('No users found.');
       else res.json(users.map(user => formatLDAPData(user)));

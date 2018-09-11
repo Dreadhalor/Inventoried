@@ -17,6 +17,7 @@ import { SettingsCardComponent } from './components/settings/settings-card/setti
 import { EditDurableComponent } from './components/modals/edit-durable/edit-durable.component';
 
 import { MaterialsModule } from './modules/materials.module';
+import { VirtualScrollModule } from 'angular2-virtual-scroll';
 
 import { BrowseDurablesComponent } from './components/browse-assets/browse-durables/browse-durables.component';
 import { BrowseConsumablesComponent } from './components/browse-assets/browse-consumables/browse-consumables.component';
@@ -103,7 +104,8 @@ var routes: Routes = [
     HttpClientModule,
     BrowserAnimationsModule,
     MaterialsModule, //Angular Material modules,
-    NgSelectModule
+    NgSelectModule,
+    VirtualScrollModule
   ],
   bootstrap: [AppComponent]
 })

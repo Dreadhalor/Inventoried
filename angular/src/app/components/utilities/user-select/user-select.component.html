@@ -1,19 +1,31 @@
 <mat-form-field>
   <mat-label>User</mat-label>
-  <mat-select [(ngModel)]="userId"
+
+  <input #input
+    matInput
+    [placeholder]="placeholder"
+    [matAutocomplete]="auto"
+    [(ngModel)]="textfield"
     name="userSelect"
     #popover="ngbPopover"
     [ngbPopover]="getPopoverContent()"
     triggers="mouseenter:mouseleave"
     placement="bottom"
     container="body"
+    (input)="filter()"
     (click)="popover.close()">
-    <mat-option *ngFor="let user of us.users"
-      [value]="user.id">
-      {{user.email}}
-    </mat-option>
-  </mat-select>
 </mat-form-field>
+
+<mat-autocomplete #auto="matAutocomplete"
+  [panelWidth]="panelWidth">
+  <virtual-scroll [items]="filteredDictionary"
+    (vsUpdate)="viewPortItems = $event">
+    <mat-option *ngFor="let user of viewPortItems"
+      [value]="user.id">
+      {{user.name}}
+    </mat-option>
+  </virtual-scroll>
+</mat-autocomplete>
 
 <ng-template #popoverContent>
   <ng-container *ngIf="user">

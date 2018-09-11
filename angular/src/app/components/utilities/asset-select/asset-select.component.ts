@@ -14,7 +14,7 @@ export class AssetSelectComponent implements OnInit {
 
   @ViewChild('popoverContent') popoverContent: ElementRef;
 
-panelWidth = '275px';
+  panelWidth = '275px';
   
   private _assetIds : string[];
   @Input() get assetIds() : string[] { return this._assetIds; }

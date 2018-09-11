@@ -7,6 +7,7 @@ import { MAT_DIALOG_DATA } from '@angular/material';
 
 import * as moment from 'moment';
 import { ModalService } from '../../../services/modal.service';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'checkout',
@@ -31,6 +32,7 @@ export class CheckoutComponent implements OnInit {
 
   constructor(
     private assets: AssetService,
+    private us: UserService,
     private assignments: AssignmentService,
     private ms: ModalService,
     @Inject(MAT_DIALOG_DATA) private data: ICheckoutData
