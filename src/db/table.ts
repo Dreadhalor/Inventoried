@@ -127,7 +127,7 @@ export class Table {
     let pk = this.primaryKey();
     pk.value = id;
     return this.db.findByColumn(this.tableName, pk)
-      .then(found => this.processRecordsets(found));
+      .then(found => this.processRecordsets(found)[0]);
   }
   pullAll(){
     return this.db.pullAll(this.tableName)

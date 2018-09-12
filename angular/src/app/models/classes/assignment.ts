@@ -36,6 +36,17 @@ export class Assignment {
     return null;
   }
 
+  asInterface(){
+    let result: IAssignment = {
+      id: this.id,
+      userId: this.userId,
+      assetId: this.assetId,
+      checkoutDate: this.checkoutDate,
+      dueDate: this.dueDate
+    }
+    return result;
+  }
+
   copy(){
     return new Assignment({
       id: this.id,

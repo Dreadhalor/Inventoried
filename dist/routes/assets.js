@@ -10,32 +10,8 @@ const Consumables = require('../models/tables/Consumables');
 const Users = require('./users');
 router.post('/add_asset', (req, res) => {
     let authorization = req.headers.authorization;
-    Users.checkAdminAuthorization(authorization)
-        .then(admin => {
-        let asset = req.body.asset;
-        if (asset) {
-            let type = typeCheck(asset);
-            if (type == 'durable') {
-                //save durable
-                Durables.save(asset).then(resolved => {
-                    res.json(resolved);
-                    resolved.agent = admin.result;
-                    History.record(resolved);
-                }, rejected => res.json(rejected)).catch(exception => res.json(exception));
-            }
-            if (type == 'consumable') {
-                //save consumable
-                Consumables.save(asset).then(resolved => {
-                    res.json(resolved);
-                    resolved.agent = admin.result;
-                    History.record(resolved);
-                }, rejected => res.json(rejected)).catch(exception => res.json(exception));
-            }
-        }
-    })
-        .catch(invalid => {
-        console.log(invalid);
-    });
+    let asset = req.body.asset;
+    res.json(saveAsset(asset, authorization));
 });
 router.post('/update_asset', (req, res) => {
     let authorization = req.headers.authorization;
@@ -134,6 +110,33 @@ function typeCheck(asset) {
         return 'consumable';
     return '';
 }
+const saveAsset = exports.saveAsset = (asset, authorization) => {
+    return Users.checkAdminAuthorization(authorization)
+        .catch(exception => 'User is not authorized for this.')
+        .then(admin => {
+        if (asset) {
+            let type = typeCheck(asset);
+            if (type == 'durable') {
+                //save durable
+                return Durables.save(asset).then(resolved => {
+                    resolved.agent = admin.result;
+                    History.record(resolved);
+                    return resolved;
+                });
+            }
+            if (type == 'consumable') {
+                //save consumable
+                return Consumables.save(asset).then(resolved => {
+                    resolved.agent = admin.result;
+                    History.record(resolved);
+                    return resolved;
+                });
+            }
+            throw 'Object to save must be an asset.';
+        }
+        throw 'No asset to save.';
+    });
+};
 function is(o, sample, strict = true, recursive = true) {
     if (o == null)
         return false;

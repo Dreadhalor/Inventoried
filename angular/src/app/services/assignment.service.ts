@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from "@angular/core";
 import { Assignment } from "../models/classes/assignment";
 import { AssetService } from "./asset.service";
@@ -5,6 +6,8 @@ import { UserService } from "./user.service";
 import { Durable } from "../models/classes/durable";
 import { Consumable } from "../models/classes/consumable";
 import { MultiAssigned } from "../models/interfaces/MultiAssigned";
+import { Globals } from '../globals';
+import { AuthService } from './auth.service';
 
 
 @Injectable({
@@ -12,16 +15,16 @@ import { MultiAssigned } from "../models/interfaces/MultiAssigned";
 })
 export class AssignmentService {
 
-  
-
   private _assignments: Assignment[] = [];
   get assignments(){ return this._assignments; }
   set assignments(val){ this._assignments = val; }
 
   constructor(
     private assets: AssetService,
-    private us: UserService
-  ) {
+    private us: UserService,
+    private http: HttpClient,
+    private auth: AuthService
+  ){
     //SeedValues.initAssignments.forEach(iassignment => {
     //  this.checkout(new Assignment(iassignment));
     //})
@@ -38,13 +41,23 @@ export class AssignmentService {
       })
     );
   }
-  checkout(assignment: Assignment){
+  checkoutWithoutPost(assignment: Assignment){
     if (assignment){
       this.us.assign(assignment);
       this.assets.assign(assignment);
     }
     this.assignments.push(assignment);
-    return assignment;
+  }
+  checkout(assignment: Assignment){
+    this.checkoutWithoutPost(assignment);
+    this.http.post(
+      Globals.request_prefix + 'assignments/create_assignment',
+      assignment.asInterface(),
+      {headers: this.auth.getHeaders()}
+    ).subscribe(res => {
+      },
+      err => console.log(err)
+    );
   }
   checkin(assignmentId){
     let assignmentIndex = this.assignments.findIndex(match => match.id == assignmentId);

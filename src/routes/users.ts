@@ -7,6 +7,8 @@ const guidParser = require('../guid-parse');
 const WindowsStrategy = require('passport-windowsauth');
 const ActiveDirectory = require('activedirectory2');
 const ADPromise = ActiveDirectory.promiseWrapper;
+const Users = require('../models/tables/Users');
+const History = require('./history');
 let ad = new ADPromise(config.activedirectory2);
 let jwt = require('jsonwebtoken');
 let promisify = require('util').promisify;
@@ -141,4 +143,22 @@ const checkAuthorization = exports.checkAuthorization = (token: string) => {
 const checkAdminAuthorization = exports.checkAdminAuthorization = (token: string) => {
   return checkAuthorization(token)
     .then(username => isAdmin(username));
+}
+
+const saveUser = exports.saveUser = (user, authorization) => {
+  return checkAdminAuthorization(authorization)
+    .catch(exception => 'User is not authorized for this.')
+    .then(admin => {
+      if (user){
+        //save user
+        return Users.save(user).then(
+          resolved => {
+            resolved.agent = admin.result;
+            History.record(resolved);
+            return resolved;
+          }
+        )
+      }
+      throw 'No user to save.';
+    })
 }

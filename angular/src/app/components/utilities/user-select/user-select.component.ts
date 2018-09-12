@@ -30,7 +30,8 @@ export class UserSelectComponent implements OnInit {
   set textfield(v: any){
     if (v instanceof User) v = v.name;
     this._textfield = v;
-    if (this.us.getUserByName(v)) this.userId = v;
+    let user = this.us.getUserByName(v);
+    if (user) this.userId = user.id;
     else this.userId = null;
   }
 

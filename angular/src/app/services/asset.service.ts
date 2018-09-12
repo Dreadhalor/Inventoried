@@ -90,7 +90,8 @@ export class AssetService {
         console.log(res);
         this.assetsEdited.next();
       },
-      err => console.log(err));
+      err => console.log(err)
+    );
   }
   saveDurable(durable: Durable){
     let index = this.durables.findIndex(match => match.id == durable.id);

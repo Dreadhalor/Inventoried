@@ -5,11 +5,13 @@ import * as express from 'express';
 const router = express.Router();
 
 const Assignments = require('../models/tables/Assignments');
+
 const assets = require('./assets');
 const users = require('./users');
 const config = require('../config');
 
 router.post('/create_assignment', async (req, res) => {
+  let authorization = req.headers.authorization;
   let assignmentId = req.body.id;
   let userId = req.body.userId;
   let assetId = req.body.assetId;
@@ -29,7 +31,13 @@ router.post('/create_assignment', async (req, res) => {
       ).catch(exception => null);
       if (user && asset){ //user & asset are both valid objects in the database
         //All inputs are valid
-        res.json(await checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed));
+        checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, authorization)
+          .then(
+            checkedOut => res.json(checkedOut)
+          ).catch(error => {
+            console.log(error);
+            res.json(error);
+          })
         //res.json({user,asset});
       } else res.send('User and asset are not both valid.')
     }
@@ -48,8 +56,7 @@ const parseDate = (date: string): moment.Moment => {
   return null;
 }
 
-const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDate: moment.Moment) => {
-  //return dbClient.getAssignmentIds(user.id);
+const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDate: moment.Moment, authorization) => {
   let iassignment: IAssignment = {
     id: assignmentId,
     userId: user.id,
@@ -57,8 +64,27 @@ const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDat
     checkoutDate: checkoutDate.format(config.dateFormat),
     dueDate: dueDate.format(config.dateFormat)
   }
+  //Implement error checking here for redundant assignments later
+  user.assignmentIds.push(assignmentId);
+  switch(asset.type){
+    case "durable":
+      asset.asset.assignmentId = assignmentId;
+      break;
+    case "consumable":
+      asset.asset.assignmentIds.push(assignmentId);
+      break;
+  }
   let assignment = new Assignment(iassignment);
-  return Assignments.save(assignment);
+  let userToSave = {
+    id: user.id,
+    assignmentIds: user.assignmentIds
+  };
+  return Promise.all([
+    Assignments.save(assignment),
+    assets.saveAsset(asset.asset, authorization),
+    users.saveUser(userToSave, authorization)
+  ]);
+
 
 
 }

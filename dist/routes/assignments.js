@@ -17,6 +17,7 @@ const assets = require('./assets');
 const users = require('./users');
 const config = require('../config');
 router.post('/create_assignment', (req, res) => __awaiter(this, void 0, void 0, function* () {
+    let authorization = req.headers.authorization;
     let assignmentId = req.body.id;
     let userId = req.body.userId;
     let assetId = req.body.assetId;
@@ -34,7 +35,11 @@ router.post('/create_assignment', (req, res) => __awaiter(this, void 0, void 0, 
             }).catch(exception => null);
             if (user && asset) { //user & asset are both valid objects in the database
                 //All inputs are valid
-                res.json(yield checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed));
+                checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, authorization)
+                    .then(checkedOut => res.json(checkedOut)).catch(error => {
+                    console.log(error);
+                    res.json(error);
+                });
                 //res.json({user,asset});
             }
             else
@@ -54,8 +59,7 @@ const parseDate = (date) => {
     }
     return null;
 };
-const checkout = (assignmentId, user, asset, checkoutDate, dueDate) => {
-    //return dbClient.getAssignmentIds(user.id);
+const checkout = (assignmentId, user, asset, checkoutDate, dueDate, authorization) => {
     let iassignment = {
         id: assignmentId,
         userId: user.id,
@@ -63,8 +67,26 @@ const checkout = (assignmentId, user, asset, checkoutDate, dueDate) => {
         checkoutDate: checkoutDate.format(config.dateFormat),
         dueDate: dueDate.format(config.dateFormat)
     };
+    //Implement error checking here for redundant assignments later
+    user.assignmentIds.push(assignmentId);
+    switch (asset.type) {
+        case "durable":
+            asset.asset.assignmentId = assignmentId;
+            break;
+        case "consumable":
+            asset.asset.assignmentIds.push(assignmentId);
+            break;
+    }
     let assignment = new assignment_1.Assignment(iassignment);
-    return Assignments.save(assignment);
+    let userToSave = {
+        id: user.id,
+        assignmentIds: user.assignmentIds
+    };
+    return Promise.all([
+        Assignments.save(assignment),
+        assets.saveAsset(asset.asset, authorization),
+        users.saveUser(userToSave, authorization)
+    ]);
 };
 //Consumable
 /*
