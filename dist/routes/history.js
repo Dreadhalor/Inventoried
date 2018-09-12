@@ -6,6 +6,11 @@ const express = require("express");
 const router = express.Router();
 const config = require('../config');
 const History = require('../models/tables/History');
+const dbClient = require('../db/db-client');
+let subscription = dbClient.history.subscribe(next => {
+    if (next.table != 'history')
+        record(next);
+});
 const record = exports.record = (edit) => {
     let entry = {
         id: uuid(),

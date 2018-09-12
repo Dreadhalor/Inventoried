@@ -65,11 +65,12 @@ export class AssetService {
       Globals.request_prefix + 'assets/get_durables',
       {headers: this.auth.getHeaders()}
     ).subscribe(
-        res => {
-          console.log(res);
-          this.setDurables(res as IDurable[])
-        },
-        err => console.log(err));
+      res => {
+        console.log(res);
+        this.setDurables(res as IDurable[])
+      },
+      err => console.log(err)
+    );
   }
   addDurableWithoutPost(durable: Durable){
     durable.injectService(this.infoService);
@@ -85,6 +86,19 @@ export class AssetService {
     this.http.post(
       Globals.request_prefix + 'assets/add_asset',
       {asset: durable.asInterface()},
+      {headers: this.auth.getHeaders()}
+    ).subscribe(res => {
+        console.log(res);
+        this.assetsEdited.next();
+      },
+      err => console.log(err)
+    );
+  }
+  addDurables(durables: Durable[]){
+    durables.forEach(durable => this.addDurableWithoutPost(durable));
+    this.http.post(
+      Globals.request_prefix + 'assets/add_assets',
+      {assets: durables.map(durable => durable.asInterface())},
       {headers: this.auth.getHeaders()}
     ).subscribe(res => {
         console.log(res);

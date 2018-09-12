@@ -14,4 +14,8 @@ export class HistoryPanelComponent implements OnInit {
   ngOnInit() {
   }
 
+  prettyJSON(thing){
+    return JSON.stringify(thing,null,4);
+  }
+
 }

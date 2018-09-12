@@ -5,11 +5,19 @@ import { IConsumable } from '../models/interfaces/IConsumable';
 import { Durable } from "../models/classes/durable";
 import { IDurable } from "../models/interfaces/IDurable";
 import { Consumable } from '../models/classes/consumable';
+import { Subject } from 'rxjs';
 
 const db = require('./db');
 
 exports.connect = (config) => db.connect(config);
-exports.Table = (schema: any) => new Table(db, schema);
+const history = new Subject<any>();
+exports.history = history.asObservable();
+exports.Table = (schema: any) => {
+  let table = new Table(db, schema);
+  subscriptions.push(table.update.asObservable().subscribe(next => history.next(next)));
+  return table;
+}
+let subscriptions = [];
 
 //durables categories
 const getDurablesCategories = exports.getDurablesCategories = () => {

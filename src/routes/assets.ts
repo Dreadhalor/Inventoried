@@ -4,7 +4,6 @@ import { Durable } from '../models/classes/durable';
 const express = require('express');
 const router = express.Router();
 
-const History = require('./history');
 const Durables = require('../models/tables/Durables');
 const Consumables = require('../models/tables/Consumables');
 const Users = require('./users');
@@ -12,7 +11,16 @@ const Users = require('./users');
 router.post('/add_asset', (req, res) => {
   let authorization = req.headers.authorization;
   let asset = req.body.asset;
-  res.json(saveAsset(asset,authorization));
+  saveAsset(asset,authorization)
+    .then(saved => res.json(saved))
+    .catch(exception => res.json(exception));
+})
+router.post('/add_assets', (req, res) => {
+  let authorization = req.headers.authorization;
+  let assets = req.body.assets;
+  saveAssets(assets,authorization)
+    .then(allSaved => res.json(allSaved))
+    .catch(exception => res.json(exception));
 })
 router.post('/update_asset', (req, res) => {
   let authorization = req.headers.authorization;
@@ -20,67 +28,46 @@ router.post('/update_asset', (req, res) => {
     .then(admin => {
       let asset = req.body.asset;
       if (asset){
-        let type = typeCheck(asset);
-        if (type == 'durable'){
-          //update durable
-          Durables.save(asset).then(
-            resolved => {
-              res.json(resolved);
-              resolved.agent = admin.result;
-              History.record(resolved);
-            },
-            rejected => res.json(rejected)
-          ).catch(exception => res.json(exception));
-        }
-        if (type == 'consumable'){
-          //update consumable
-          Consumables.save(asset).then(
-            resolved => {
-              res.json(resolved);
-              resolved.agent = admin.result;
-              History.record(resolved);
-            },
-            rejected => res.json(rejected)
-          ).catch(exception => res.json(exception));
+        switch(typeCheck(asset)){
+          case 'durable':
+            Durables.save(asset, admin.result)
+              .then(resolved => res.json(resolved))
+              .catch(exception => res.json(exception));
+            break;
+          case 'consumable':
+            Consumables.save(asset, admin.result)
+              .then(resolved => res.json(resolved))
+              .catch(exception => res.json(exception));
+            break;
+          default: throw 'Invalid asset.'
         }
       }
     })
-    .catch(invalid => {
-      console.log('unauthorized.');
-    })
+    .catch(exception => res.json(exception));
 })
 router.post('/delete_asset', (req, res) => {
   let authorization = req.headers.authorization;
   Users.checkAdminAuthorization(authorization)
+    .catch(exception => res.json('Unauthorized.'))
     .then(admin => {
       let asset = req.body.asset;
       if (asset){
-        let type = typeCheck(asset);
-        if (type == 'durable'){
-          //delete durable
-          Durables.deleteById(asset.id).then(
-            resolved => {
-              res.json(resolved);
-              resolved.agent = admin.result;
-              History.record(resolved);
-            },
-            rejected => res.json(rejected)
-          ).catch(exception => res.json(exception));
+        switch(typeCheck(asset)){
+          case 'durable':
+            Durables.deleteById(asset.id, admin.result)
+              .then(resolved => res.json(resolved))
+              .catch(exception => res.json(exception));
+            break;
+          case 'consumable':
+            Consumables.deleteById(asset.id, admin.result)
+              .then(resolved => res.json(resolved))
+              .catch(exception => res.json(exception));
+            break;
+          default: throw 'Object is not an asset.'
         }
-        if (type == 'consumable'){
-          //delete consumable
-          Consumables.deleteById(asset.id).then(
-            resolved => {
-              res.json(resolved);
-              resolved.agent = admin.result;
-              History.record(resolved);
-            },
-            rejected => res.json(rejected)
-          ).catch(exception => res.json(exception));
-        }
-      }
+      } else throw 'Not a valid asset to delete.'
     })
-    .catch(exception => console.log('unauthorized.'));
+    .catch(exception => res.json(exception));
 })
 
 router.get('/get_durables', (req, res) => {
@@ -129,30 +116,34 @@ const saveAsset = exports.saveAsset = (asset, authorization) => {
     .catch(exception => 'User is not authorized for this.')
     .then(admin => {
       if (asset){
-        let type = typeCheck(asset);
-        if (type == 'durable'){
-          //save durable
-          return Durables.save(asset).then(
-            resolved => {
-              resolved.agent = admin.result;
-              History.record(resolved);
-              return resolved;
-            },
-          )
+        switch(typeCheck(asset)){
+          case 'durable': return Durables.save(asset, admin.result);
+          case 'consumable': return Consumables.save(asset, admin.result);
+          default: throw 'Object to save must be an asset.'
         }
-        if (type == 'consumable'){
-          //save consumable
-          return Consumables.save(asset).then(
-            resolved => {
-              resolved.agent = admin.result;
-              History.record(resolved);
-              return resolved;
-            }
-          )
-        }
-        throw 'Object to save must be an asset.'
-      }
-      throw 'No asset to save.';
+      } else throw 'No asset to save.';
+    })
+}
+const saveAssets = exports.saveAssets = (assets, authorization) => {
+  return Users.checkAdminAuthorization(authorization)
+    .catch(exception => 'User is not authorized for this.')
+    .then(admin => {
+      if (assets){
+        let durables = [];
+        let consumables = [];
+        assets.forEach(asset => {
+          switch(typeCheck(asset)){
+            case 'durable':
+              durables.push(asset);
+              break;
+            case 'consumable':
+              consumables.push(asset);
+              break;
+            default: throw 'All objects to save must be assets.'
+          }
+        })
+        return Durables.saveBulk(durables);
+      } else throw 'No asset to save.';
     })
 }
 

@@ -1,10 +1,13 @@
 const sql = require('mssql/msnodesqlv8');
 const fse = require('fs-extra');
 const replace = require('replace-in-file');
+const promisify = require('util').promisify;
 let databaseName = exports.databaseName;
 let connected = false;
 let callbacks = [];
+let config;
 module.exports.connect = (config) => {
+    this.config = config;
     setDatabaseName(config.database);
     let destDirectory = `src/db/scripts/generated/database`;
     let destFile = `create_database_${databaseName}.sql`;
@@ -110,6 +113,26 @@ const bulkAddition = exports.bulkAddition = (tableName, columnNames, dataTypes, 
             resolve(result);
         });
     });
+};
+const bulkAddition2 = exports.bulkAddition2 = (info, values) => {
+    const table = new sql.Table(info.tableName);
+    table.create = true;
+    info.columns.forEach(column => {
+        table.columns.add(column.name, parseDataType(column.dataType, false), { nullable: false });
+    });
+    values.forEach(value => {
+        value = info.columns.map(column => value[column.name]);
+        let [x, ...remaining] = value;
+        table.rows.add(x, ...remaining);
+    });
+    return new sql.ConnectionPool(this.config)
+        .then(pool => new sql.Request(pool).bulk(table));
+    let cb = (err, result) => {
+        if (err)
+            throw err;
+        return result;
+    };
+    //return request.bulk(table);
 };
 const formatIfTableExists = (tableName, innerQuery, exists) => {
     let query = `if ${exists ? `` : `not `}exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '${tableName}')

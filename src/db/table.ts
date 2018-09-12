@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs';
 import { ITableSchema } from '../models/interfaces/ITableSchema';
 import * as fse from 'fs-extra';
 import * as replace from 'replace-in-file';
@@ -7,6 +8,7 @@ export class Table {
   tableName: string;
   columns: any[] = [];
   db: any;
+  public update = new Subject<any>();
 
   srcPaths = {
     createTable: 'src/db/scripts/templates/create_table.template.sql',
@@ -83,6 +85,12 @@ export class Table {
     });
     return columns;
   }
+  tableInfo(){
+    return {
+      tableName: this.tableName,
+      columns: this.columns.map(column => Table.deepCopy(column))
+    };
+  }
 
   equals(array1: string[], array2: string[]){
     let a1 = array1.length, a2 = array2.length;
@@ -93,7 +101,7 @@ export class Table {
     return true;
   }
 
-  save(item){
+  save(item, agent?, singular = true){
     if (!item) return Promise.reject('Item is null');
     let itemKeys = Object.keys(item);
     if (this.equals(itemKeys, this.fields())){
@@ -119,9 +127,28 @@ export class Table {
           operation: 'create',
           inserted: processed[0]
         };
+        if (singular){
+          if (agent) result.agent = agent;
+          this.update.next(result);
+        }
         return result;
       })
     } return Promise.reject('Item properties are incorrect.');
+  }
+  saveBulk(items, agent?){
+    if (!items) return Promise.reject('Item is null');
+    items = items.map(item => {
+      let itemKeys = Object.keys(item);
+      if (this.equals(itemKeys, this.fields()))
+        return this.formatObject(item)
+      else throw 'All items must be correctly formatted.';
+    })
+    return this.db.bulkAddition2(this.tableInfo(), items)
+      .then(result => {
+        console.log(result);
+        return result;
+      });
+    
   }
   findById(id: string){
     let pk = this.primaryKey();
@@ -133,17 +160,20 @@ export class Table {
     return this.db.pullAll(this.tableName)
       .then(pulled => this.processRecordsets(pulled));
   }
-  deleteById(id: string){
+  deleteById(id: string, agent?){
     let pk = this.primaryKey();
     pk.value = id;
     return this.db.deleteByColumn(this.tableName, pk)
       .then(deleted => this.processRecordsets(deleted))
       .then(processed => {
-        return {
+        let result: any = {
           table: this.tableName,
           operation: 'delete',
           deleted: processed[0]
         };
+        if (agent) result.agent = agent;
+        this.update.next(result);
+        return result;
       })
   }
 

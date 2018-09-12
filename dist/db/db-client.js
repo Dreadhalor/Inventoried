@@ -3,9 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const table_1 = require("./table");
 const durable_1 = require("../models/classes/durable");
 const consumable_1 = require("../models/classes/consumable");
+const rxjs_1 = require("rxjs");
 const db = require('./db');
 exports.connect = (config) => db.connect(config);
-exports.Table = (schema) => new table_1.Table(db, schema);
+const history = new rxjs_1.Subject();
+exports.history = history.asObservable();
+exports.Table = (schema) => {
+    let table = new table_1.Table(db, schema);
+    subscriptions.push(table.update.asObservable().subscribe(next => history.next(next)));
+    return table;
+};
+let subscriptions = [];
 //durables categories
 const getDurablesCategories = exports.getDurablesCategories = () => {
     return db.read('durablesCategories', null);

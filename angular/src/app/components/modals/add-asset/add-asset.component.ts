@@ -21,7 +21,7 @@ export class AddAssetComponent implements OnInit {
 
   durableSubmitButtonClicked(durableForm: AddDurableComponent){
     let durables = durableForm.makeDurables();
-    durables.forEach(durable => this.assets.addDurable(durable));
+    this.assets.addDurables(durables);
   }
 
   consumableSubmitButtonClicked(consumableForm: AddConsumableComponent){

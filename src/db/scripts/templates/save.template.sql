@@ -15,5 +15,5 @@ BEGIN
   )
   VALUES (
     <values>
-  );
+  )
 END

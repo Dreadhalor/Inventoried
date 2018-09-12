@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const rxjs_1 = require("rxjs");
 const fse = require("fs-extra");
 const replace = require("replace-in-file");
 class Table {
     constructor(db, schema) {
         this.columns = [];
+        this.update = new rxjs_1.Subject();
         this.srcPaths = {
             createTable: 'src/db/scripts/templates/create_table.template.sql',
             createUpdateTrigger: 'src/db/scripts/templates/update_trigger.template.sql',
@@ -77,6 +79,12 @@ class Table {
         });
         return columns;
     }
+    tableInfo() {
+        return {
+            tableName: this.tableName,
+            columns: this.columns.map(column => Table.deepCopy(column))
+        };
+    }
     equals(array1, array2) {
         let a1 = array1.length, a2 = array2.length;
         if (a1 != a2)
@@ -87,7 +95,7 @@ class Table {
         }
         return true;
     }
-    save(item) {
+    save(item, agent, singular = true) {
         if (!item)
             return Promise.reject('Item is null');
         let itemKeys = Object.keys(item);
@@ -115,10 +123,31 @@ class Table {
                         operation: 'create',
                         inserted: processed[0]
                     };
+                if (singular) {
+                    if (agent)
+                        result.agent = agent;
+                    this.update.next(result);
+                }
                 return result;
             });
         }
         return Promise.reject('Item properties are incorrect.');
+    }
+    saveBulk(items, agent) {
+        if (!items)
+            return Promise.reject('Item is null');
+        items = items.map(item => {
+            let itemKeys = Object.keys(item);
+            if (this.equals(itemKeys, this.fields()))
+                return this.formatObject(item);
+            else
+                throw 'All items must be correctly formatted.';
+        });
+        return this.db.bulkAddition2(this.tableInfo(), items)
+            .then(result => {
+            console.log(result);
+            return result;
+        });
     }
     findById(id) {
         let pk = this.primaryKey();
@@ -130,17 +159,21 @@ class Table {
         return this.db.pullAll(this.tableName)
             .then(pulled => this.processRecordsets(pulled));
     }
-    deleteById(id) {
+    deleteById(id, agent) {
         let pk = this.primaryKey();
         pk.value = id;
         return this.db.deleteByColumn(this.tableName, pk)
             .then(deleted => this.processRecordsets(deleted))
             .then(processed => {
-            return {
+            let result = {
                 table: this.tableName,
                 operation: 'delete',
                 deleted: processed[0]
             };
+            if (agent)
+                result.agent = agent;
+            this.update.next(result);
+            return result;
         });
     }
     processRecordsets(result) {
