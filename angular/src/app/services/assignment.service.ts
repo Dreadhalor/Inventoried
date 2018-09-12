@@ -8,6 +8,7 @@ import { Consumable } from "../models/classes/consumable";
 import { MultiAssigned } from "../models/interfaces/MultiAssigned";
 import { Globals } from '../globals';
 import { AuthService } from './auth.service';
+import { IAssignment } from '../models/interfaces/IAssignment';
 
 
 @Injectable({
@@ -25,9 +26,17 @@ export class AssignmentService {
     private http: HttpClient,
     private auth: AuthService
   ){
-    //SeedValues.initAssignments.forEach(iassignment => {
-    //  this.checkout(new Assignment(iassignment));
-    //})
+    this.fetchAssignments();
+  }
+
+  fetchAssignments(){
+    this.http.get(
+      Globals.request_prefix + 'assignments/get_assignments',
+      {headers: this.auth.getHeaders()}
+    ).subscribe(
+      (res: IAssignment[]) => this.assignments = res.map(iassignment => new Assignment(iassignment)),
+      err => console.log(err)
+    );
   }
 
   createNewAssignmentAndCheckout(userId, assetId, checkoutDate, dueDate){
@@ -54,12 +63,12 @@ export class AssignmentService {
       Globals.request_prefix + 'assignments/create_assignment',
       assignment.asInterface(),
       {headers: this.auth.getHeaders()}
-    ).subscribe(res => {
-      },
+    ).subscribe(
+      res => {},
       err => console.log(err)
     );
   }
-  checkin(assignmentId){
+  checkinWithoutPost(assignmentId){
     let assignmentIndex = this.assignments.findIndex(match => match.id == assignmentId);
     if (assignmentIndex >= 0){
       let asset = this.assets.getAsset(this.assignments[assignmentIndex].assetId);
@@ -76,8 +85,18 @@ export class AssignmentService {
         this.assets.unassign(this.assignments[assignmentIndex]);
         this.assignments.splice(assignmentIndex,1);
       }
-      
     }
+  }
+  checkin(assignmentId){
+    this.checkinWithoutPost(assignmentId);
+    this.http.post(
+      Globals.request_prefix + 'assignments/checkin',
+      {assignmentId: assignmentId},
+      {headers: this.auth.getHeaders()}
+    ).subscribe(
+      res => {},
+      err => console.log(err)
+    );
   }
 
   getAssignment(id){

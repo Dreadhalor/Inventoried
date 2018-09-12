@@ -6,6 +6,7 @@ import { AssignmentService } from "../../../services/assignment.service";
 import { ModalService } from "../../../services/modal.service";
 import { MAT_DIALOG_DATA } from "@angular/material";
 import { ICheckoutData } from "../../../models/interfaces/ICheckoutData";
+import { UserService } from "../../../services/user.service";
 
 @Component({
   selector: 'edit-durable',
@@ -21,6 +22,7 @@ export class EditDurableComponent implements OnInit {
     private is: InfoService,
     private assets: AssetService,
     private assignments: AssignmentService,
+    private users: UserService,
     private ms: ModalService,
     @Inject(MAT_DIALOG_DATA) private data: any
   ) {

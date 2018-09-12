@@ -95,9 +95,9 @@ class Table {
         }
         return true;
     }
-    save(item, agent, singular = true) {
+    saveSingular(item) {
         if (!item)
-            return Promise.reject('Item is null');
+            throw 'Item is null';
         let itemKeys = Object.keys(item);
         if (this.equals(itemKeys, this.fields())) {
             let formattedItem = this.formatObject(item);
@@ -112,40 +112,73 @@ class Table {
                 let result;
                 if (processed.length > 1)
                     result = {
-                        table: this.tableName,
                         operation: 'update',
                         deleted: processed[0],
-                        inserted: processed[1]
+                        created: processed[1]
                     };
                 else
                     result = {
-                        table: this.tableName,
                         operation: 'create',
-                        inserted: processed[0]
+                        created: processed[0]
                     };
-                if (singular) {
-                    if (agent)
-                        result.agent = agent;
-                    this.update.next(result);
-                }
                 return result;
             });
         }
-        return Promise.reject('Item properties are incorrect.');
+        throw 'Item properties are incorrect.';
     }
-    saveBulk(items, agent) {
+    saveMultiple(items) {
         if (!items)
-            return Promise.reject('Item is null');
-        items = items.map(item => {
-            let itemKeys = Object.keys(item);
-            if (this.equals(itemKeys, this.fields()))
-                return this.formatObject(item);
-            else
-                throw 'All items must be correctly formatted.';
+            throw 'Item is null';
+        if (!Array.isArray(items)) {
+            let array = [];
+            array.push(items);
+            items = array;
+        }
+        let promises = items.map(item => this.saveSingular(item));
+        return Promise.all(promises)
+            .then((success) => {
+            //success = array of ops
+            let created = success.filter(match => match.operation == 'create')
+                .map(op => op.created);
+            let updated = success.filter(match => match.operation == 'update')
+                .map(op => {
+                return {
+                    created: op.created,
+                    deleted: op.deleted
+                };
+            });
+            let result;
+            if (created.length > 0 && updated.length > 0) {
+                result = {
+                    operation: 'create update',
+                    created: created,
+                    updated: updated
+                };
+            }
+            else if (created.length > 0) {
+                result = {
+                    operation: 'create',
+                    created: created
+                };
+            }
+            else if (updated.length > 0) {
+                result = {
+                    operation: 'update',
+                    updated: updated
+                };
+            }
+            return result;
         });
-        return this.db.bulkAddition2(this.tableInfo(), items)
+    }
+    save(items, agent) {
+        return this.saveMultiple(items)
             .then(result => {
-            console.log(result);
+            if (result) {
+                result.table = this.tableName;
+                if (agent)
+                    result.agent = agent;
+                this.update.next(result);
+            }
             return result;
         });
     }
@@ -165,16 +198,96 @@ class Table {
         return this.db.deleteByColumn(this.tableName, pk)
             .then(deleted => this.processRecordsets(deleted))
             .then(processed => {
+            let array = [];
+            array.push(processed[0]);
             let result = {
                 table: this.tableName,
                 operation: 'delete',
-                deleted: processed[0]
+                deleted: array
             };
             if (agent)
                 result.agent = agent;
             this.update.next(result);
             return result;
         });
+    }
+    deleteSingularById(id, agent) {
+        let pk = this.primaryKey();
+        pk.value = id;
+        return this.db.deleteByColumn(this.tableName, pk)
+            .then(deleted => this.processRecordsets(deleted))
+            .then(processed => {
+            let result = {
+                operation: 'delete',
+                deleted: processed[0]
+            };
+            return result;
+        });
+    }
+    deleteMultipleByIds(ids) {
+        if (ids) {
+            if (!Array.isArray(ids)) {
+                let array = [];
+                array.push(ids);
+                ids = array;
+            }
+            let promises = ids.map(id => this.deleteSingularById(id));
+            return Promise.all(promises)
+                .then((success) => {
+                //success = array of delete ops
+                let deleted = success.filter(match => match.operation == 'delete')
+                    .map(op => op.deleted);
+                let result;
+                if (deleted.length > 0) {
+                    result = {
+                        operation: 'delete',
+                        deleted: deleted
+                    };
+                }
+                return result;
+            });
+        }
+        else
+            throw 'No items specified to delete.';
+    }
+    merge(items, agent) {
+        if (items) {
+            let toSave = items.toSave;
+            let toDelete = items.toDelete;
+            if ((toSave && Array.isArray(toSave)) || (toDelete && Array.isArray(toDelete))) {
+                let saved, deleted, result;
+                saved = this.saveMultiple(toSave);
+                deleted = this.deleteMultipleByIds(toDelete);
+                return Promise.all([saved, deleted])
+                    .then(success => {
+                    saved = success[0];
+                    deleted = success[1];
+                    if (saved && deleted) {
+                        result = {
+                            operation: (`${saved.operation} ${deleted.operation}`).trim(),
+                            created: saved.created,
+                            updated: saved.updated,
+                            deleted: deleted.deleted
+                        };
+                    }
+                    else if (saved)
+                        result = saved;
+                    else if (deleted)
+                        result = deleted;
+                    if (result) {
+                        result.table = this.tableName;
+                        if (agent)
+                            result.agent = agent;
+                        this.update.next(result);
+                    }
+                    return result;
+                });
+            }
+            else
+                throw 'Incorrect format.';
+        }
+        else
+            throw 'No items to modify.';
     }
     processRecordsets(result) {
         if (result &&

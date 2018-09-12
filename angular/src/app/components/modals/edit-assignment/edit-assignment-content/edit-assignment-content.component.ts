@@ -5,6 +5,7 @@ import { AssignmentService } from '../../../../services/assignment.service';
 import { AssetService } from '../../../../services/asset.service';
 
 import * as moment from 'moment';
+import { UserService } from '../../../../services/user.service';
 
 @Component({
   selector: 'edit-assignment-content',
@@ -48,9 +49,10 @@ export class EditAssignmentContentComponent implements OnInit {
 
   constructor(
     private assets: AssetService,
+    private users: UserService,
     private assignments: AssignmentService
   ) {
-    this.refreshAssignments(this.assignmentId);
+    //this.refreshAssignments(this.assignmentId);
   }
 
   ngOnInit() {
@@ -74,10 +76,6 @@ export class EditAssignmentContentComponent implements OnInit {
   refreshAssignments(id){
     this.assignment = this.assignments.getAssignment(id);
     if (this.assignment) this.editedAssignment = this.assignment.copy();
-  }
-
-  readyToCheckout(){
-    return false;//this.pickedFromDate && this.pickedToDate && this.userId && this.assetIds.length > 0;
   }
 
 }

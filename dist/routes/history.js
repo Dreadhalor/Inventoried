@@ -19,7 +19,8 @@ const record = exports.record = (edit) => {
         table: edit.table,
         operation: edit.operation,
         info: {
-            inserted: edit.inserted,
+            created: edit.created,
+            updated: edit.updated,
             deleted: edit.deleted
         }
     };

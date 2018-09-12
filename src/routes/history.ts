@@ -13,14 +13,15 @@ let subscription = dbClient.history.subscribe(
 );
 
 const record = exports.record = (edit) => {
-  let entry = {
+  let entry: any = {
     id: uuid(),
     timestamp: moment().format(config.historyFormat),
     agent: edit.agent,
     table: edit.table,
     operation: edit.operation,
     info: {
-      inserted: edit.inserted,
+      created: edit.created,
+      updated: edit.updated,
       deleted: edit.deleted
     }
   }

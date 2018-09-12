@@ -22,6 +22,9 @@ export class KeyValuePair implements IKeyValuePair {
       value: this.value
     };
   }
+  equals(compare: KeyValuePair){
+    return this.id == compare.id && this.value == compare.value;
+  }
   static fromInterface(ikeyvaluepair: IKeyValuePair){
     return new KeyValuePair(ikeyvaluepair.id, ikeyvaluepair.value);
   }

@@ -16,41 +16,77 @@ const Assignments = require('../models/tables/Assignments');
 const assets = require('./assets');
 const users = require('./users');
 const config = require('../config');
-router.post('/create_assignment', (req, res) => __awaiter(this, void 0, void 0, function* () {
+router.get('/get_assignments', (req, res) => {
     let authorization = req.headers.authorization;
-    let assignmentId = req.body.id;
-    let userId = req.body.userId;
-    let assetId = req.body.assetId;
-    let checkoutDate = req.body.checkoutDate;
-    let dueDate = req.body.dueDate;
-    if (userId && assetId && checkoutDate && dueDate) { //All fields are present
-        let checkoutDateParsed = parseDate(checkoutDate);
-        let dueDateParsed = parseDate(dueDate);
-        if (checkoutDateParsed && dueDateParsed) { //Checkout date + due date are both valid
-            let user = null;
-            let asset = null;
-            yield Promise.all([users.getUser(userId), assets.getAsset(assetId)]).then(result => {
-                user = result[0];
-                asset = result[1];
-            }).catch(exception => null);
-            if (user && asset) { //user & asset are both valid objects in the database
-                //All inputs are valid
-                checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, authorization)
-                    .then(checkedOut => res.json(checkedOut)).catch(error => {
-                    console.log(error);
-                    res.json(error);
+    users.checkAdminAuthorization(authorization)
+        .catch(unauthorized => res.send('Unauthorized.'))
+        .then(admin => Assignments.pullAll())
+        .then(assignments => res.json(assignments))
+        .catch(exception => res.json(exception));
+});
+router.post('/create_assignment', (req, res) => {
+    let authorization = req.headers.authorization;
+    users.checkAdminAuthorization(authorization)
+        .catch(unauthorized => res.send('Unauthorized.'))
+        .then((admin) => __awaiter(this, void 0, void 0, function* () {
+        let assignmentId = req.body.id;
+        let userId = req.body.userId;
+        let assetId = req.body.assetId;
+        let checkoutDate = req.body.checkoutDate;
+        let dueDate = req.body.dueDate;
+        if (userId && assetId && checkoutDate && dueDate) { //All fields are present
+            let checkoutDateParsed = parseDate(checkoutDate);
+            let dueDateParsed = parseDate(dueDate);
+            if (checkoutDateParsed && dueDateParsed) { //Checkout date + due date are both valid
+                let user = null;
+                let asset = null;
+                yield Promise.all([users.getUser(userId), assets.getAsset(assetId)]).then(result => {
+                    user = result[0];
+                    asset = result[1];
+                }).catch(exception => {
+                    throw exception;
                 });
-                //res.json({user,asset});
+                if (user && asset) { //user & asset are both valid objects in the database
+                    //All inputs are valid
+                    checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, admin.result, authorization)
+                        .then(checkedOut => res.json(checkedOut)).catch(error => {
+                        console.log(error);
+                        res.json(error);
+                    });
+                    //res.json({user,asset});
+                }
+                else
+                    res.send('User and asset are not both valid.');
             }
             else
-                res.send('User and asset are not both valid.');
+                res.send('Dates are not both valid.');
         }
         else
-            res.send('Dates are not both valid.');
-    }
-    else
-        res.send('Not all fields are present.');
-}));
+            res.send('Not all fields are present.');
+    }))
+        .catch(exception => res.json(exception));
+});
+router.post('/checkin', (req, res) => {
+    let authorization = req.headers.authorization;
+    let agent;
+    users.checkAdminAuthorization(authorization)
+        .catch(unauthorized => res.send('Unauthorized.'))
+        .then(admin => {
+        agent = admin.result;
+        let id = req.body.assignmentId;
+        return Assignments.findById(id);
+    })
+        .then(assignment => {
+        let promises = [
+            Assignments.deleteById(assignment.id, agent),
+            users.checkin(assignment.userId, assignment.id, agent),
+            assets.checkin(assignment.assetId, assignment.id, agent)
+        ];
+        return Promise.all(promises);
+    })
+        .then(success => res.json('success!'))
+        .catch(exception => res.json(exception));
+});
 module.exports = router;
 const parseDate = (date) => {
     let parsed = moment(date, config.dateFormat, true);
@@ -59,7 +95,7 @@ const parseDate = (date) => {
     }
     return null;
 };
-const checkout = (assignmentId, user, asset, checkoutDate, dueDate, authorization) => {
+const checkout = (assignmentId, user, asset, checkoutDate, dueDate, agent, authorization) => {
     let iassignment = {
         id: assignmentId,
         userId: user.id,
@@ -83,29 +119,9 @@ const checkout = (assignmentId, user, asset, checkoutDate, dueDate, authorizatio
         assignmentIds: user.assignmentIds
     };
     return Promise.all([
-        Assignments.save(assignment),
+        Assignments.save(assignment, agent),
         assets.saveAsset(asset.asset, authorization),
         users.saveUser(userToSave, authorization)
     ]);
 };
-//Consumable
-/*
-assign(assignmentId: string): void {
-  if (!this.assignmentIds.includes(assignmentId))
-    this.assignmentIds.push(assignmentId);
-}
-unassign(assignmentId: string): void {
-  for (let i = this.assignmentIds.length; i >= 0; i--){
-    if (this.assignmentIds[i] == assignmentId) this.assignmentIds.splice(i,1);
-  }
-}*/
-//Durable
-/*
-assign(assignmentId){
-  this.assignmentId = assignmentId;
-}
-unassign(assignmentId){
-  if (this.assignmentId == assignmentId) this.assignmentId = '0';
-}
-*/ 
 //# sourceMappingURL=assignments.js.map

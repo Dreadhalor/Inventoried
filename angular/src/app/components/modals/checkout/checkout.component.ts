@@ -53,7 +53,6 @@ export class CheckoutComponent implements OnInit {
   }
 
   checkoutButtonClicked(){
-    console.log(this.userId);
     let checkoutDate = this.from.format(this.dateStringFormat);
     let dueDate = this.to.format(this.dateStringFormat);
     this.assetIds.forEach(

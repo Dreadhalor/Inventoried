@@ -20,14 +20,17 @@ export class UserService {
   pendingAssignments = [];
 
   dataChange = new Subject<any>();
+  public loaded = false;
 
   constructor(
     private http: HttpClient
   ) {
-    this.getAllUsers().then(
-      undefined,
-      rejected => this.getSeedUsers()
-    );
+    this.getAllUsers()
+      .then(users =>{
+        this.dataChange.next();
+        this.loaded = true;
+      })
+      .catch(exception => this.getSeedUsers());
   }
 
   getAllUsers(){
@@ -35,7 +38,6 @@ export class UserService {
       this.http.get<IUser[]>(Globals.request_prefix + 'users/get_all_users').subscribe(
         (iusers) => {
           iusers.forEach(iuser => this.addUser(new User(iuser)));
-          this.dataChange.next();
           resolve();
         },
         (error) => reject()

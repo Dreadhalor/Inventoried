@@ -155,6 +155,7 @@
     Check out
   </button>
   <button *ngIf="default && durable.available"
+    [disabled]="!users.loaded"
     class="option-button"
     mat-stroked-button
     color="basic"

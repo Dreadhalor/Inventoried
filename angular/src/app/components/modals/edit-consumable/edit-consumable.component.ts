@@ -1,3 +1,4 @@
+import { UserService } from './../../../services/user.service';
 import { Component, OnInit, Inject } from "@angular/core";
 import { Consumable } from "../../../models/classes/consumable";
 import { InfoService } from "../../../services/info.service";
@@ -21,6 +22,7 @@ export class EditConsumableComponent implements OnInit {
     private is: InfoService,
     private assets: AssetService,
     private assignments: AssignmentService,
+    private users: UserService,
     private ms: ModalService,
     @Inject(MAT_DIALOG_DATA) private data: any
   ) {

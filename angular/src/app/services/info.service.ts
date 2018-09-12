@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { KeyValuePair } from "../models/classes/keyValuePair";
 import { Globals } from "../globals";
 import { HttpClient } from "@angular/common/http";
+import { AuthService } from "./auth.service";
 
 
 @Injectable({
@@ -42,7 +43,8 @@ export class InfoService {
   ]
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private auth: AuthService
   ) {
     this.fetchSettings();
     /*this.durablesCategories = InfoService.initDurablesCategories.map((val, index) => new KeyValuePair((index + 1).toString(), val));
@@ -51,20 +53,36 @@ export class InfoService {
     this.tags = InfoService.initTags.map((val, index) => new KeyValuePair((index + 1).toString(), val));*/
   }
 
+  //Shared
+  getMergeParams(currentVals, updateVals){
+    let toSave = updateVals.filter(match => !currentVals.find(found => found.equals(match)))
+    .map(category => category.asInterface());
+    let toDelete = currentVals.filter(match => !updateVals.find(found => found.id == match.id));
+    let params = {
+      to_save: toSave,
+      to_delete: toDelete.map(category => category.id)
+    };
+    return params;
+  }
+  merge(currentVals, updateVals, suffix){
+    let params = this.getMergeParams(currentVals, updateVals);
+    this.http.post(
+        Globals.request_prefix + suffix,
+        params,
+        {headers: this.auth.getHeaders()}
+      )
+      .subscribe(
+        res => {},
+        err => console.log(err)
+      );
+  }
+
   //Durables categories
   _durablesCategories: KeyValuePair[] = [];
   get durablesCategories(){ return this._durablesCategories; }
-  set durablesCategories(val: KeyValuePair[]){
-    this._durablesCategories = val;
-    let settings = {
-      durablesCategories: val.map(category => category.asInterface())
-    };
-    this.http.post(Globals.request_prefix + 'settings/set_settings', {settings: settings}).
-      subscribe(
-        res => console.log(res),
-        err => console.log(err));
-  }
+  set durablesCategories(val: KeyValuePair[]){this._durablesCategories = val;}
   setDurablesCategories(val: KeyValuePair[]){
+    this.merge(this.durablesCategories, val, 'settings/set_durables_categories')
     this.durablesCategories = val;
   }
   getDurablesCategory(id){
@@ -77,17 +95,9 @@ export class InfoService {
   //Consumables categories
   _consumablesCategories: KeyValuePair[] = [];
   get consumablesCategories(){ return this._consumablesCategories; }
-  set consumablesCategories(val: KeyValuePair[]){
-    this._consumablesCategories = val;
-    let settings = {
-      consumablesCategories: val.map(category => category.asInterface())
-    };
-    this.http.post(Globals.request_prefix + 'settings/set_settings', {settings: settings}).
-      subscribe(
-        res => console.log(res),
-        err => console.log(err));
-  }
+  set consumablesCategories(val: KeyValuePair[]){this._consumablesCategories = val;}
   setConsumablesCategories(val: KeyValuePair[]){
+    this.merge(this.consumablesCategories, val, 'settings/set_consumables_categories')
     this.consumablesCategories = val;
   }
   getConsumablesCategory(id){
@@ -100,17 +110,9 @@ export class InfoService {
   //Manufacturers
   _manufacturers: KeyValuePair[] = [];
   get manufacturers(){ return this._manufacturers; }
-  set manufacturers(val: KeyValuePair[]){
-    this._manufacturers = val;
-    let settings = {
-      manufacturers: val.map(manufacturer => manufacturer.asInterface())
-    };
-    this.http.post(Globals.request_prefix + 'settings/set_settings', {settings: settings}).
-      subscribe(
-        res => console.log(res),
-        err => console.log(err));
-  }
+  set manufacturers(val: KeyValuePair[]){this._manufacturers = val;}
   setManufacturers(val: KeyValuePair[]){
+    this.merge(this._manufacturers, val, 'settings/set_manufacturers')
     this.manufacturers = val;
   }
   getManufacturer(id){
@@ -123,17 +125,9 @@ export class InfoService {
   //Tags
   _tags: KeyValuePair[] = [];
   get tags(){ return this._tags; }
-  set tags(val: KeyValuePair[]){
-    this._tags = val;
-    let settings = {
-      tags: val.map(tag => tag.asInterface())
-    };
-    this.http.post(Globals.request_prefix + 'settings/set_settings', {settings: settings}).
-      subscribe(
-        res => console.log(res),
-        err => console.log(err));
-  }
+  set tags(val: KeyValuePair[]){this._tags = val;}
   setTags(val: KeyValuePair[]){
+    this.merge(this._tags, val, 'settings/set_tags')
     this.tags = val;
   }
   getTag(id){
@@ -153,9 +147,9 @@ export class InfoService {
         err => console.log(err));
   }
   overwriteSettings(settings){
-    this._durablesCategories = settings.durablesCategories.map(entry => KeyValuePair.fromInterface(entry));
-    this._consumablesCategories = settings.consumablesCategories.map(entry => KeyValuePair.fromInterface(entry));
-    this._manufacturers = settings.manufacturers.map(entry => KeyValuePair.fromInterface(entry));
-    this._tags = settings.tags.map(entry => KeyValuePair.fromInterface(entry));
+    this.durablesCategories = settings.durablesCategories.map(entry => KeyValuePair.fromInterface(entry));
+    this.consumablesCategories = settings.consumablesCategories.map(entry => KeyValuePair.fromInterface(entry));
+    this.manufacturers = settings.manufacturers.map(entry => KeyValuePair.fromInterface(entry));
+    this.tags = settings.tags.map(entry => KeyValuePair.fromInterface(entry));
   }
 }

@@ -6,48 +6,25 @@ const router = express.Router();
 
 const Durables = require('../models/tables/Durables');
 const Consumables = require('../models/tables/Consumables');
-const Users = require('./users');
+const users = require('./users');
 
-router.post('/add_asset', (req, res) => {
+router.post('/save_asset', (req, res) => {
   let authorization = req.headers.authorization;
   let asset = req.body.asset;
-  saveAsset(asset,authorization)
+  saveAssets(asset,authorization)
     .then(saved => res.json(saved))
     .catch(exception => res.json(exception));
 })
-router.post('/add_assets', (req, res) => {
+router.post('/save_assets', (req, res) => {
   let authorization = req.headers.authorization;
   let assets = req.body.assets;
   saveAssets(assets,authorization)
-    .then(allSaved => res.json(allSaved))
-    .catch(exception => res.json(exception));
-})
-router.post('/update_asset', (req, res) => {
-  let authorization = req.headers.authorization;
-  Users.checkAdminAuthorization(authorization)
-    .then(admin => {
-      let asset = req.body.asset;
-      if (asset){
-        switch(typeCheck(asset)){
-          case 'durable':
-            Durables.save(asset, admin.result)
-              .then(resolved => res.json(resolved))
-              .catch(exception => res.json(exception));
-            break;
-          case 'consumable':
-            Consumables.save(asset, admin.result)
-              .then(resolved => res.json(resolved))
-              .catch(exception => res.json(exception));
-            break;
-          default: throw 'Invalid asset.'
-        }
-      }
-    })
+    .then(saved => res.json(saved))
     .catch(exception => res.json(exception));
 })
 router.post('/delete_asset', (req, res) => {
   let authorization = req.headers.authorization;
-  Users.checkAdminAuthorization(authorization)
+  users.checkAdminAuthorization(authorization)
     .catch(exception => res.json('Unauthorized.'))
     .then(admin => {
       let asset = req.body.asset;
@@ -72,14 +49,14 @@ router.post('/delete_asset', (req, res) => {
 
 router.get('/get_durables', (req, res) => {
   let authorization = req.headers.authorization;
-  Users.checkAdminAuthorization(authorization)
+  users.checkAdminAuthorization(authorization)
     .then(admin => Durables.pullAll())
     .then(durables => res.json(durables))
     .catch(exception => res.json([]));
 })
 router.get('/get_consumables', (req, res) => {
   let authorization = req.headers.authorization;
-  Users.checkAdminAuthorization(authorization)
+  users.checkAdminAuthorization(authorization)
     .then(admin => Consumables.pullAll())
     .then(consumables => res.json(consumables))
     .catch(exception => res.json([]));
@@ -112,7 +89,8 @@ function typeCheck(asset: any){
   return '';
 }
 const saveAsset = exports.saveAsset = (asset, authorization) => {
-  return Users.checkAdminAuthorization(authorization)
+  return saveAssets(asset, authorization);
+  /*return users.checkAdminAuthorization(authorization)
     .catch(exception => 'User is not authorized for this.')
     .then(admin => {
       if (asset){
@@ -122,13 +100,18 @@ const saveAsset = exports.saveAsset = (asset, authorization) => {
           default: throw 'Object to save must be an asset.'
         }
       } else throw 'No asset to save.';
-    })
+    })*/
 }
 const saveAssets = exports.saveAssets = (assets, authorization) => {
-  return Users.checkAdminAuthorization(authorization)
+  return users.checkAdminAuthorization(authorization)
     .catch(exception => 'User is not authorized for this.')
     .then(admin => {
       if (assets){
+        if (!Array.isArray(assets)){
+          let array = [];
+          array.push(assets);
+          assets = array;
+        }
         let durables = [];
         let consumables = [];
         assets.forEach(asset => {
@@ -142,10 +125,41 @@ const saveAssets = exports.saveAssets = (assets, authorization) => {
             default: throw 'All objects to save must be assets.'
           }
         })
-        return Durables.saveBulk(durables);
+        //CURRENTLY: if presented with durables + consumables, only saves the durables
+        if (durables.length > 0) return Durables.save(durables, admin.result);
+        if (consumables.length > 0) return Consumables.save(consumables, admin.result);
+        return Promise.resolve({});
+        //let promises = [];
+        //if (durables.length > 0) promises.push(Durables.save(durables, admin.result));
+        //if (consumables.length > 0) promises.push(Consumables.save(consumables, admin.result));
+        //return Promise.all(promises);
       } else throw 'No asset to save.';
     })
 }
+
+const checkin = exports.checkin = (assetId, assignmentId, agent) => {
+  if (assetId) return getAsset(assetId)
+    .then(asset => {
+      switch(asset.type){
+        case 'durable':
+          let durable = asset.asset;
+          if (durable.assignmentId == assignmentId){
+            durable.assignmentId = '0';
+            return Durables.save(durable, agent);
+          } else throw `Durable ${durable.serialNumber} does not belong to this assignment.`;
+        case 'consumable':
+          let consumable = asset.asset;
+          for (let i = consumable.assignmentIds.length - 1; i >= 0; i--){
+            if (consumable.assignmentIds[i] == assignmentId)
+              consumable.assignmentIds.splice(i,1);
+          }
+          return Consumables.save(consumable, agent);
+        default: throw 'Error with asset formatting.';
+      }
+    })
+  else throw 'No asset to check in.';
+}
+
 
 function is<T>(o: any, sample:T, strict = true, recursive = true) : o is T {
   if( o == null) return false;

@@ -65,10 +65,7 @@ export class AssetService {
       Globals.request_prefix + 'assets/get_durables',
       {headers: this.auth.getHeaders()}
     ).subscribe(
-      res => {
-        console.log(res);
-        this.setDurables(res as IDurable[])
-      },
+      res => this.setDurables(res as IDurable[]),
       err => console.log(err)
     );
   }
@@ -84,7 +81,7 @@ export class AssetService {
   addDurable(durable: Durable){
     this.addDurableWithoutPost(durable);
     this.http.post(
-      Globals.request_prefix + 'assets/add_asset',
+      Globals.request_prefix + 'assets/save_asset',
       {asset: durable.asInterface()},
       {headers: this.auth.getHeaders()}
     ).subscribe(res => {
@@ -97,7 +94,7 @@ export class AssetService {
   addDurables(durables: Durable[]){
     durables.forEach(durable => this.addDurableWithoutPost(durable));
     this.http.post(
-      Globals.request_prefix + 'assets/add_assets',
+      Globals.request_prefix + 'assets/save_assets',
       {assets: durables.map(durable => durable.asInterface())},
       {headers: this.auth.getHeaders()}
     ).subscribe(res => {
@@ -111,7 +108,7 @@ export class AssetService {
     let index = this.durables.findIndex(match => match.id == durable.id);
     if (index >= 0) this.durables[index] = durable;
     this.http.post(
-      Globals.request_prefix + 'assets/update_asset',
+      Globals.request_prefix + 'assets/save_asset',
       {asset: durable.asInterface()},
       {headers: this.auth.getHeaders()}
     ).subscribe(
@@ -151,7 +148,7 @@ export class AssetService {
   addConsumable(consumable: Consumable){
     this.addConsumableWithoutPost(consumable);
     this.http.post(
-      Globals.request_prefix + 'assets/add_asset',
+      Globals.request_prefix + 'assets/save_asset',
       {asset: consumable.asInterface()},
       {headers: this.auth.getHeaders()}
     ).subscribe(
@@ -162,7 +159,7 @@ export class AssetService {
     let index = this.consumables.findIndex(match => match.id == consumable.id);
     if (index >= 0) this.consumables[index] = consumable;
     this.http.post(
-      Globals.request_prefix + 'assets/update_asset',
+      Globals.request_prefix + 'assets/save_asset',
       {asset: consumable.asInterface()},
       {headers: this.auth.getHeaders()}
     ).subscribe(

@@ -43,6 +43,10 @@ export class DirectoryComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  applyFilter(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
   openEditAsset(asset: Asset){
     if (asset instanceof Durable) this.openEditDurable(asset);
     else if (asset instanceof Consumable) this.openEditConsumable(asset);

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Globals } from '../globals';
 import { Subject } from 'rxjs';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -20,11 +21,12 @@ export class HistoryService {
   }
 
   pullHistory(){
-    this.http.get(
+    this.http.get<any[]>(
       Globals.request_prefix + 'history/pull_all',
       {headers: this.auth.getHeaders()})
     .subscribe(
       history => {
+        history.sort(this.sortHistoryFxn).reverse();
         this.history = history;
         this.dataChange.next();
       },
@@ -32,5 +34,13 @@ export class HistoryService {
         console.log(error);
       }
     )
+  }
+
+  sortHistoryFxn(histA, histB){
+    let timestampA = moment(histA.timestamp, Globals.historyFormat);
+    let timestampB = moment(histB.timestamp, Globals.historyFormat);
+    if (timestampA.isBefore(timestampB)) return -1;
+    if (timestampA.isAfter(timestampB)) return 1;
+    return 0;
   }
 }

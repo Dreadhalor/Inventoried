@@ -22,14 +22,30 @@ let jwt = require('jsonwebtoken');
 let promisify = require('util').promisify;
 const passport = require("passport");
 router.get('/get_all_users', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    ad.findUsers({ paged: true }).then(users => {
-        if (users.length == 0)
+    let promises = [
+        ad.findUsers({ paged: true }),
+        Users.pullAll()
+    ];
+    Promise.all(promises)
+        .then(success => {
+        let adUsers = success[0];
+        let dbUsers = success[1];
+        if (adUsers.length == 0)
             res.json('No users found.');
-        else
-            res.json(users.map(user => formatLDAPData(user)));
-    }, rejected => res.json(rejected)).catch(exception => res.json(exception));
+        else {
+            adUsers = adUsers.map(user => formatLDAPData(user))
+                .map(user => {
+                let found = dbUsers.find(match => match.id == user.id);
+                if (found)
+                    user.assignmentIds = found.assignmentIds;
+                return user;
+            });
+            res.json(adUsers);
+        }
+    })
+        .catch(exception => res.json(exception));
 }));
-const getUser = (userId) => {
+const getUserAD = (userId) => {
     let parsedGUID = [];
     guidParser.parse(userId, parsedGUID);
     var opts = {
@@ -43,6 +59,28 @@ const getUser = (userId) => {
             return null;
         return formatLDAPData(results.users[0]);
     }, rejected => null).catch(exception => null);
+};
+const getUserDB = (userId) => {
+    return Users.findById(userId)
+        .catch(exception => null);
+};
+const getUser = exports.getUser = (userId) => {
+    let promises = [
+        getUserAD(userId),
+        getUserDB(userId)
+    ];
+    return Promise.all(promises)
+        .then(success => {
+        let adUser = success[0];
+        let dbUser = success[1];
+        let result;
+        if (adUser) {
+            if (dbUser)
+                adUser.assignmentIds = dbUser.assignmentIds;
+            result = adUser;
+        }
+        return result;
+    });
 };
 const getUserByUsername = (username) => {
     return ad.findUser(username).then(results => formatLDAPData(results)).catch(exception => null);
@@ -132,15 +170,29 @@ const saveUser = exports.saveUser = (user, authorization) => {
     return checkAdminAuthorization(authorization)
         .catch(exception => 'User is not authorized for this.')
         .then(admin => {
-        if (user) {
-            //save user
-            return Users.save(user).then(resolved => {
-                resolved.agent = admin.result;
-                History.record(resolved);
-                return resolved;
-            });
-        }
+        if (user)
+            return Users.save(user, admin.result);
         throw 'No user to save.';
     });
+};
+const checkin = exports.checkin = (userId, assignmentId, agent) => {
+    if (userId)
+        return getUser(userId)
+            .then(user => {
+            for (let i = user.assignmentIds.length - 1; i >= 0; i--) {
+                if (user.assignmentIds[i] == assignmentId)
+                    user.assignmentIds.splice(i, 1);
+            }
+            return user;
+        })
+            .then(moddedUser => {
+            let userToSave = {
+                id: moddedUser.id,
+                assignmentIds: moddedUser.assignmentIds
+            };
+            return Users.save(userToSave, agent);
+        });
+    else
+        throw 'No user to check in item from.';
 };
 //# sourceMappingURL=users.js.map
