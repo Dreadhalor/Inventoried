@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const rxjs_1 = require("rxjs");
 const fse = require("fs-extra");
 const replace = require("replace-in-file");
+const scriptGenerator = require('./table-helpers/table-script-generator');
 class Table {
     constructor(db, schema) {
         this.columns = [];
@@ -22,6 +23,18 @@ class Table {
             });
         });
         this.columns = this.singularizePrimaryKey(this.columns);
+        scriptGenerator.generateScripts({
+            database: db,
+            tableName: this.tableName,
+            columns: this.columns,
+            templateDirectory: 'src/db/scripts/templates',
+            templateFiles: {
+                createTable: 'create_table.template.sql',
+                createUpdateTrigger: 'update_trigger.template.sql',
+                saveQuery: 'save.template.sql'
+            },
+            tablesDirectory: 'src/db/scripts/generated/tables',
+        });
         db.onConnected(() => this.constructTable());
     }
     get destDirs() {
