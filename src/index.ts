@@ -4,16 +4,17 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as passport from 'passport';
 
-const config = require('./program-config');
+const dbConfig = require('./program-config');
+const serverConfig = require('./server-config');
 
 const dbClient = require('./db/db-client');
-dbClient.connect(config.mssql)
+dbClient.connect(dbConfig.mssql)
   .then(connected => console.log('Successfully connected to SQL server.'))
   .catch(exception => console.log(
     `SQL server connection error -> ${exception}`
   ));
 
-const port = 5000;
+const port = serverConfig.port;
 const app = express();
 
 //CORS middleware

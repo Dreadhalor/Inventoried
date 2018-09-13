@@ -2,8 +2,9 @@ const sql = require('mssql/msnodesqlv8');
 const fse = require('fs-extra');
 const replace = require('replace-in-file');
 const promisify = require('util').promisify;
-let databaseName = exports.databaseName;
+const datatypeParser = require('./db-helpers/datatype-parser');
 
+let databaseName = exports.databaseName;
 let connected = false;
 let callbacks = [];
 let config;
@@ -234,26 +235,8 @@ const formatValues = (values: any[]): any => {
   values.forEach((value,index) => { formattedValues[`value${index+1}`] = value; });
   return formattedValues;
 }
-const parseDataType = exports.parseDataType = (type: string, stringify: boolean) => {
-  if (stringify){
-    switch (type){
-      case 'varchar(max)[]':
-      case 'object':
-        return 'varchar(max)';
-      default: return type;
-    }
-  }
-  switch (type){
-    case 'varchar(max)':
-    case 'varchar(max)[]':
-    case 'object':
-      return sql.VarChar(sql.MAX);
-    case 'nvarchar(max)': return sql.NVarChar(sql.MAX);
-    case 'varbinary(max)': return sql.VarBinary(sql.MAX);
-    case 'bit': return sql.Bit;
-    case 'int': return sql.Int;
-  }
-}
+const parseDataType = exports.parseDataType = datatypeParser.parseDataType;
+
 const create = exports.create = (tableName: string, fields: string[], types: string[], values: any[], id: any) => {
   let createTable = formatCreateTableIfNotExists(tableName, fields, types);
   let insertValues = (id) ? formatInsertValuesIfNotDuplicate(tableName, values, id) : formatInsertValuesPrepareString(tableName, values);

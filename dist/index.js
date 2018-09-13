@@ -5,12 +5,13 @@ var path = require("path");
 var bodyParser = require("body-parser");
 var cors = require("cors");
 var passport = require("passport");
-var config = require('./program-config');
+var dbConfig = require('./program-config');
+var serverConfig = require('./server-config');
 var dbClient = require('./db/db-client');
-dbClient.connect(config.mssql)
+dbClient.connect(dbConfig.mssql)
     .then(function (connected) { return console.log('Successfully connected to SQL server.'); })
     .catch(function (exception) { return console.log("SQL server connection error -> " + exception); });
-var port = 5000;
+var port = serverConfig.port;
 var app = express();
 //CORS middleware
 app.use(cors());

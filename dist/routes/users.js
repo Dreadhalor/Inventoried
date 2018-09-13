@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express = require('express');
 var router = express.Router();
 var config = require('../program-config');
-var guidParser = require('../guid-parse');
+var guidParser = require('../utilities/guid-parse');
 var WindowsStrategy = require('passport-windowsauth');
 var ActiveDirectory = require('activedirectory2');
 var ADPromise = ActiveDirectory.promiseWrapper;

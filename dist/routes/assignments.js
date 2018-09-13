@@ -5,6 +5,7 @@ var moment = require("moment");
 var express = require("express");
 var router = express.Router();
 var Promise = require("bluebird");
+var PromisePlus = require('../utilities/bluebird-plus');
 var Assignments = require('../models/tables/Assignments');
 var assets = require('./assets');
 var users = require('./users');
@@ -17,30 +18,8 @@ router.get('/get_assignments', function (req, res) {
         .then(function (assignments) { return res.json(assignments); })
         .catch(function (exception) { return res.json(exception); });
 });
-var queue = [];
-var running = false;
-var addToQueue = function (args, fxn) {
-    var pair = {
-        args: args,
-        fxn: fxn
-    };
-    queue.push(pair);
-    if (!running)
-        advanceQueue();
-};
-var advanceQueue = function () {
-    running = true;
-    if (queue.length > 0) {
-        var pair = queue.pop();
-        pair.fxn(pair.args)
-            .then(function (success) { return advanceQueue(); })
-            .catch(function (error) { return running = false; });
-    }
-    else
-        running = false;
-};
 router.post('/create_assignment', function (req, res) {
-    addToQueue([req, res], function (args) { return checkoutFxn(args[0], args[1]); });
+    PromisePlus.queue([req, res], function (args) { return checkoutFxn(args[0], args[1]); });
 });
 var checkoutFxn = function (req, res) {
     var authorization = req.headers.authorization;

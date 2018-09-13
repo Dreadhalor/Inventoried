@@ -1,13 +1,18 @@
 import { Subject } from 'rxjs';
 import * as fse from 'fs-extra';
 import * as Promise from 'bluebird';
+const PromisePlus = require('../utilities/bluebird-plus');
+
 const scriptGenerator = require('./table-helpers/table-script-generator');
+import { TableProcessor } from './table-helpers/table-processor';
 
 export class Table {
 
   tableName: string;
   columns: any[] = [];
   db: any;
+  processor = new TableProcessor(this);
+
   public update = new Subject<any>();
 
   templateDirectory = 'src/db/scripts/templates';
@@ -85,25 +90,9 @@ export class Table {
         db.onConnected((result) => resolve(result))
       })
     })
-    .then(databaseExists => this.nestedPromiseAll(scripts, (file) => fse.readFile(file,'utf8')))
-    .then(result => this.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement))
+    .then(databaseExists => PromisePlus.nestedPromiseAll(scripts, (file) => fse.readFile(file,'utf8')))
+    .then(result => PromisePlus.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement))
     .catch(exception => console.log(exception));
-  }
-
-  nestedPromiseAll(groups, fxn){
-    return Promise.all(groups.map(
-      group => Promise.all(group.map(
-        single => fxn(single)
-      ))
-    ));
-  }
-  sequentialPromiseAll(groups, fxn){
-    return Promise.each(
-      groups,
-      (group: any[]) => Promise.all(group.map(
-        single => fxn(single)
-      ))
-    )
   }
 
   singularizePrimaryKey(columns: any[]){
@@ -126,17 +115,6 @@ export class Table {
   }
   oneHotPrimaryKeyArray(){
     return this.columns.map(column => column.primary);
-  }
-  formatObject(obj: object): any {
-    let result = {};
-    this.columns.forEach(column => {
-      let val = obj[column.name];
-      if (this.shouldStringify(column)){
-        val = JSON.stringify(val);
-      }
-      result[column.name] = val;
-    })
-    return result;
   }
   formatRow(obj: any){
     let columns = this.columns.map(column => {
@@ -167,14 +145,14 @@ export class Table {
     if (!item) throw 'Item is null';
     let itemKeys = Object.keys(item);
     if (this.equals(itemKeys, this.fields())){
-      let formattedItem = this.formatObject(item)
+      let formattedItem = this.processor.formatObject(item)
       let info = {
         tableName: this.tableName,
         columns: this.formatRow(formattedItem)
       };
       return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/save_${this.tableName}.sql`,'utf8')
       .then(file => this.db.prepareQueryAndExecute(file,info))
-      .then(executed => this.processRecordsets(executed))
+      .then(executed => this.processor.processRecordsets(executed))
       .then(processed => {
         let result;
         if (processed.length > 1)
@@ -247,17 +225,17 @@ export class Table {
     let pk = this.primaryKey();
     pk.value = id;
     return this.db.findByColumn(this.tableName, pk)
-      .then(found => this.processRecordsets(found)[0]);
+      .then(found => this.processor.processRecordsets(found)[0]);
   }
   pullAll(){
     return this.db.pullAll(this.tableName)
-      .then(pulled => this.processRecordsets(pulled));
+      .then(pulled => this.processor.processRecordsets(pulled));
   }
   deleteById(id: string, agent?){
     let pk = this.primaryKey();
     pk.value = id;
     return this.db.deleteByColumn(this.tableName, pk)
-      .then(deleted => this.processRecordsets(deleted))
+      .then(deleted => this.processor.processRecordsets(deleted))
       .then(processed => {
         let array = [];
         array.push(processed[0]);
@@ -275,7 +253,7 @@ export class Table {
     let pk = this.primaryKey();
     pk.value = id;
     return this.db.deleteByColumn(this.tableName, pk)
-      .then(deleted => this.processRecordsets(deleted))
+      .then(deleted => this.processor.processRecordsets(deleted))
       .then(processed => {
         let result: any = {
           operation: 'delete',
@@ -338,33 +316,6 @@ export class Table {
           })
       } else throw 'Incorrect format.'
     } else throw 'No items to modify.'
-  }
-
-  processRecordsets(result){
-    if (result &&
-        result.recordset &&
-        result.recordset.length > 0)
-        return this.parseObjects(result.recordset);
-    return [];
-  }
-  shouldStringify(column){
-    return column.dataType.includes('[]') || column.dataType == 'object';
-  }
-  parseObjects(objs: object[]){
-    let result = [];
-    objs.forEach(obj => {
-      let parsedObj = {};
-      let keys = Object.keys(obj)
-      keys.forEach(key => {
-        let found = this.columns.find(match => match.name == key);
-        if (found){
-          if (this.shouldStringify(found)) parsedObj[key] = JSON.parse(obj[key]);
-          else parsedObj[key] = obj[key];
-        }
-      })
-      result.push(parsedObj);
-    })
-    return result; 
   }
 
   public static deepCopy(obj) {

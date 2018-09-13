@@ -6,11 +6,11 @@ var History;
     var schema = {
         tableName: 'history',
         columns: [
-            { name: 'id', dataType: 'varchar(max)', primary: true },
-            { name: 'timestamp', dataType: 'varchar(max)' },
-            { name: 'agent', dataType: 'varchar(max)' },
-            { name: 'table', dataType: 'varchar(max)' },
-            { name: 'operation', dataType: 'varchar(max)' },
+            { name: 'id', dataType: 'string', primary: true },
+            { name: 'timestamp', dataType: 'string' },
+            { name: 'agent', dataType: 'string' },
+            { name: 'table', dataType: 'string' },
+            { name: 'operation', dataType: 'string' },
             { name: 'info', dataType: 'object' }
         ]
     };

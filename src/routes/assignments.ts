@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import * as express from 'express';
 const router = express.Router();
 import * as Promise from 'bluebird';
-import * as asyncjs from 'async';
+const PromisePlus = require('../utilities/bluebird-plus');
 
 const Assignments = require('../models/tables/Assignments');
 
@@ -21,28 +21,10 @@ router.get('/get_assignments', (req, res) => {
     .catch(exception => res.json(exception));
 })
 
-let queue = [];
-let running = false;
-const addToQueue = (args, fxn) => {
-  let pair = {
-    args: args,
-    fxn: fxn
-  }
-  queue.push(pair);
-  if (!running) advanceQueue();
-}
-const advanceQueue = () => {
-  running = true;
-  if (queue.length > 0){
-    let pair = queue.pop();
-    pair.fxn(pair.args)
-      .then(success => advanceQueue())
-      .catch(error => running = false);
-  } else running = false;
-}
+
 
 router.post('/create_assignment', (req, res) => {
-  addToQueue([req,res], (args) => checkoutFxn(args[0], args[1]));
+  PromisePlus.queue([req,res], (args) => checkoutFxn(args[0], args[1]));
 })
 const checkoutFxn = (req, res) => {
   let authorization = req.headers.authorization;

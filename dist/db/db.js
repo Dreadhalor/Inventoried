@@ -3,6 +3,7 @@ var sql = require('mssql/msnodesqlv8');
 var fse = require('fs-extra');
 var replace = require('replace-in-file');
 var promisify = require('util').promisify;
+var datatypeParser = require('./db-helpers/datatype-parser');
 var databaseName = exports.databaseName;
 var connected = false;
 var callbacks = [];
@@ -217,26 +218,7 @@ var formatValues = function (values) {
     values.forEach(function (value, index) { formattedValues["value" + (index + 1)] = value; });
     return formattedValues;
 };
-var parseDataType = exports.parseDataType = function (type, stringify) {
-    if (stringify) {
-        switch (type) {
-            case 'varchar(max)[]':
-            case 'object':
-                return 'varchar(max)';
-            default: return type;
-        }
-    }
-    switch (type) {
-        case 'varchar(max)':
-        case 'varchar(max)[]':
-        case 'object':
-            return sql.VarChar(sql.MAX);
-        case 'nvarchar(max)': return sql.NVarChar(sql.MAX);
-        case 'varbinary(max)': return sql.VarBinary(sql.MAX);
-        case 'bit': return sql.Bit;
-        case 'int': return sql.Int;
-    }
-};
+var parseDataType = exports.parseDataType = datatypeParser.parseDataType;
 var create = exports.create = function (tableName, fields, types, values, id) {
     var createTable = formatCreateTableIfNotExists(tableName, fields, types);
     var insertValues = (id) ? formatInsertValuesIfNotDuplicate(tableName, values, id) : formatInsertValuesPrepareString(tableName, values);

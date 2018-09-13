@@ -4,11 +4,11 @@ export module Assignments {
   const schema = {
     tableName: 'assignments',
     columns: [
-      {name: 'id', dataType: 'varchar(max)', primary: true},
-      {name: 'userId', dataType: 'varchar(max)'},
-      {name: 'assetId', dataType: 'varchar(max)'},
-      {name: 'checkoutDate', dataType: 'varchar(max)'},
-      {name: 'dueDate', dataType: 'varchar(max)'}
+      {name: 'id', dataType: 'string', primary: true},
+      {name: 'userId', dataType: 'string'},
+      {name: 'assetId', dataType: 'string'},
+      {name: 'checkoutDate', dataType: 'string'},
+      {name: 'dueDate', dataType: 'string'}
     ]
   }
 

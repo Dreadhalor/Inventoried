@@ -4,8 +4,8 @@ export module Manufacturers {
   const schema = {
     tableName: 'manufacturers',
     columns: [
-      {name: 'id', dataType: 'varchar(max)', primary: true},
-      {name: 'value', dataType: 'varchar(max)'}
+      {name: 'id', dataType: 'string', primary: true},
+      {name: 'value', dataType: 'string'}
     ]
   }
 

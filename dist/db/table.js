@@ -3,11 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var rxjs_1 = require("rxjs");
 var fse = require("fs-extra");
 var Promise = require("bluebird");
+var PromisePlus = require('../utilities/bluebird-plus');
 var scriptGenerator = require('./table-helpers/table-script-generator');
+var table_processor_1 = require("./table-helpers/table-processor");
 var Table = /** @class */ (function () {
     function Table(db, schema) {
         var _this = this;
         this.columns = [];
+        this.processor = new table_processor_1.TableProcessor(this);
         this.update = new rxjs_1.Subject();
         this.templateDirectory = 'src/db/scripts/templates';
         this.templateFiles = {
@@ -49,8 +52,8 @@ var Table = /** @class */ (function () {
                 db.onConnected(function (result) { return resolve(result); });
             });
         })
-            .then(function (databaseExists) { return _this.nestedPromiseAll(scripts, function (file) { return fse.readFile(file, 'utf8'); }); })
-            .then(function (result) { return _this.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement); })
+            .then(function (databaseExists) { return PromisePlus.nestedPromiseAll(scripts, function (file) { return fse.readFile(file, 'utf8'); }); })
+            .then(function (result) { return PromisePlus.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement); })
             .catch(function (exception) { return console.log(exception); });
     }
     Object.defineProperty(Table.prototype, "templateFilesMapped", {
@@ -97,12 +100,6 @@ var Table = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Table.prototype.nestedPromiseAll = function (groups, fxn) {
-        return Promise.all(groups.map(function (group) { return Promise.all(group.map(function (single) { return fxn(single); })); }));
-    };
-    Table.prototype.sequentialPromiseAll = function (groups, fxn) {
-        return Promise.each(groups, function (group) { return Promise.all(group.map(function (single) { return fxn(single); })); });
-    };
     Table.prototype.singularizePrimaryKey = function (columns) {
         var primary = false;
         for (var i = 0; i < columns.length; i++) {
@@ -123,18 +120,6 @@ var Table = /** @class */ (function () {
     };
     Table.prototype.oneHotPrimaryKeyArray = function () {
         return this.columns.map(function (column) { return column.primary; });
-    };
-    Table.prototype.formatObject = function (obj) {
-        var _this = this;
-        var result = {};
-        this.columns.forEach(function (column) {
-            var val = obj[column.name];
-            if (_this.shouldStringify(column)) {
-                val = JSON.stringify(val);
-            }
-            result[column.name] = val;
-        });
-        return result;
     };
     Table.prototype.formatRow = function (obj) {
         var columns = this.columns.map(function (column) {
@@ -167,14 +152,14 @@ var Table = /** @class */ (function () {
             throw 'Item is null';
         var itemKeys = Object.keys(item);
         if (this.equals(itemKeys, this.fields())) {
-            var formattedItem = this.formatObject(item);
+            var formattedItem = this.processor.formatObject(item);
             var info_1 = {
                 tableName: this.tableName,
                 columns: this.formatRow(formattedItem)
             };
             return fse.readFile("src/db/scripts/generated/tables/" + this.tableName + "/save_" + this.tableName + ".sql", 'utf8')
                 .then(function (file) { return _this.db.prepareQueryAndExecute(file, info_1); })
-                .then(function (executed) { return _this.processRecordsets(executed); })
+                .then(function (executed) { return _this.processor.processRecordsets(executed); })
                 .then(function (processed) {
                 var result;
                 if (processed.length > 1)
@@ -256,19 +241,19 @@ var Table = /** @class */ (function () {
         var pk = this.primaryKey();
         pk.value = id;
         return this.db.findByColumn(this.tableName, pk)
-            .then(function (found) { return _this.processRecordsets(found)[0]; });
+            .then(function (found) { return _this.processor.processRecordsets(found)[0]; });
     };
     Table.prototype.pullAll = function () {
         var _this = this;
         return this.db.pullAll(this.tableName)
-            .then(function (pulled) { return _this.processRecordsets(pulled); });
+            .then(function (pulled) { return _this.processor.processRecordsets(pulled); });
     };
     Table.prototype.deleteById = function (id, agent) {
         var _this = this;
         var pk = this.primaryKey();
         pk.value = id;
         return this.db.deleteByColumn(this.tableName, pk)
-            .then(function (deleted) { return _this.processRecordsets(deleted); })
+            .then(function (deleted) { return _this.processor.processRecordsets(deleted); })
             .then(function (processed) {
             var array = [];
             array.push(processed[0]);
@@ -288,7 +273,7 @@ var Table = /** @class */ (function () {
         var pk = this.primaryKey();
         pk.value = id;
         return this.db.deleteByColumn(this.tableName, pk)
-            .then(function (deleted) { return _this.processRecordsets(deleted); })
+            .then(function (deleted) { return _this.processor.processRecordsets(deleted); })
             .then(function (processed) {
             var result = {
                 operation: 'delete',
@@ -363,35 +348,6 @@ var Table = /** @class */ (function () {
         }
         else
             throw 'No items to modify.';
-    };
-    Table.prototype.processRecordsets = function (result) {
-        if (result &&
-            result.recordset &&
-            result.recordset.length > 0)
-            return this.parseObjects(result.recordset);
-        return [];
-    };
-    Table.prototype.shouldStringify = function (column) {
-        return column.dataType.includes('[]') || column.dataType == 'object';
-    };
-    Table.prototype.parseObjects = function (objs) {
-        var _this = this;
-        var result = [];
-        objs.forEach(function (obj) {
-            var parsedObj = {};
-            var keys = Object.keys(obj);
-            keys.forEach(function (key) {
-                var found = _this.columns.find(function (match) { return match.name == key; });
-                if (found) {
-                    if (_this.shouldStringify(found))
-                        parsedObj[key] = JSON.parse(obj[key]);
-                    else
-                        parsedObj[key] = obj[key];
-                }
-            });
-            result.push(parsedObj);
-        });
-        return result;
     };
     Table.deepCopy = function (obj) {
         var copy;

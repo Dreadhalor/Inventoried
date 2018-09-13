@@ -6,8 +6,8 @@ var Users;
     var schema = {
         tableName: 'users',
         columns: [
-            { name: 'id', dataType: 'varchar(max)', primary: true },
-            { name: 'assignmentIds', dataType: 'varchar(max)[]' }
+            { name: 'id', dataType: 'string', primary: true },
+            { name: 'assignmentIds', dataType: 'string[]' }
         ]
     };
     module.exports = dbClient.Table(schema);

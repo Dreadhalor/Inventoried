@@ -1,5 +1,5 @@
 var serverConfig = require('./server-config');
-var guidParser = require('./guid-parse');
+var guidParser = require('./utilities/guid-parse');
 module.exports = {
     activedirectory2: {
         url: 'ldap://la-archdiocese.org',

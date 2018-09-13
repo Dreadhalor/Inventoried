@@ -1,5 +1,5 @@
 const serverConfig = require('./server-config');
-const guidParser = require('./guid-parse');
+const guidParser = require('./utilities/guid-parse');
 
 module.exports = {
   activedirectory2: {
