@@ -1,4 +1,6 @@
 export module TableScriptGenerator {
+  const fse = require('fs-extra');
+  const replace = require('replace-in-file');
 
   const templateStrings = {
     databaseName: /<database_name>/g,
@@ -14,10 +16,35 @@ export module TableScriptGenerator {
   exports.generateScripts = (data) => {
     let templateValues = generateTemplateValues(data);
     let destDirectory = `${data.tablesDirectory}/${data.tableName}`;
+    let templateFiles = Object.values<string>(data.templateFiles);
+    let destPaths = templateFiles.map(template => {
+      let trimIndex = template.lastIndexOf('.template');
+      let trimmed = template.substring(0,trimIndex);
+      return `${destDirectory}/${trimmed}_${data.tableName}.sql`;
+    })
+    let substitutionOptions = {
+      files: destPaths,
+      from: Object.values(templateStrings),
+      to:Object.values(templateValues)
+    };
 
-    //construct table
-    //construct trigger
-    //create save query
+    return fse.ensureDir(destDirectory)
+      .then(() => fse.emptyDir(destDirectory))
+      .then(emptied => {
+        let copyPromises = templateFiles.map((template, index) =>
+          fse.copy(
+            `${data.templateDirectory}/${template}`,
+            destPaths[index]
+          ))
+        return Promise.all(copyPromises)
+      })
+      .then(copied => replace(substitutionOptions))
+      .then(replaced => {
+        let keys = Object.keys(data.templateFiles);
+        let result: any = {};
+        for (let i = 0; i < keys.length; i++) result[keys[i]] = replaced[i];
+        return result;
+      });
   }
 
   const generateTemplateValues = (data) => {

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const uuid = require("uuid/v4");
-class Assignment {
-    constructor(iassignment) {
+var uuid = require("uuid/v4");
+var Assignment = /** @class */ (function () {
+    function Assignment(iassignment) {
         this.id = uuid();
         if (iassignment.id)
             this.id = iassignment.id;
@@ -11,7 +11,7 @@ class Assignment {
         this.checkoutDate = iassignment.checkoutDate;
         this.dueDate = iassignment.dueDate;
     }
-    static sqlFieldsWithItem(item) {
+    Assignment.sqlFieldsWithItem = function (item) {
         return {
             tableName: 'assignment',
             columns: [
@@ -23,7 +23,8 @@ class Assignment {
             ],
             item: item
         };
-    }
-}
+    };
+    return Assignment;
+}());
 exports.Assignment = Assignment;
 //# sourceMappingURL=assignment.js.map

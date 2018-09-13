@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class Durable {
-    static sample() {
-        let sample = {
+var Durable = /** @class */ (function () {
+    function Durable() {
+    }
+    Durable.sample = function () {
+        var sample = {
             id: '',
             serialNumber: '',
             categoryId: '',
@@ -13,15 +15,16 @@ class Durable {
             active: true
         };
         return sample;
-    }
-    static sqlFieldsWithValues(durable) {
+    };
+    Durable.sqlFieldsWithValues = function (durable) {
         return {
             tableName: 'durables',
             fields: ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'],
             types: ['varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'varchar(max)', 'bit'],
             durable: durable
         };
-    }
-}
+    };
+    return Durable;
+}());
 exports.Durable = Durable;
 //# sourceMappingURL=durable.js.map

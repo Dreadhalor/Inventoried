@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var Tags;
 (function (Tags) {
-    const dbClient = require('../../db/db-client');
-    const schema = {
+    var dbClient = require('../../db/db-client');
+    var schema = {
         tableName: 'tags',
         columns: [
             { name: 'id', dataType: 'varchar(max)', primary: true },

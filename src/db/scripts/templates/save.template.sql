@@ -5,15 +5,15 @@ USE [<database_name>]
 
 UPDATE [<table_name>]
 SET
-  <args>
-WHERE [<primary>] = @<primary>;
+  <table_set_fields>
+WHERE [<primary_key>] = @<primary_key>;
 
 IF @@ROWCOUNT=0
 BEGIN
   INSERT INTO [<table_name>] (
-    <fields>
+    <table_insert_fields>
   )
   VALUES (
-    <values>
+    <table_insert_values>
   )
 END

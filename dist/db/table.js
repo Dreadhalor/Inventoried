@@ -1,59 +1,111 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const rxjs_1 = require("rxjs");
-const fse = require("fs-extra");
-const replace = require("replace-in-file");
-const scriptGenerator = require('./table-helpers/table-script-generator');
-class Table {
-    constructor(db, schema) {
+var rxjs_1 = require("rxjs");
+var fse = require("fs-extra");
+var Promise = require("bluebird");
+var scriptGenerator = require('./table-helpers/table-script-generator');
+var Table = /** @class */ (function () {
+    function Table(db, schema) {
+        var _this = this;
         this.columns = [];
         this.update = new rxjs_1.Subject();
-        this.srcPaths = {
-            createTable: 'src/db/scripts/templates/create_table.template.sql',
-            createUpdateTrigger: 'src/db/scripts/templates/update_trigger.template.sql',
-            saveQuery: 'src/db/scripts/templates/save.template.sql'
+        this.templateDirectory = 'src/db/scripts/templates';
+        this.templateFiles = {
+            createTable: {
+                file: 'create_table.template.sql',
+                runOrder: 0
+            },
+            createUpdateTrigger: {
+                file: 'update_trigger.template.sql',
+                runOrder: 1
+            },
+            createSaveQuery: {
+                file: 'save.template.sql',
+                runOrder: -1
+            }
         };
         this.db = db;
         this.tableName = schema.tableName;
-        schema.columns.forEach(column => {
-            this.columns.push({
+        schema.columns.forEach(function (column) {
+            _this.columns.push({
                 name: column.name,
                 dataType: column.dataType,
                 primary: !!column.primary
             });
         });
         this.columns = this.singularizePrimaryKey(this.columns);
+        var scripts;
         scriptGenerator.generateScripts({
             database: db,
             tableName: this.tableName,
             columns: this.columns,
             templateDirectory: 'src/db/scripts/templates',
-            templateFiles: {
-                createTable: 'create_table.template.sql',
-                createUpdateTrigger: 'update_trigger.template.sql',
-                saveQuery: 'save.template.sql'
-            },
+            templateFiles: this.templateFilesMapped,
             tablesDirectory: 'src/db/scripts/generated/tables',
-        });
-        db.onConnected(() => this.constructTable());
+        })
+            .then(function (scriptFiles) {
+            scripts = _this.templateFilesInRunOrder.map(function (group) { return group.map(function (name) { return scriptFiles[name]; }); });
+            return new Promise(function (resolve) {
+                db.onConnected(function (result) { return resolve(result); });
+            });
+        })
+            .then(function (databaseExists) { return _this.nestedPromiseAll(scripts, fse.readFile); })
+            .then(function (result) { return _this.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement); })
+            .catch(function (exception) { return console.log(exception); });
     }
-    get destDirs() {
-        return {
-            createTable: `src/db/scripts/generated/tables/${this.tableName}`,
-            createUpdateTrigger: `src/db/scripts/generated/tables/${this.tableName}`,
-            saveQuery: `src/db/scripts/generated/tables/${this.tableName}`
-        };
-    }
-    get destFiles() {
-        return {
-            createTable: `create_table_${this.tableName}.sql`,
-            createUpdateTrigger: `update_trigger_${this.tableName}.sql`,
-            saveQuery: `save_${this.tableName}.sql`
-        };
-    }
-    singularizePrimaryKey(columns) {
-        let primary = false;
-        for (let i = 0; i < columns.length; i++) {
+    Object.defineProperty(Table.prototype, "templateFilesMapped", {
+        get: function () {
+            var _this = this;
+            var result = {};
+            var keys = Object.keys(this.templateFiles);
+            keys.forEach(function (key) { return result[key] = _this.templateFiles[key].file; });
+            return result;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Table.prototype, "templateFilesInRunOrder", {
+        get: function () {
+            var queue = [];
+            var files = Object.entries(this.templateFiles);
+            files = files.map(function (file) {
+                return {
+                    name: file[0],
+                    runOrder: file[1].runOrder
+                };
+            });
+            files.sort(function (a, b) { return a.runOrder - b.runOrder; });
+            files = files.filter(function (a) { return a.runOrder >= 0; });
+            while (files.length > 0) {
+                var group = [], indexes = [], turn = files[0].runOrder;
+                for (var i = 0; i < files.length; i++)
+                    if (files[i].runOrder == turn)
+                        indexes.push(i);
+                for (var i = indexes.length - 1; i >= 0; i--)
+                    group = group.concat(files.splice(i, 1).map(function (file) { return file.name; }));
+                queue.push(group);
+            }
+            return queue;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Table.prototype, "destDirectory", {
+        get: function () {
+            return "src/db/scripts/generated/tables/" + this.tableName;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Table.prototype.nestedPromiseAll = function (groups, fxn) {
+        return Promise.all(groups.map(function (group) { return Promise.all(group.map(function (single) { return fxn(single, 'utf8'); })); }));
+    };
+    Table.prototype.sequentialPromiseAll = function (groups, fxn) {
+        return Promise.each(groups, function (group) { return Promise.all(group.map(function (single) { return fxn(single); })); });
+    };
+    Table.prototype.singularizePrimaryKey = function (columns) {
+        var primary = false;
+        for (var i = 0; i < columns.length; i++) {
             if (columns[i].primary) {
                 if (primary)
                     columns[i].primary = false;
@@ -61,68 +113,70 @@ class Table {
             }
         }
         return columns;
-    }
-    primaryKey() {
-        let pk = this.columns.find(match => match.primary);
+    };
+    Table.prototype.primaryKey = function () {
+        var pk = this.columns.find(function (match) { return match.primary; });
         return pk;
-    }
-    fields() {
-        return this.columns.map(column => column.name);
-    }
-    oneHotPrimaryKeyArray() {
-        return this.columns.map(column => column.primary);
-    }
-    formatObject(obj) {
-        let result = {};
-        this.columns.forEach(column => {
-            let val = obj[column.name];
-            if (this.shouldStringify(column)) {
+    };
+    Table.prototype.fields = function () {
+        return this.columns.map(function (column) { return column.name; });
+    };
+    Table.prototype.oneHotPrimaryKeyArray = function () {
+        return this.columns.map(function (column) { return column.primary; });
+    };
+    Table.prototype.formatObject = function (obj) {
+        var _this = this;
+        var result = {};
+        this.columns.forEach(function (column) {
+            var val = obj[column.name];
+            if (_this.shouldStringify(column)) {
                 val = JSON.stringify(val);
             }
             result[column.name] = val;
         });
         return result;
-    }
-    formatRow(obj) {
-        let columns = this.columns.map(column => {
+    };
+    Table.prototype.formatRow = function (obj) {
+        var columns = this.columns.map(function (column) {
             //DEEP COPYING NECESSARY FOR CLOSELY-SPACED EDITS
             column = Table.deepCopy(column);
             column.value = obj[column.name];
             return column;
         });
         return columns;
-    }
-    tableInfo() {
+    };
+    Table.prototype.tableInfo = function () {
         return {
             tableName: this.tableName,
-            columns: this.columns.map(column => Table.deepCopy(column))
+            columns: this.columns.map(function (column) { return Table.deepCopy(column); })
         };
-    }
-    equals(array1, array2) {
-        let a1 = array1.length, a2 = array2.length;
+    };
+    Table.prototype.equals = function (array1, array2) {
+        var a1 = array1.length, a2 = array2.length;
         if (a1 != a2)
             return false;
-        for (let i = 0; i < a1; i++) {
+        for (var i = 0; i < a1; i++) {
             if (array1[i] != array2[i])
                 return false;
         }
         return true;
-    }
-    saveSingular(item) {
+    };
+    Table.prototype.saveSingular = function (item) {
+        var _this = this;
         if (!item)
             throw 'Item is null';
-        let itemKeys = Object.keys(item);
+        var itemKeys = Object.keys(item);
         if (this.equals(itemKeys, this.fields())) {
-            let formattedItem = this.formatObject(item);
-            let info = {
+            var formattedItem = this.formatObject(item);
+            var info_1 = {
                 tableName: this.tableName,
                 columns: this.formatRow(formattedItem)
             };
-            return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/save_${this.tableName}.sql`, 'utf8')
-                .then(file => this.db.prepareQueryAndExecute(file, info))
-                .then(executed => this.processRecordsets(executed))
-                .then(processed => {
-                let result;
+            return fse.readFile("src/db/scripts/generated/tables/" + this.tableName + "/save_" + this.tableName + ".sql", 'utf8')
+                .then(function (file) { return _this.db.prepareQueryAndExecute(file, info_1); })
+                .then(function (executed) { return _this.processRecordsets(executed); })
+                .then(function (processed) {
+                var result;
                 if (processed.length > 1)
                     result = {
                         operation: 'update',
@@ -138,29 +192,30 @@ class Table {
             });
         }
         throw 'Item properties are incorrect.';
-    }
-    saveMultiple(items) {
+    };
+    Table.prototype.saveMultiple = function (items) {
+        var _this = this;
         if (!items)
             throw 'Item is null';
         if (!Array.isArray(items)) {
-            let array = [];
+            var array = [];
             array.push(items);
             items = array;
         }
-        let promises = items.map(item => this.saveSingular(item));
+        var promises = items.map(function (item) { return _this.saveSingular(item); });
         return Promise.all(promises)
-            .then((success) => {
+            .then(function (success) {
             //success = array of ops
-            let created = success.filter(match => match.operation == 'create')
-                .map(op => op.created);
-            let updated = success.filter(match => match.operation == 'update')
-                .map(op => {
+            var created = success.filter(function (match) { return match.operation == 'create'; })
+                .map(function (op) { return op.created; });
+            var updated = success.filter(function (match) { return match.operation == 'update'; })
+                .map(function (op) {
                 return {
                     created: op.created,
                     deleted: op.deleted
                 };
             });
-            let result;
+            var result;
             if (created.length > 0 && updated.length > 0) {
                 result = {
                     operation: 'create update',
@@ -182,75 +237,81 @@ class Table {
             }
             return result;
         });
-    }
-    save(items, agent) {
+    };
+    Table.prototype.save = function (items, agent) {
+        var _this = this;
         return this.saveMultiple(items)
-            .then(result => {
+            .then(function (result) {
             if (result) {
-                result.table = this.tableName;
+                result.table = _this.tableName;
                 if (agent)
                     result.agent = agent;
-                this.update.next(result);
+                _this.update.next(result);
             }
             return result;
         });
-    }
-    findById(id) {
-        let pk = this.primaryKey();
+    };
+    Table.prototype.findById = function (id) {
+        var _this = this;
+        var pk = this.primaryKey();
         pk.value = id;
         return this.db.findByColumn(this.tableName, pk)
-            .then(found => this.processRecordsets(found)[0]);
-    }
-    pullAll() {
+            .then(function (found) { return _this.processRecordsets(found)[0]; });
+    };
+    Table.prototype.pullAll = function () {
+        var _this = this;
         return this.db.pullAll(this.tableName)
-            .then(pulled => this.processRecordsets(pulled));
-    }
-    deleteById(id, agent) {
-        let pk = this.primaryKey();
+            .then(function (pulled) { return _this.processRecordsets(pulled); });
+    };
+    Table.prototype.deleteById = function (id, agent) {
+        var _this = this;
+        var pk = this.primaryKey();
         pk.value = id;
         return this.db.deleteByColumn(this.tableName, pk)
-            .then(deleted => this.processRecordsets(deleted))
-            .then(processed => {
-            let array = [];
+            .then(function (deleted) { return _this.processRecordsets(deleted); })
+            .then(function (processed) {
+            var array = [];
             array.push(processed[0]);
-            let result = {
-                table: this.tableName,
+            var result = {
+                table: _this.tableName,
                 operation: 'delete',
                 deleted: array
             };
             if (agent)
                 result.agent = agent;
-            this.update.next(result);
+            _this.update.next(result);
             return result;
         });
-    }
-    deleteSingularById(id, agent) {
-        let pk = this.primaryKey();
+    };
+    Table.prototype.deleteSingularById = function (id, agent) {
+        var _this = this;
+        var pk = this.primaryKey();
         pk.value = id;
         return this.db.deleteByColumn(this.tableName, pk)
-            .then(deleted => this.processRecordsets(deleted))
-            .then(processed => {
-            let result = {
+            .then(function (deleted) { return _this.processRecordsets(deleted); })
+            .then(function (processed) {
+            var result = {
                 operation: 'delete',
                 deleted: processed[0]
             };
             return result;
         });
-    }
-    deleteMultipleByIds(ids) {
+    };
+    Table.prototype.deleteMultipleByIds = function (ids) {
+        var _this = this;
         if (ids) {
             if (!Array.isArray(ids)) {
-                let array = [];
+                var array = [];
                 array.push(ids);
                 ids = array;
             }
-            let promises = ids.map(id => this.deleteSingularById(id));
+            var promises = ids.map(function (id) { return _this.deleteSingularById(id); });
             return Promise.all(promises)
-                .then((success) => {
+                .then(function (success) {
                 //success = array of delete ops
-                let deleted = success.filter(match => match.operation == 'delete')
-                    .map(op => op.deleted);
-                let result;
+                var deleted = success.filter(function (match) { return match.operation == 'delete'; })
+                    .map(function (op) { return op.deleted; });
+                var result;
                 if (deleted.length > 0) {
                     result = {
                         operation: 'delete',
@@ -262,38 +323,39 @@ class Table {
         }
         else
             throw 'No items specified to delete.';
-    }
-    merge(items, agent) {
+    };
+    Table.prototype.merge = function (items, agent) {
+        var _this = this;
         if (items) {
-            let toSave = items.toSave;
-            let toDelete = items.toDelete;
+            var toSave = items.toSave;
+            var toDelete = items.toDelete;
             if ((toSave && Array.isArray(toSave)) || (toDelete && Array.isArray(toDelete))) {
-                let saved, deleted, result;
-                saved = this.saveMultiple(toSave);
-                deleted = this.deleteMultipleByIds(toDelete);
-                return Promise.all([saved, deleted])
-                    .then(success => {
-                    saved = success[0];
-                    deleted = success[1];
-                    if (saved && deleted) {
-                        result = {
-                            operation: (`${saved.operation} ${deleted.operation}`).trim(),
-                            created: saved.created,
-                            updated: saved.updated,
-                            deleted: deleted.deleted
+                var saved_1, deleted_1, result_1;
+                saved_1 = this.saveMultiple(toSave);
+                deleted_1 = this.deleteMultipleByIds(toDelete);
+                return Promise.all([saved_1, deleted_1])
+                    .then(function (success) {
+                    saved_1 = success[0];
+                    deleted_1 = success[1];
+                    if (saved_1 && deleted_1) {
+                        result_1 = {
+                            operation: (saved_1.operation + " " + deleted_1.operation).trim(),
+                            created: saved_1.created,
+                            updated: saved_1.updated,
+                            deleted: deleted_1.deleted
                         };
                     }
-                    else if (saved)
-                        result = saved;
-                    else if (deleted)
-                        result = deleted;
-                    if (result) {
-                        result.table = this.tableName;
+                    else if (saved_1)
+                        result_1 = saved_1;
+                    else if (deleted_1)
+                        result_1 = deleted_1;
+                    if (result_1) {
+                        result_1.table = _this.tableName;
                         if (agent)
-                            result.agent = agent;
-                        this.update.next(result);
+                            result_1.agent = agent;
+                        _this.update.next(result_1);
                     }
-                    return result;
+                    return result_1;
                 });
             }
             else
@@ -301,26 +363,27 @@ class Table {
         }
         else
             throw 'No items to modify.';
-    }
-    processRecordsets(result) {
+    };
+    Table.prototype.processRecordsets = function (result) {
         if (result &&
             result.recordset &&
             result.recordset.length > 0)
             return this.parseObjects(result.recordset);
         return [];
-    }
-    shouldStringify(column) {
+    };
+    Table.prototype.shouldStringify = function (column) {
         return column.dataType.includes('[]') || column.dataType == 'object';
-    }
-    parseObjects(objs) {
-        let result = [];
-        objs.forEach(obj => {
-            let parsedObj = {};
-            let keys = Object.keys(obj);
-            keys.forEach(key => {
-                let found = this.columns.find(match => match.name == key);
+    };
+    Table.prototype.parseObjects = function (objs) {
+        var _this = this;
+        var result = [];
+        objs.forEach(function (obj) {
+            var parsedObj = {};
+            var keys = Object.keys(obj);
+            keys.forEach(function (key) {
+                var found = _this.columns.find(function (match) { return match.name == key; });
                 if (found) {
-                    if (this.shouldStringify(found))
+                    if (_this.shouldStringify(found))
                         parsedObj[key] = JSON.parse(obj[key]);
                     else
                         parsedObj[key] = obj[key];
@@ -329,109 +392,8 @@ class Table {
             result.push(parsedObj);
         });
         return result;
-    }
-    constructTable() {
-        let srcPath = this.srcPaths.createTable;
-        let destDirectory = this.destDirs.createTable;
-        let destFile = this.destFiles.createTable;
-        let destPath = `${destDirectory}/${destFile}`;
-        let args = '';
-        this.columns.forEach((column, index) => {
-            args += `[${column.name}] ${this.db.parseDataType(column.dataType, true)}`;
-            if (index < this.columns.length - 1)
-                args += `,\n\t\t`;
-        });
-        let substitutionOptions = {
-            files: destPath,
-            from: [
-                /<database_name>/g,
-                /<table_name>/g,
-                /<args>/g
-            ],
-            to: [
-                this.db.databaseName,
-                this.tableName,
-                args
-            ]
-        };
-        fse.ensureDir(destDirectory)
-            .then(directory => fse.emptyDir(destDirectory))
-            .then(emptied => fse.copy(srcPath, destPath))
-            .then(success => replace(substitutionOptions))
-            .then(replaced => fse.readFile(destPath, 'utf8'))
-            .then(query => this.db.executeQueryAsPreparedStatement(query))
-            .then(tableCreated => Promise.all([
-            this.createUpdateTrigger(),
-            this.createSaveQuery()
-        ]))
-            .catch(exception => console.log(exception));
-    }
-    createUpdateTrigger() {
-        let triggerName = `update_trigger_${this.tableName}`;
-        let srcPath = this.srcPaths.createUpdateTrigger;
-        let destDirectory = this.destDirs.createUpdateTrigger;
-        let destFile = this.destFiles.createUpdateTrigger;
-        let destPath = `${destDirectory}/${destFile}`;
-        let substitutionOptions = {
-            files: destPath,
-            from: [
-                /<database_name>/g,
-                /<table_name>/g,
-                /<trigger_name>/g
-            ],
-            to: [
-                this.db.databaseName,
-                this.tableName,
-                triggerName
-            ]
-        };
-        return fse.copy(srcPath, destPath)
-            .then(success => replace(substitutionOptions))
-            .then(replaced => fse.readFile(destPath, 'utf8'))
-            .then(query => this.db.executeQueryAsPreparedStatement(query));
-    }
-    createSaveQuery() {
-        let srcPath = this.srcPaths.saveQuery;
-        let destDirectory = this.destDirs.saveQuery;
-        let destFile = this.destFiles.saveQuery;
-        let destPath = `${destDirectory}/${destFile}`;
-        let args = '', fields = '', values = '';
-        this.columns.forEach((column, index) => {
-            let primary = this.columns[index].primary;
-            if (!primary)
-                args += `[${column.name}] = @${column.name}`;
-            fields += `[${column.name}]`;
-            values += `@${column.name}`;
-            if (index < this.columns.length - 1) {
-                if (!primary)
-                    args += `,\n\t`;
-                fields += `,\n\t\t`;
-                values += `,\n\t\t`;
-            }
-        });
-        let substitutionOptions = {
-            files: destPath,
-            from: [
-                /<database_name>/g,
-                /<table_name>/g,
-                /<args>/g,
-                /<fields>/g,
-                /<values>/g,
-                /<primary>/g
-            ],
-            to: [
-                this.db.databaseName,
-                this.tableName,
-                args,
-                fields,
-                values,
-                this.primaryKey().name
-            ]
-        };
-        return fse.copy(srcPath, destPath)
-            .then(success => replace(substitutionOptions));
-    }
-    static deepCopy(obj) {
+    };
+    Table.deepCopy = function (obj) {
         var copy;
         // Handle the 3 simple types, and null or undefined
         if (null == obj || "object" != typeof obj)
@@ -460,7 +422,8 @@ class Table {
             return copy;
         }
         throw new Error("Unable to copy obj! Its type isn't supported.");
-    }
-}
+    };
+    return Table;
+}());
 exports.Table = Table;
 //# sourceMappingURL=table.js.map

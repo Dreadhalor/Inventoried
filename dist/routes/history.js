@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const moment = require("moment");
-const uuid = require("uuid/v4");
-const express = require("express");
-const router = express.Router();
-const config = require('../config');
-const History = require('../models/tables/History');
-const dbClient = require('../db/db-client');
-let subscription = dbClient.history.subscribe(next => {
+var moment = require("moment");
+var uuid = require("uuid/v4");
+var express = require("express");
+var router = express.Router();
+var config = require('../config');
+var History = require('../models/tables/History');
+var dbClient = require('../db/db-client');
+var subscription = dbClient.history.subscribe(function (next) {
     if (next.table != 'history')
         record(next);
 });
-const record = exports.record = (edit) => {
-    let entry = {
+var record = exports.record = function (edit) {
+    var entry = {
         id: uuid(),
         timestamp: moment().format(config.historyFormat),
         agent: edit.agent,
@@ -26,10 +26,10 @@ const record = exports.record = (edit) => {
     };
     History.save(entry);
 };
-router.get('/pull_all', (req, res) => {
+router.get('/pull_all', function (req, res) {
     History.pullAll()
-        .then(history => res.json(history))
-        .catch(exception => res.json([]));
+        .then(function (history) { return res.json(history); })
+        .catch(function (exception) { return res.json([]); });
 });
 module.exports.router = router;
 //# sourceMappingURL=history.js.map

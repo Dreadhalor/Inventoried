@@ -1,5 +1,5 @@
-let guidParser = require('./guid-parse');
-let info = {
+var guidParser = require('./guid-parse');
+var info = {
     user: 'scott.hetrick@la-archdiocese.org',
     password: 'abc#123',
     serverHost: 'localhost',

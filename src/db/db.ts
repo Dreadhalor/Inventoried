@@ -46,19 +46,15 @@ const setDatabaseName = (name) => {
 }
 const onConnected = exports.onConnected = (fxn) => {
   if (fxn){
-    if (connected){
-      fxn();
-    }
-    else {
-      callbacks.unshift(fxn);
-    }
+    if (connected) fxn(connected);
+    else callbacks.unshift(fxn);
   }
 }
 const hasConnected = () => {
   connected = true;
   let len = callbacks.length - 1;
   for (let i = len; i >= 0; i--){
-    callbacks[i]();
+    callbacks[i](connected);
     callbacks.splice(i,1);
   }
 }

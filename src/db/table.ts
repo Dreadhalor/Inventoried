@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 import * as fse from 'fs-extra';
-import * as replace from 'replace-in-file';
+import * as Promise from 'bluebird';
 const scriptGenerator = require('./table-helpers/table-script-generator');
 
 export class Table {
@@ -10,24 +10,50 @@ export class Table {
   db: any;
   public update = new Subject<any>();
 
-  srcPaths = {
-    createTable: 'src/db/scripts/templates/create_table.template.sql',
-    createUpdateTrigger: 'src/db/scripts/templates/update_trigger.template.sql',
-    saveQuery: 'src/db/scripts/templates/save.template.sql'
-  }
-  get destDirs(){
-    return {
-      createTable: `src/db/scripts/generated/tables/${this.tableName}`,
-      createUpdateTrigger: `src/db/scripts/generated/tables/${this.tableName}`,
-      saveQuery: `src/db/scripts/generated/tables/${this.tableName}`
+  templateDirectory = 'src/db/scripts/templates';
+  templateFiles = {
+    createTable: {
+      file: 'create_table.template.sql',
+      runOrder: 0
+    },
+    createUpdateTrigger: {
+      file: 'update_trigger.template.sql',
+      runOrder: 1
+    },
+    createSaveQuery: {
+      file: 'save.template.sql',
+      runOrder: -1
     }
   }
-  get destFiles(){
-    return {
-      createTable: `create_table_${this.tableName}.sql`,
-      createUpdateTrigger: `update_trigger_${this.tableName}.sql`,
-      saveQuery: `save_${this.tableName}.sql`
+  get templateFilesMapped(){
+    let result: any = {};
+    let keys = Object.keys(this.templateFiles);
+    keys.forEach(key => result[key] = this.templateFiles[key].file);
+    return result;
+  }
+  get templateFilesInRunOrder(){
+    let queue = [];
+    let files: any = Object.entries(this.templateFiles);
+    files = files.map(file => {
+      return {
+        name: file[0],
+        runOrder: file[1].runOrder
+      };
+    })
+    files.sort((a, b) => a.runOrder - b.runOrder);
+    files = files.filter(a => a.runOrder >= 0);
+    while (files.length > 0){
+      let group = [], indexes = [], turn = files[0].runOrder;
+      for (let i = 0; i < files.length; i++)
+        if (files[i].runOrder == turn) indexes.push(i);
+      for (let i = indexes.length - 1; i >= 0; i--)
+        group = group.concat(files.splice(i,1).map(file => file.name));
+      queue.push(group);
     }
+    return queue;
+  }
+  get destDirectory(){
+    return `src/db/scripts/generated/tables/${this.tableName}`;
   }
 
   constructor(db: any, schema: any){
@@ -41,19 +67,43 @@ export class Table {
       });
     });
     this.columns = this.singularizePrimaryKey(this.columns);
+
+    let scripts;
     scriptGenerator.generateScripts({
       database: db,
       tableName: this.tableName,
       columns: this.columns,
       templateDirectory: 'src/db/scripts/templates',
-      templateFiles: {
-        createTable: 'create_table.template.sql',
-        createUpdateTrigger: 'update_trigger.template.sql',
-        saveQuery: 'save.template.sql'
-      },
+      templateFiles: this.templateFilesMapped,
       tablesDirectory: 'src/db/scripts/generated/tables',
     })
-    db.onConnected(() => this.constructTable());
+    .then(scriptFiles => {
+      scripts = this.templateFilesInRunOrder.map(
+        group => group.map(name => scriptFiles[name])
+      );
+      return new Promise((resolve) => {
+        db.onConnected((result) => resolve(result))
+      })
+    })
+    .then(databaseExists => this.nestedPromiseAll(scripts, fse.readFile))
+    .then(result => this.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement))
+    .catch(exception => console.log(exception));
+  }
+
+  nestedPromiseAll(groups, fxn){
+    return Promise.all(groups.map(
+      group => Promise.all(group.map(
+        single => fxn(single,'utf8')
+      ))
+    ));
+  }
+  sequentialPromiseAll(groups, fxn){
+    return Promise.each(
+      groups,
+      (group: any[]) => Promise.all(group.map(
+        single => fxn(single)
+      ))
+    )
   }
 
   singularizePrimaryKey(columns: any[]){
@@ -315,109 +365,6 @@ export class Table {
       result.push(parsedObj);
     })
     return result; 
-  }
-
-  constructTable(){
-    let srcPath = this.srcPaths.createTable;
-    let destDirectory = this.destDirs.createTable;
-    let destFile = this.destFiles.createTable;
-    let destPath = `${destDirectory}/${destFile}`
-    let args = '';
-    this.columns.forEach((column, index) => {
-      args += `[${column.name}] ${this.db.parseDataType(column.dataType, true)}`
-      if (index < this.columns.length - 1) args += `,\n\t\t`;
-    })
-    let substitutionOptions = {
-      files: destPath,
-      from: [
-        /<database_name>/g,
-        /<table_name>/g,
-        /<args>/g
-      ],
-      to: [
-        this.db.databaseName,
-        this.tableName,
-        args
-      ]
-    };
-    
-    fse.ensureDir(destDirectory)
-      .then(directory => fse.emptyDir(destDirectory))
-      .then(emptied => fse.copy(srcPath, destPath))
-      .then(success => replace(substitutionOptions))
-      .then(replaced => fse.readFile(destPath,'utf8'))
-      .then(query => this.db.executeQueryAsPreparedStatement(query))
-      .then(tableCreated => Promise.all([
-          this.createUpdateTrigger(),
-          this.createSaveQuery()
-        ])
-      )
-      .catch(exception => console.log(exception));
-  }
-  createUpdateTrigger(){
-    let triggerName = `update_trigger_${this.tableName}`;
-    let srcPath = this.srcPaths.createUpdateTrigger;
-    let destDirectory = this.destDirs.createUpdateTrigger;
-    let destFile = this.destFiles.createUpdateTrigger;
-    let destPath = `${destDirectory}/${destFile}`;
-    let substitutionOptions = {
-      files: destPath,
-      from: [
-        /<database_name>/g,
-        /<table_name>/g,
-        /<trigger_name>/g
-      ],
-      to: [
-        this.db.databaseName,
-        this.tableName,
-        triggerName
-      ]
-    };
-
-    return fse.copy(srcPath, destPath)
-      .then(success => replace(substitutionOptions))
-      .then(replaced => fse.readFile(destPath,'utf8'))
-      .then(query => this.db.executeQueryAsPreparedStatement(query))
-  }
-  createSaveQuery(){
-    let srcPath = this.srcPaths.saveQuery;
-    let destDirectory = this.destDirs.saveQuery;
-    let destFile = this.destFiles.saveQuery;
-    let destPath = `${destDirectory}/${destFile}`;
-    let args = '', fields = '', values = '';
-    this.columns.forEach((column, index) => {
-      let primary = this.columns[index].primary;
-      if (!primary) args += `[${column.name}] = @${column.name}`;
-      fields += `[${column.name}]`;
-      values += `@${column.name}`;
-      if (index < this.columns.length - 1){
-        if (!primary) args += `,\n\t`;
-        fields += `,\n\t\t`;
-        values += `,\n\t\t`;
-      }
-    })
-    let substitutionOptions = {
-      files: destPath,
-      from: [
-        /<database_name>/g,
-        /<table_name>/g,
-        /<args>/g,
-        /<fields>/g,
-        /<values>/g,
-        /<primary>/g
-      ],
-      to: [
-        this.db.databaseName,
-        this.tableName,
-        args,
-        fields,
-        values,
-        this.primaryKey().name
-      ]
-    };
-
-    return fse.copy(srcPath, destPath)
-      .then(success => replace(substitutionOptions));
   }
 
   public static deepCopy(obj) {

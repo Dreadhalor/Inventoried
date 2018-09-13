@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var DurablesCategories;
 (function (DurablesCategories) {
-    const dbClient = require('../../db/db-client');
-    const schema = {
+    var dbClient = require('../../db/db-client');
+    var schema = {
         tableName: 'durablesCategories',
         columns: [
             { name: 'id', dataType: 'varchar(max)', primary: true },

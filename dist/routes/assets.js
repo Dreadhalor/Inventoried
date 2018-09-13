@@ -1,43 +1,43 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const consumable_1 = require("../models/classes/consumable");
-const durable_1 = require("../models/classes/durable");
-const express = require('express');
-const router = express.Router();
-const Durables = require('../models/tables/Durables');
-const Consumables = require('../models/tables/Consumables');
-const users = require('./users');
-router.post('/save_asset', (req, res) => {
-    let authorization = req.headers.authorization;
-    let asset = req.body.asset;
+var consumable_1 = require("../models/classes/consumable");
+var durable_1 = require("../models/classes/durable");
+var express = require('express');
+var router = express.Router();
+var Durables = require('../models/tables/Durables');
+var Consumables = require('../models/tables/Consumables');
+var users = require('./users');
+router.post('/save_asset', function (req, res) {
+    var authorization = req.headers.authorization;
+    var asset = req.body.asset;
     saveAssets(asset, authorization)
-        .then(saved => res.json(saved))
-        .catch(exception => res.json(exception));
+        .then(function (saved) { return res.json(saved); })
+        .catch(function (exception) { return res.json(exception); });
 });
-router.post('/save_assets', (req, res) => {
-    let authorization = req.headers.authorization;
-    let assets = req.body.assets;
+router.post('/save_assets', function (req, res) {
+    var authorization = req.headers.authorization;
+    var assets = req.body.assets;
     saveAssets(assets, authorization)
-        .then(saved => res.json(saved))
-        .catch(exception => res.json(exception));
+        .then(function (saved) { return res.json(saved); })
+        .catch(function (exception) { return res.json(exception); });
 });
-router.post('/delete_asset', (req, res) => {
-    let authorization = req.headers.authorization;
+router.post('/delete_asset', function (req, res) {
+    var authorization = req.headers.authorization;
     users.checkAdminAuthorization(authorization)
-        .catch(exception => res.json('Unauthorized.'))
-        .then(admin => {
-        let asset = req.body.asset;
+        .catch(function (exception) { return res.json('Unauthorized.'); })
+        .then(function (admin) {
+        var asset = req.body.asset;
         if (asset) {
             switch (typeCheck(asset)) {
                 case 'durable':
                     Durables.deleteById(asset.id, admin.result)
-                        .then(resolved => res.json(resolved))
-                        .catch(exception => res.json(exception));
+                        .then(function (resolved) { return res.json(resolved); })
+                        .catch(function (exception) { return res.json(exception); });
                     break;
                 case 'consumable':
                     Consumables.deleteById(asset.id, admin.result)
-                        .then(resolved => res.json(resolved))
-                        .catch(exception => res.json(exception));
+                        .then(function (resolved) { return res.json(resolved); })
+                        .catch(function (exception) { return res.json(exception); });
                     break;
                 default: throw 'Object is not an asset.';
             }
@@ -45,27 +45,27 @@ router.post('/delete_asset', (req, res) => {
         else
             throw 'Not a valid asset to delete.';
     })
-        .catch(exception => res.json(exception));
+        .catch(function (exception) { return res.json(exception); });
 });
-router.get('/get_durables', (req, res) => {
-    let authorization = req.headers.authorization;
+router.get('/get_durables', function (req, res) {
+    var authorization = req.headers.authorization;
     users.checkAdminAuthorization(authorization)
-        .then(admin => Durables.pullAll())
-        .then(durables => res.json(durables))
-        .catch(exception => res.json([]));
+        .then(function (admin) { return Durables.pullAll(); })
+        .then(function (durables) { return res.json(durables); })
+        .catch(function (exception) { return res.json([]); });
 });
-router.get('/get_consumables', (req, res) => {
-    let authorization = req.headers.authorization;
+router.get('/get_consumables', function (req, res) {
+    var authorization = req.headers.authorization;
     users.checkAdminAuthorization(authorization)
-        .then(admin => Consumables.pullAll())
-        .then(consumables => res.json(consumables))
-        .catch(exception => res.json([]));
+        .then(function (admin) { return Consumables.pullAll(); })
+        .then(function (consumables) { return res.json(consumables); })
+        .catch(function (exception) { return res.json([]); });
 });
-const getAsset = exports.getAsset = (assetId) => {
+var getAsset = exports.getAsset = function (assetId) {
     return Promise.all([
         Durables.findById(assetId),
         Consumables.findById(assetId)
-    ]).then(result => {
+    ]).then(function (result) {
         if (result[0])
             return {
                 type: 'durable',
@@ -78,7 +78,7 @@ const getAsset = exports.getAsset = (assetId) => {
             };
         else
             return null;
-    }).catch(exception => null);
+    }).catch(function (exception) { return null; });
 };
 module.exports.router = router;
 function typeCheck(asset) {
@@ -88,7 +88,7 @@ function typeCheck(asset) {
         return 'consumable';
     return '';
 }
-const saveAsset = exports.saveAsset = (asset, authorization) => {
+var saveAsset = exports.saveAsset = function (asset, authorization) {
     return saveAssets(asset, authorization);
     /*return users.checkAdminAuthorization(authorization)
       .catch(exception => 'User is not authorized for this.')
@@ -102,34 +102,34 @@ const saveAsset = exports.saveAsset = (asset, authorization) => {
         } else throw 'No asset to save.';
       })*/
 };
-const saveAssets = exports.saveAssets = (assets, authorization) => {
+var saveAssets = exports.saveAssets = function (assets, authorization) {
     return users.checkAdminAuthorization(authorization)
-        .catch(exception => 'User is not authorized for this.')
-        .then(admin => {
+        .catch(function (exception) { return 'User is not authorized for this.'; })
+        .then(function (admin) {
         if (assets) {
             if (!Array.isArray(assets)) {
-                let array = [];
+                var array = [];
                 array.push(assets);
                 assets = array;
             }
-            let durables = [];
-            let consumables = [];
-            assets.forEach(asset => {
+            var durables_1 = [];
+            var consumables_1 = [];
+            assets.forEach(function (asset) {
                 switch (typeCheck(asset)) {
                     case 'durable':
-                        durables.push(asset);
+                        durables_1.push(asset);
                         break;
                     case 'consumable':
-                        consumables.push(asset);
+                        consumables_1.push(asset);
                         break;
                     default: throw 'All objects to save must be assets.';
                 }
             });
             //CURRENTLY: if presented with durables + consumables, only saves the durables
-            if (durables.length > 0)
-                return Durables.save(durables, admin.result);
-            if (consumables.length > 0)
-                return Consumables.save(consumables, admin.result);
+            if (durables_1.length > 0)
+                return Durables.save(durables_1, admin.result);
+            if (consumables_1.length > 0)
+                return Consumables.save(consumables_1, admin.result);
             return Promise.resolve({});
             //let promises = [];
             //if (durables.length > 0) promises.push(Durables.save(durables, admin.result));
@@ -140,22 +140,22 @@ const saveAssets = exports.saveAssets = (assets, authorization) => {
             throw 'No asset to save.';
     });
 };
-const checkin = exports.checkin = (assetId, assignmentId, agent) => {
+var checkin = exports.checkin = function (assetId, assignmentId, agent) {
     if (assetId)
         return getAsset(assetId)
-            .then(asset => {
+            .then(function (asset) {
             switch (asset.type) {
                 case 'durable':
-                    let durable = asset.asset;
+                    var durable = asset.asset;
                     if (durable.assignmentId == assignmentId) {
                         durable.assignmentId = '0';
                         return Durables.save(durable, agent);
                     }
                     else
-                        throw `Durable ${durable.serialNumber} does not belong to this assignment.`;
+                        throw "Durable " + durable.serialNumber + " does not belong to this assignment.";
                 case 'consumable':
-                    let consumable = asset.asset;
-                    for (let i = consumable.assignmentIds.length - 1; i >= 0; i--) {
+                    var consumable = asset.asset;
+                    for (var i = consumable.assignmentIds.length - 1; i >= 0; i--) {
                         if (consumable.assignmentIds[i] == assignmentId)
                             consumable.assignmentIds.splice(i, 1);
                     }
@@ -166,10 +166,12 @@ const checkin = exports.checkin = (assetId, assignmentId, agent) => {
     else
         throw 'No asset to check in.';
 };
-function is(o, sample, strict = true, recursive = true) {
+function is(o, sample, strict, recursive) {
+    if (strict === void 0) { strict = true; }
+    if (recursive === void 0) { recursive = true; }
     if (o == null)
         return false;
-    let s = sample;
+    var s = sample;
     // If we have primitives we check that they are of the same type and that type is not object 
     if (typeof s === typeof o && typeof o != "object")
         return true;
@@ -178,16 +180,18 @@ function is(o, sample, strict = true, recursive = true) {
         // If the sample was not an arry then we return false;
         if (!(s instanceof Array))
             return false;
-        let oneSample = s[0];
-        let e;
-        for (e of o) {
+        var oneSample = s[0];
+        var e = void 0;
+        for (var _i = 0, o_1 = o; _i < o_1.length; _i++) {
+            e = o_1[_i];
             if (!is(e, oneSample, strict, recursive))
                 return false;
         }
     }
     else {
         // We check if all the properties of sample are present on o
-        for (let key of Object.getOwnPropertyNames(sample)) {
+        for (var _a = 0, _b = Object.getOwnPropertyNames(sample); _a < _b.length; _a++) {
+            var key = _b[_a];
             if (typeof o[key] !== typeof s[key])
                 return false;
             if (recursive && typeof s[key] == "object" && !is(o[key], s[key], strict, recursive))
@@ -195,7 +199,8 @@ function is(o, sample, strict = true, recursive = true) {
         }
         // We check that o does not have any extra prperties to sample
         if (strict) {
-            for (let key of Object.getOwnPropertyNames(o)) {
+            for (var _c = 0, _d = Object.getOwnPropertyNames(o); _c < _d.length; _c++) {
+                var key = _d[_c];
                 if (s[key] == null)
                     return false;
             }

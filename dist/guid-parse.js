@@ -1,15 +1,15 @@
 'use strict';
 // Maps for number <-> hex string conversion
-let _byteToHex = [];
-let _hexToByte = {};
-for (let i = 0; i < 256; i++) {
+var _byteToHex = [];
+var _hexToByte = {};
+for (var i = 0; i < 256; i++) {
     _byteToHex[i] = (i + 0x100).toString(16).substr(1);
     _hexToByte[_byteToHex[i]] = i;
 }
 // **`parse()` - Parse a UUID into it's component bytes**
 function parse(s, buf, offset) {
-    const i = (buf && offset) || 0;
-    let ii = 0;
+    var i = (buf && offset) || 0;
+    var ii = 0;
     if (buf)
         buf.fill(0, i, i + 16);
     buf = buf || new Buffer(16);
@@ -31,8 +31,8 @@ function parse(s, buf, offset) {
 }
 // **`unparse()` - Convert UUID byte array (ala parse()) into a string**
 function unparse(buf, offset) {
-    let i = offset || 0;
-    const bth = _byteToHex;
+    var i = offset || 0;
+    var bth = _byteToHex;
     return bth[buf[i + 3]] + bth[buf[i + 2]] +
         bth[buf[i + 1]] + bth[buf[i + 0]] + '-' +
         bth[buf[i + 5]] + bth[buf[i + 4]] + '-' +
