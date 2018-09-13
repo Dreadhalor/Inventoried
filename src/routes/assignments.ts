@@ -3,12 +3,14 @@ import { IAssignment } from '../models/interfaces/IAssignment';
 import * as moment from 'moment';
 import * as express from 'express';
 const router = express.Router();
+import * as Promise from 'bluebird';
+import * as asyncjs from 'async';
 
 const Assignments = require('../models/tables/Assignments');
 
 const assets = require('./assets');
 const users = require('./users');
-const config = require('../config');
+const config = require('../program-config');
 
 router.get('/get_assignments', (req, res) => {
   let authorization = req.headers.authorization;
@@ -18,48 +20,64 @@ router.get('/get_assignments', (req, res) => {
     .then(assignments => res.json(assignments))
     .catch(exception => res.json(exception));
 })
+
+let queue = [];
+let running = false;
+const addToQueue = (args, fxn) => {
+  let pair = {
+    args: args,
+    fxn: fxn
+  }
+  queue.push(pair);
+  if (!running) advanceQueue();
+}
+const advanceQueue = () => {
+  running = true;
+  if (queue.length > 0){
+    let pair = queue.pop();
+    pair.fxn(pair.args)
+      .then(success => advanceQueue())
+      .catch(error => running = false);
+  } else running = false;
+}
+
 router.post('/create_assignment', (req, res) => {
-  let authorization = req.headers.authorization;
-  users.checkAdminAuthorization(authorization)
-    .catch(unauthorized => res.send('Unauthorized.'))
-    .then(async admin => {
-      let assignmentId = req.body.id;
-      let userId = req.body.userId;
-      let assetId = req.body.assetId;
-      let checkoutDate = req.body.checkoutDate;
-      let dueDate = req.body.dueDate;
-      if (userId && assetId && checkoutDate && dueDate){ //All fields are present
-        let checkoutDateParsed = parseDate(checkoutDate);
-        let dueDateParsed = parseDate(dueDate);
-        if (checkoutDateParsed && dueDateParsed){ //Checkout date + due date are both valid
-          let user = null;
-          let asset = null;
-          await Promise.all([users.getUser(userId), assets.getAsset(assetId)]).then(
-            result => {
-              user = result[0];
-              asset = result[1];
-            }
-          ).catch(exception => {
-            throw exception;
-          });
-          if (user && asset){ //user & asset are both valid objects in the database
-            //All inputs are valid
-            checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, admin.result, authorization)
-              .then(
-                checkedOut => res.json(checkedOut)
-              ).catch(error => {
-                console.log(error);
-                res.json(error);
-              })
-            //res.json({user,asset});
-          } else res.send('User and asset are not both valid.')
-        }
-        else res.send('Dates are not both valid.');
-      }
-      else res.send('Not all fields are present.');
-    })
-    .catch(exception => res.json(exception));
+  addToQueue([req,res], (args) => checkoutFxn(args[0], args[1]));
 })
+const checkoutFxn = (req, res) => {
+  let authorization = req.headers.authorization;
+  let assignmentId, userId, assetId, checkoutDate, dueDate, checkoutDateParsed, dueDateParsed, agent;
+  return users.checkAdminAuthorization(authorization)
+    .catch(unauthorized => res.send('Unauthorized.'))
+    .then(admin => {
+      agent = admin.result;
+      assignmentId = req.body.id;
+      userId = req.body.userId;
+      assetId = req.body.assetId;
+      checkoutDate = req.body.checkoutDate;
+      dueDate = req.body.dueDate;
+      if (userId && assetId && checkoutDate && dueDate){ //All fields are present
+        checkoutDateParsed = parseDate(checkoutDate);
+        dueDateParsed = parseDate(dueDate);
+        if (checkoutDateParsed && dueDateParsed)//Checkout date + due date are both valid
+          return Promise.all([users.getUser(userId), assets.getAsset(assetId)])
+        else throw 'Dates are not both valid.';
+      } else throw 'Not all fields are present.';
+    })
+    .then(result => {
+      let user = result[0];
+      let asset = result[1];
+      if (user && asset){ //user & asset are both valid objects in the database
+        //All inputs are valid
+        return checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, agent, authorization)
+      } else throw 'User and asset are not both valid.';
+    })
+    .then(checkedOut => res.json(checkedOut))
+    .catch(error => {
+      console.log(error);
+      res.json(error);
+    })
+}
 router.post('/checkin', (req, res) => {
   let authorization = req.headers.authorization;
   let agent;

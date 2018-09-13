@@ -85,7 +85,7 @@ export class Table {
         db.onConnected((result) => resolve(result))
       })
     })
-    .then(databaseExists => this.nestedPromiseAll(scripts, fse.readFile))
+    .then(databaseExists => this.nestedPromiseAll(scripts, (file) => fse.readFile(file,'utf8')))
     .then(result => this.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement))
     .catch(exception => console.log(exception));
   }
@@ -93,7 +93,7 @@ export class Table {
   nestedPromiseAll(groups, fxn){
     return Promise.all(groups.map(
       group => Promise.all(group.map(
-        single => fxn(single,'utf8')
+        single => fxn(single)
       ))
     ));
   }

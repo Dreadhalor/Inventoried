@@ -49,7 +49,7 @@ var Table = /** @class */ (function () {
                 db.onConnected(function (result) { return resolve(result); });
             });
         })
-            .then(function (databaseExists) { return _this.nestedPromiseAll(scripts, fse.readFile); })
+            .then(function (databaseExists) { return _this.nestedPromiseAll(scripts, function (file) { return fse.readFile(file, 'utf8'); }); })
             .then(function (result) { return _this.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement); })
             .catch(function (exception) { return console.log(exception); });
     }
@@ -98,7 +98,7 @@ var Table = /** @class */ (function () {
         configurable: true
     });
     Table.prototype.nestedPromiseAll = function (groups, fxn) {
-        return Promise.all(groups.map(function (group) { return Promise.all(group.map(function (single) { return fxn(single, 'utf8'); })); }));
+        return Promise.all(groups.map(function (group) { return Promise.all(group.map(function (single) { return fxn(single); })); }));
     };
     Table.prototype.sequentialPromiseAll = function (groups, fxn) {
         return Promise.each(groups, function (group) { return Promise.all(group.map(function (single) { return fxn(single); })); });

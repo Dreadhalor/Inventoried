@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
+var path = require("path");
 var bodyParser = require("body-parser");
 var cors = require("cors");
 var passport = require("passport");
-var config = require('./config');
+var config = require('./program-config');
 var dbClient = require('./db/db-client');
 dbClient.connect(config.mssql)
     .then(function (connected) { return console.log('Successfully connected to SQL server.'); })
@@ -29,11 +30,11 @@ app.use('/assignments', assignments);
 var history = require('./routes/history');
 app.use('/history', history.router);
 //set client file
-/*app.use(express.static(path.join(__dirname, '/client/angular-prod')));
-app.get('/*', function(req, res) {
-  res.sendFile(path.join(__dirname, '/client/angular-prod/index.html'));
-});*/
-app.get('*', function (req, res) { });
+app.use(express.static(path.join(__dirname, '/client')));
+app.get('/*', function (req, res) {
+    res.sendFile(path.join(__dirname, '/client/index.html'));
+});
+//app.get('*', (req, res) => {});
 app.listen(port, function () {
     console.log("Server started on port " + port);
 });

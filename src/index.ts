@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as passport from 'passport';
 
-const config = require('./config');
+const config = require('./program-config');
 
 const dbClient = require('./db/db-client');
 dbClient.connect(config.mssql)
@@ -36,12 +36,12 @@ const history = require('./routes/history');
 app.use('/history', history.router);
 
 //set client file
-/*app.use(express.static(path.join(__dirname, '/client/angular-prod')));
+app.use(express.static(path.join(__dirname, '/client')));
 app.get('/*', function(req, res) {
-  res.sendFile(path.join(__dirname, '/client/angular-prod/index.html'));
-});*/
+  res.sendFile(path.join(__dirname, '/client/index.html'));
+});
 
-app.get('*', (req, res) => {});
+//app.get('*', (req, res) => {});
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);

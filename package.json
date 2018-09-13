@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Dreadhalor/Inventoried#readme",
   "dependencies": {
+    "@types/async": "^2.0.49",
     "@types/bluebird": "^3.5.24",
     "@types/cors": "^2.8.4",
     "@types/fs-extra": "^5.0.4",
@@ -29,6 +30,7 @@
     "@types/uuid": "^3.4.3",
     "@types/uuid-parse": "^1.0.0",
     "activedirectory2": "^1.2.6",
+    "async": "^2.6.1",
     "async-lock": "^1.1.3",
     "bluebird": "^3.5.2",
     "cors": "^2.8.4",
