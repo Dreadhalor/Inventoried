@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { ModalDeploymentService } from "../../services/modal-deployment.service";
+import { UserService } from "../../services/user.service";
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ export class AppComponent {
   title = 'app';
 
   constructor(
-    private mds: ModalDeploymentService
+    private mds: ModalDeploymentService,
+    private us: UserService
   ){}
 }

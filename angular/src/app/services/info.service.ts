@@ -141,9 +141,7 @@ export class InfoService {
   fetchSettings(){
     this.http.get(Globals.request_prefix + 'settings/get_settings').
       subscribe(
-        (res) => {
-          this.overwriteSettings(res);
-        },
+        (res) => this.overwriteSettings(res),
         err => console.log(err));
   }
   overwriteSettings(settings){

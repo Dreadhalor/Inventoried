@@ -9,23 +9,23 @@ var ConsumablesCategories = require('../models/tables/ConsumablesCategories');
 var Manufacturers = require('../models/tables/Manufacturers');
 var Tags = require('../models/tables/Tags');
 router.get('/get_settings', function (req, res) {
-    var durablesCategories = dbClient.getDurablesCategories();
-    var consumablesCategories = dbClient.getConsumablesCategories();
-    var manufacturers = dbClient.getManufacturers();
-    var tags = dbClient.getTags();
+    var durablesCategories = DurablesCategories.pullAll();
+    var consumablesCategories = ConsumablesCategories.pullAll();
+    var manufacturers = Manufacturers.pullAll();
+    var tags = Tags.pullAll();
     Promise.all([
         durablesCategories,
         consumablesCategories,
         manufacturers,
         tags
-    ]).then(function (resolve) {
-        res.json({
-            durablesCategories: (resolve[0].recordset) ? (resolve[0].recordset) : [],
-            consumablesCategories: (resolve[1].recordset) ? (resolve[1].recordset) : [],
-            manufacturers: (resolve[2].recordset) ? (resolve[2].recordset) : [],
-            tags: (resolve[3].recordset) ? (resolve[3].recordset) : []
-        });
-    }, function (reject) { return res.json(reject); }).catch(function (exception) { return res.json(exception); });
+    ])
+        .then(function (settings) { return res.json({
+        durablesCategories: settings[0],
+        consumablesCategories: settings[1],
+        manufacturers: settings[2],
+        tags: settings[3]
+    }); })
+        .catch(function (exception) { return res.json(exception); });
 });
 router.post('/set_durables_categories', function (req, res) {
     return merge(DurablesCategories, req, res);

@@ -10,26 +10,23 @@ const Manufacturers = require('../models/tables/Manufacturers');
 const Tags = require('../models/tables/Tags');
 
 router.get('/get_settings', (req, res) => {
-  let durablesCategories = dbClient.getDurablesCategories();
-  let consumablesCategories = dbClient.getConsumablesCategories();
-  let manufacturers = dbClient.getManufacturers();
-  let tags = dbClient.getTags();
+  let durablesCategories = DurablesCategories.pullAll();
+  let consumablesCategories = ConsumablesCategories.pullAll();
+  let manufacturers = Manufacturers.pullAll();
+  let tags = Tags.pullAll();
   Promise.all([
     durablesCategories,
     consumablesCategories,
     manufacturers,
     tags
-  ]).then(
-  resolve => {
-    res.json({
-      durablesCategories: (resolve[0].recordset) ? (resolve[0].recordset) : [],
-      consumablesCategories: (resolve[1].recordset) ? (resolve[1].recordset) : [],
-      manufacturers: (resolve[2].recordset) ? (resolve[2].recordset) : [],
-      tags: (resolve[3].recordset) ? (resolve[3].recordset) : []
-    })
-  },
-    reject => res.json(reject)
-  ).catch(exception => res.json(exception));
+  ])
+  .then(settings => res.json({
+    durablesCategories: settings[0],
+    consumablesCategories: settings[1],
+    manufacturers: settings[2],
+    tags: settings[3]
+  }))
+  .catch(exception => res.json(exception));
 })
 
 router.post('/set_durables_categories', (req, res) => {
