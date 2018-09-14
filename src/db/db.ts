@@ -85,22 +85,6 @@ function formatArgs(args: string[], delimiter: string){
 }
 
 const executeQuery = exports.executeQuery = (query) => {
-  /*return new Promise((resolve,reject) => {
-    try {
-      const transaction = new sql.Transaction();
-      transaction.begin(err1 => {
-        if (err1) reject(err1);
-        let request = new sql.Request(transaction);
-        request.query(query, (err2, result) => {
-          if (err2) reject(err2);
-          transaction.commit(err3 => {
-            if (err3) reject(err3);
-            resolve(result);
-          })
-        })
-      })
-    } catch (err4){ reject(err4); }
-  });*/
   return new sql.Request().query(query);
 }
 
@@ -223,6 +207,7 @@ const executeQueryAsPreparedStatementOnMaster = (query: string) => {
 const executePreparedStatement = (ps: any, str: string, vals: any) => {
   let result;
   return ps.prepare(str)
+  .catch(error => console.log(error))
     .then(prepared => ps.execute(vals))
     .then(executed => {
       result = executed;
@@ -465,4 +450,23 @@ const deleteByColumn = exports.deleteByColumn = (tableName: string, column: any)
   let statement = preparedStatementWithInputs2(undefined, 'value', [parseDataType(column.dataType, true)]);
   let formattedValues = formatPreparedValues(undefined, 'value', [column.value])
   return executePreparedStatement(statement, fullQuery, formattedValues);
+}
+
+const prepareQueryFromColumnsAndExecute = exports.prepareQueryFromColumnsAndExecute = (query, columns) => {
+  let ps = prepareStatementFromColumns(columns);
+  let values = formatPreparedValuesFromColumns(columns);
+  return executePreparedStatement(ps, query, values)
+    .catch(error => console.log(error));
+}
+const formatPreparedValuesFromColumns = (columns) => {
+  let result = {};
+  columns.forEach(column => result[column.name] = column.value);
+  return result;
+}
+const prepareStatementFromColumns = exports.prepareStatementFromColumns = (columns) => {
+  let ps = new sql.PreparedStatement();
+  columns.forEach(column => {
+    ps.input(`@${column.name}`, parseDataType(column.dataType, false));
+  })
+  return ps;
 }

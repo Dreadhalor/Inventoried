@@ -28,6 +28,14 @@ export class Table {
     createSaveQuery: {
       file: 'save.template.sql',
       runOrder: -1
+    },
+    pullAllQuery: {
+      file: 'pull_all.template.sql',
+      runOrder: -1
+    },
+    deleteByIdQuery: {
+      file: 'delete_by_id.template.sql',
+      runOrder: -1
     }
   }
   get templateFilesMapped(){
@@ -107,6 +115,13 @@ export class Table {
   }
   primaryKey(){
     let pk = this.columns.find(match => match.primary);
+    return pk;
+  }
+  primaryKeyWithValue(id){
+    let pk = this.columns.find(match => match.primary);
+    if (pk){
+      pk.value = id;
+    }
     return pk;
   }
 
@@ -228,11 +243,34 @@ export class Table {
       .then(found => this.processor.processRecordsets(found)[0]);
   }
   pullAll(){
-    return this.db.pullAll(this.tableName)
+    return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/pull_all_${this.tableName}.sql`,'utf8')
+      .then(query => this.db.executeQueryAsPreparedStatement(query))
       .then(pulled => this.processor.processRecordsets(pulled));
+    //return this.db.pullAll(this.tableName)
+    //  .then(pulled => this.processor.processRecordsets(pulled));
   }
   deleteById(id: string, agent?){
-    let pk = this.primaryKey();
+    let columns = [];
+    columns.push(this.primaryKeyWithValue(id))
+    return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/delete_by_id_${this.tableName}.sql`,'utf8')
+      .then(query => this.db.prepareQueryFromColumnsAndExecute(query,columns))
+      .then(deleted => {
+        console.log(deleted);
+        return this.processor.processRecordsets(deleted);
+      })
+      .then(processed => {
+        let array = [];
+        array.push(processed[0]);
+        let result: any = {
+          table: this.tableName,
+          operation: 'delete',
+          deleted: array
+        };
+        if (agent) result.agent = agent;
+        this.update.next(result);
+        return result;
+      })
+    /*let pk = this.primaryKey();
     pk.value = id;
     return this.db.deleteByColumn(this.tableName, pk)
       .then(deleted => this.processor.processRecordsets(deleted))
@@ -247,7 +285,7 @@ export class Table {
         if (agent) result.agent = agent;
         this.update.next(result);
         return result;
-      })
+      })*/
   }
   deleteSingularById(id: string, agent?){
     let pk = this.primaryKey();

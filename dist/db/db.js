@@ -77,22 +77,6 @@ function formatArgs(args, delimiter) {
     return argsString;
 }
 var executeQuery = exports.executeQuery = function (query) {
-    /*return new Promise((resolve,reject) => {
-      try {
-        const transaction = new sql.Transaction();
-        transaction.begin(err1 => {
-          if (err1) reject(err1);
-          let request = new sql.Request(transaction);
-          request.query(query, (err2, result) => {
-            if (err2) reject(err2);
-            transaction.commit(err3 => {
-              if (err3) reject(err3);
-              resolve(result);
-            })
-          })
-        })
-      } catch (err4){ reject(err4); }
-    });*/
     return new sql.Request().query(query);
 };
 var bulkAddition = exports.bulkAddition = function (tableName, columnNames, dataTypes, rows) {
@@ -206,6 +190,7 @@ var executeQueryAsPreparedStatementOnMaster = function (query) {
 var executePreparedStatement = function (ps, str, vals) {
     var result;
     return ps.prepare(str)
+        .catch(function (error) { return console.log(error); })
         .then(function (prepared) { return ps.execute(vals); })
         .then(function (executed) {
         result = executed;
@@ -414,5 +399,23 @@ var deleteByColumn = exports.deleteByColumn = function (tableName, column) {
     var statement = preparedStatementWithInputs2(undefined, 'value', [parseDataType(column.dataType, true)]);
     var formattedValues = formatPreparedValues(undefined, 'value', [column.value]);
     return executePreparedStatement(statement, fullQuery, formattedValues);
+};
+var prepareQueryFromColumnsAndExecute = exports.prepareQueryFromColumnsAndExecute = function (query, columns) {
+    var ps = prepareStatementFromColumns(columns);
+    var values = formatPreparedValuesFromColumns(columns);
+    return executePreparedStatement(ps, query, values)
+        .catch(function (error) { return console.log(error); });
+};
+var formatPreparedValuesFromColumns = function (columns) {
+    var result = {};
+    columns.forEach(function (column) { return result[column.name] = column.value; });
+    return result;
+};
+var prepareStatementFromColumns = exports.prepareStatementFromColumns = function (columns) {
+    var ps = new sql.PreparedStatement();
+    columns.forEach(function (column) {
+        ps.input("@" + column.name, parseDataType(column.dataType, false));
+    });
+    return ps;
 };
 //# sourceMappingURL=db.js.map

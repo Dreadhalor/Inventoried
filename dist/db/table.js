@@ -25,6 +25,14 @@ var Table = /** @class */ (function () {
             createSaveQuery: {
                 file: 'save.template.sql',
                 runOrder: -1
+            },
+            pullAllQuery: {
+                file: 'pull_all.template.sql',
+                runOrder: -1
+            },
+            deleteByIdQuery: {
+                file: 'delete_by_id.template.sql',
+                runOrder: -1
             }
         };
         this.db = db;
@@ -113,6 +121,13 @@ var Table = /** @class */ (function () {
     };
     Table.prototype.primaryKey = function () {
         var pk = this.columns.find(function (match) { return match.primary; });
+        return pk;
+    };
+    Table.prototype.primaryKeyWithValue = function (id) {
+        var pk = this.columns.find(function (match) { return match.primary; });
+        if (pk) {
+            pk.value = id;
+        }
         return pk;
     };
     Table.prototype.fields = function () {
@@ -245,15 +260,22 @@ var Table = /** @class */ (function () {
     };
     Table.prototype.pullAll = function () {
         var _this = this;
-        return this.db.pullAll(this.tableName)
+        return fse.readFile("src/db/scripts/generated/tables/" + this.tableName + "/pull_all_" + this.tableName + ".sql", 'utf8')
+            .then(function (query) { return _this.db.executeQueryAsPreparedStatement(query); })
             .then(function (pulled) { return _this.processor.processRecordsets(pulled); });
+        //return this.db.pullAll(this.tableName)
+        //  .then(pulled => this.processor.processRecordsets(pulled));
     };
     Table.prototype.deleteById = function (id, agent) {
         var _this = this;
-        var pk = this.primaryKey();
-        pk.value = id;
-        return this.db.deleteByColumn(this.tableName, pk)
-            .then(function (deleted) { return _this.processor.processRecordsets(deleted); })
+        var columns = [];
+        columns.push(this.primaryKeyWithValue(id));
+        return fse.readFile("src/db/scripts/generated/tables/" + this.tableName + "/delete_by_id_" + this.tableName + ".sql", 'utf8')
+            .then(function (query) { return _this.db.prepareQueryFromColumnsAndExecute(query, columns); })
+            .then(function (deleted) {
+            console.log(deleted);
+            return _this.processor.processRecordsets(deleted);
+        })
             .then(function (processed) {
             var array = [];
             array.push(processed[0]);
@@ -267,6 +289,22 @@ var Table = /** @class */ (function () {
             _this.update.next(result);
             return result;
         });
+        /*let pk = this.primaryKey();
+        pk.value = id;
+        return this.db.deleteByColumn(this.tableName, pk)
+          .then(deleted => this.processor.processRecordsets(deleted))
+          .then(processed => {
+            let array = [];
+            array.push(processed[0]);
+            let result: any = {
+              table: this.tableName,
+              operation: 'delete',
+              deleted: array
+            };
+            if (agent) result.agent = agent;
+            this.update.next(result);
+            return result;
+          })*/
     };
     Table.prototype.deleteSingularById = function (id, agent) {
         var _this = this;
