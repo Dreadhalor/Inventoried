@@ -6,9 +6,10 @@ var DurablesCategories;
     var tableSchema = {
         name: 'durablesCategories',
         columns: [
-            { name: 'id', dataType: 'string', primary: true },
-            { name: 'value', dataType: 'string' }
-        ]
+            'id',
+            'value'
+        ],
+        primary: 'id'
     };
     module.exports = dbClient.Table(tableSchema);
 })(DurablesCategories = exports.DurablesCategories || (exports.DurablesCategories = {}));

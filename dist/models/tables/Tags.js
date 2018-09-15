@@ -6,9 +6,10 @@ var Tags;
     var tableSchema = {
         name: 'tags',
         columns: [
-            { name: 'id', dataType: 'string', primary: true },
-            { name: 'value', dataType: 'string' }
-        ]
+            'id',
+            'value'
+        ],
+        primary: 'id'
     };
     module.exports = dbClient.Table(tableSchema);
 })(Tags = exports.Tags || (exports.Tags = {}));

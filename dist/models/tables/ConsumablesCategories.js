@@ -6,9 +6,10 @@ var ConsumablesCategories;
     var tableSchema = {
         name: 'consumablesCategories',
         columns: [
-            { name: 'id', dataType: 'string', primary: true },
-            { name: 'value', dataType: 'string' }
-        ]
+            'id',
+            'value'
+        ],
+        primary: 'id'
     };
     module.exports = dbClient.Table(tableSchema);
 })(ConsumablesCategories = exports.ConsumablesCategories || (exports.ConsumablesCategories = {}));

@@ -7,7 +7,7 @@ import * as Promise from 'bluebird';
 const PromisePlus = require('@dreadhalor/bluebird-plus');
 const PromiseQueue = new PromisePlus.Queue();
 
-const Assignments = require('../models/tables/Assignments');
+const Assignments = require('../models/tables').Assignments;
 
 const assets = require('./assets');
 const users = require('./users');

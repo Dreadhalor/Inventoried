@@ -4,8 +4,8 @@ var consumable_1 = require("../models/classes/consumable");
 var durable_1 = require("../models/classes/durable");
 var express = require('express');
 var router = express.Router();
-var Durables = require('../models/tables/Durables');
-var Consumables = require('../models/tables/Consumables');
+var Durables = require('../models/tables').Durables;
+var Consumables = require('../models/tables').Consumables;
 var users = require('./users');
 router.post('/save_asset', function (req, res) {
     var authorization = req.headers.authorization;

@@ -6,9 +6,10 @@ var Manufacturers;
     var tableSchema = {
         name: 'manufacturers',
         columns: [
-            { name: 'id', dataType: 'string', primary: true },
-            { name: 'value', dataType: 'string' }
-        ]
+            'id',
+            'value'
+        ],
+        primary: 'id'
     };
     module.exports = dbClient.Table(tableSchema);
 })(Manufacturers = exports.Manufacturers || (exports.Manufacturers = {}));

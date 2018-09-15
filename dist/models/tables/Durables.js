@@ -6,15 +6,16 @@ var Durables;
     var tableSchema = {
         name: 'durables',
         columns: [
-            { name: 'id', dataType: 'string', primary: true },
-            { name: 'serialNumber', dataType: 'string' },
-            { name: 'categoryId', dataType: 'string' },
-            { name: 'manufacturerId', dataType: 'string' },
-            { name: 'notes', dataType: 'string' },
-            { name: 'assignmentId', dataType: 'string' },
-            { name: 'tagIds', dataType: 'string[]' },
-            { name: 'active', dataType: 'bit' }
-        ]
+            'id',
+            'serialNumber',
+            'categoryId',
+            'manufacturerId',
+            'notes',
+            'assignmentId',
+            'tagIds',
+            'active'
+        ],
+        primary: 'id'
     };
     module.exports = dbClient.Table(tableSchema);
 })(Durables = exports.Durables || (exports.Durables = {}));

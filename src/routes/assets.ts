@@ -4,8 +4,8 @@ import { Durable } from '../models/classes/durable';
 const express = require('express');
 const router = express.Router();
 
-const Durables = require('../models/tables/Durables');
-const Consumables = require('../models/tables/Consumables');
+const Durables = require('../models/tables').Durables;
+const Consumables = require('../models/tables').Consumables;
 const users = require('./users');
 
 router.post('/save_asset', (req, res) => {

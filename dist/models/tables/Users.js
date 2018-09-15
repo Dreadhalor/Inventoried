@@ -6,9 +6,10 @@ var Users;
     var tableSchema = {
         name: 'users',
         columns: [
-            { name: 'id', dataType: 'string', primary: true },
-            { name: 'assignmentIds', dataType: 'string[]' }
-        ]
+            'id',
+            'assignmentIds'
+        ],
+        primary: 'id'
     };
     module.exports = dbClient.Table(tableSchema);
 })(Users = exports.Users || (exports.Users = {}));

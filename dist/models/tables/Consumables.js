@@ -6,15 +6,16 @@ var Consumables;
     var tableSchema = {
         name: 'consumables',
         columns: [
-            { name: 'id', dataType: 'string', primary: true },
-            { name: 'label', dataType: 'string' },
-            { name: 'quantity', dataType: 'int' },
-            { name: 'categoryId', dataType: 'string' },
-            { name: 'manufacturerId', dataType: 'string' },
-            { name: 'notes', dataType: 'string' },
-            { name: 'assignmentIds', dataType: 'string[]' },
-            { name: 'tagIds', dataType: 'string[]' }
-        ]
+            'id',
+            'label',
+            'quantity',
+            'categoryId',
+            'manufacturerId',
+            'notes',
+            'assignmentIds',
+            'tagIds'
+        ],
+        primary: 'id'
     };
     module.exports = dbClient.Table(tableSchema);
 })(Consumables = exports.Consumables || (exports.Consumables = {}));

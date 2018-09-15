@@ -3,10 +3,10 @@ const router = express.Router();
 
 const users = require('./users');
 
-const DurablesCategories = require('../models/tables/DurablesCategories');
-const ConsumablesCategories = require('../models/tables/ConsumablesCategories');
-const Manufacturers = require('../models/tables/Manufacturers');
-const Tags = require('../models/tables/Tags');
+const DurablesCategories = require('../models/tables').DurablesCategories;
+const ConsumablesCategories = require('../models/tables').ConsumablesCategories;
+const Manufacturers = require('../models/tables').Manufacturers;
+const Tags = require('../models/tables').Tags;
 
 router.get('/get_settings', (req, res) => {
   let durablesCategories = DurablesCategories.pullAll();

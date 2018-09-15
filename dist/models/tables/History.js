@@ -6,13 +6,14 @@ var History;
     var tableSchema = {
         name: 'history',
         columns: [
-            { name: 'id', dataType: 'string', primary: true },
-            { name: 'timestamp', dataType: 'string' },
-            { name: 'agent', dataType: 'string' },
-            { name: 'table', dataType: 'string' },
-            { name: 'operation', dataType: 'string' },
-            { name: 'info', dataType: 'object' }
-        ]
+            'id',
+            'timestamp',
+            'agent',
+            'table',
+            'operation',
+            'info'
+        ],
+        primary: 'id'
     };
     module.exports = dbClient.Table(tableSchema);
 })(History = exports.History || (exports.History = {}));

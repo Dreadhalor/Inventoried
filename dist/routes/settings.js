@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var router = express.Router();
 var users = require('./users');
-var DurablesCategories = require('../models/tables/DurablesCategories');
-var ConsumablesCategories = require('../models/tables/ConsumablesCategories');
-var Manufacturers = require('../models/tables/Manufacturers');
-var Tags = require('../models/tables/Tags');
+var DurablesCategories = require('../models/tables').DurablesCategories;
+var ConsumablesCategories = require('../models/tables').ConsumablesCategories;
+var Manufacturers = require('../models/tables').Manufacturers;
+var Tags = require('../models/tables').Tags;
 router.get('/get_settings', function (req, res) {
     var durablesCategories = DurablesCategories.pullAll();
     var consumablesCategories = ConsumablesCategories.pullAll();
