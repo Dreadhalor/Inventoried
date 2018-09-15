@@ -4,9 +4,8 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as passport from 'passport';
 
-const fse = require('fs-extra');
-const dbConfig = require('./program-config');
 const config = require('./config');
+const dbConfig = require('./program-config');
 const dbClient = require('@dreadhalor/sql-client');
 dbClient.connect(dbConfig.mssql)
   .then(connected => console.log('Successfully connected to SQL server.'))

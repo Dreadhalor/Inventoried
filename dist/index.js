@@ -5,9 +5,8 @@ var path = require("path");
 var bodyParser = require("body-parser");
 var cors = require("cors");
 var passport = require("passport");
-var fse = require('fs-extra');
-var dbConfig = require('./program-config');
 var config = require('./config');
+var dbConfig = require('./program-config');
 var dbClient = require('@dreadhalor/sql-client');
 dbClient.connect(dbConfig.mssql)
     .then(function (connected) { return console.log('Successfully connected to SQL server.'); })
