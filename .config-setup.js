@@ -5,26 +5,25 @@ const path = require('path');
 
 const prodOverride = true;
 
-var paths = {
+let configName = 'config.js';
+let paths = {
   server: {
     configSrc: './config/server.js',
-    configDest: './dist',
-    configDestName: 'config.js'
+    configDest: './dist'
   },
   client: {
     configSrc: './config/client.js',
     configDestDev: './angular/src/assets',
-    configDestProd: './dist/client/assets',
-    configDestName: 'config.js'
+    configDestProd: './dist/client/assets'
   }
 };
 
 gulp.task('default', () => {
   gulp.src(paths.server.configSrc)
-    .pipe(rename(paths.server.configDestName))
+    .pipe(rename(configName))
     .pipe(gulp.dest(paths.server.configDest));
   let clientPath = (!prodOverride && fse.existsSync(path.resolve(__dirname,paths.client.configDestDev))) ? paths.client.configDestDev : paths.client.configDestProd;
   gulp.src(paths.client.configSrc)
-    .pipe(rename(paths.client.configDestName))
+    .pipe(rename(configName))
     .pipe(gulp.dest(clientPath));
 });

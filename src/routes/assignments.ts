@@ -22,8 +22,6 @@ router.get('/get_assignments', (req, res) => {
     .catch(exception => res.json(exception));
 })
 
-
-
 router.post('/create_assignment', (req, res) => {
   PromiseQueue.push([req,res], (args) => checkoutFxn(args[0], args[1]));
 })
