@@ -4,7 +4,8 @@ import * as moment from 'moment';
 import * as express from 'express';
 const router = express.Router();
 import * as Promise from 'bluebird';
-const PromisePlus = require('../utilities/bluebird-plus');
+const PromisePlus = require('@dreadhalor/bluebird-plus');
+const PromiseQueue = new PromisePlus.Queue();
 
 const Assignments = require('../models/tables/Assignments');
 
@@ -24,7 +25,7 @@ router.get('/get_assignments', (req, res) => {
 
 
 router.post('/create_assignment', (req, res) => {
-  PromisePlus.queue([req,res], (args) => checkoutFxn(args[0], args[1]));
+  PromiseQueue.push([req,res], (args) => checkoutFxn(args[0], args[1]));
 })
 const checkoutFxn = (req, res) => {
   let authorization = req.headers.authorization;

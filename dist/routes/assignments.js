@@ -5,7 +5,8 @@ var moment = require("moment");
 var express = require("express");
 var router = express.Router();
 var Promise = require("bluebird");
-var PromisePlus = require('../utilities/bluebird-plus');
+var PromisePlus = require('@dreadhalor/bluebird-plus');
+var PromiseQueue = new PromisePlus.Queue();
 var Assignments = require('../models/tables/Assignments');
 var assets = require('./assets');
 var users = require('./users');
@@ -19,7 +20,7 @@ router.get('/get_assignments', function (req, res) {
         .catch(function (exception) { return res.json(exception); });
 });
 router.post('/create_assignment', function (req, res) {
-    PromisePlus.queue([req, res], function (args) { return checkoutFxn(args[0], args[1]); });
+    PromiseQueue.push([req, res], function (args) { return checkoutFxn(args[0], args[1]); });
 });
 var checkoutFxn = function (req, res) {
     var authorization = req.headers.authorization;

@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 import * as fse from 'fs-extra';
-const PromisePlus = require('../utilities/bluebird-plus');
+const PromisePlus = require('@dreadhalor/bluebird-plus');
 
 const scriptGenerator = require('./table-helpers/table-script-generator');
 import { TableProcessor } from './table-helpers/table-processor';
@@ -262,9 +262,11 @@ export class Table {
     let pk = this.primaryKey();
     pk.value = id;
     columns.push(pk);
-    return fse.readFile(`${this.tablesDirectory}/${this.tableName}/find_by_id_${this.tableName}.sql`,'utf8')
+    return fse.readFile(`${this.tablesDirectory}/${this.tableName}/pull_by_id_${this.tableName}.sql`,'utf8')
       .then(query => this.db.prepareQueryFromColumnsAndExecute(query,columns))
-      .then(found => this.processor.processRecordsets(found)[0]);
+      .then(found => {
+       return  this.processor.processRecordsets(found)[0]
+      });
   }
   pullAll(){
     return fse.readFile(`${this.tablesDirectory}/${this.tableName}/pull_all_${this.tableName}.sql`,'utf8')

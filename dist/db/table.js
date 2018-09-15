@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var rxjs_1 = require("rxjs");
 var fse = require("fs-extra");
-var PromisePlus = require('../utilities/bluebird-plus');
+var PromisePlus = require('@dreadhalor/bluebird-plus');
 var scriptGenerator = require('./table-helpers/table-script-generator');
 var table_processor_1 = require("./table-helpers/table-processor");
 var path = require("path");
@@ -320,10 +320,15 @@ var Table = /** @class */ (function () {
     };
     Table.prototype.findById = function (id) {
         var _this = this;
+        var columns = [];
         var pk = this.primaryKey();
         pk.value = id;
-        return this.db.findByColumn(this.tableName, pk)
-            .then(function (found) { return _this.processor.processRecordsets(found)[0]; });
+        columns.push(pk);
+        return fse.readFile(this.tablesDirectory + "/" + this.tableName + "/pull_by_id_" + this.tableName + ".sql", 'utf8')
+            .then(function (query) { return _this.db.prepareQueryFromColumnsAndExecute(query, columns); })
+            .then(function (found) {
+            return _this.processor.processRecordsets(found)[0];
+        });
     };
     Table.prototype.pullAll = function () {
         var _this = this;
