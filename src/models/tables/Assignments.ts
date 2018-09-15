@@ -1,8 +1,8 @@
 export module Assignments {
   const dbClient = require('@dreadhalor/sql-client');
 
-  const schema = {
-    tableName: 'assignments',
+  const tableSchema = {
+    name: 'assignments',
     columns: [
       {name: 'id', dataType: 'string', primary: true},
       {name: 'userId', dataType: 'string'},
@@ -12,5 +12,5 @@ export module Assignments {
     ]
   }
 
-  module.exports = dbClient.Table(schema);
+  module.exports = dbClient.Table(tableSchema);
 }

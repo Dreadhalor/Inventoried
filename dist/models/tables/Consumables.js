@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Consumables;
 (function (Consumables) {
     var dbClient = require('@dreadhalor/sql-client');
-    var schema = {
-        tableName: 'consumables',
+    var tableSchema = {
+        name: 'consumables',
         columns: [
             { name: 'id', dataType: 'string', primary: true },
             { name: 'label', dataType: 'string' },
@@ -16,6 +16,6 @@ var Consumables;
             { name: 'tagIds', dataType: 'string[]' }
         ]
     };
-    module.exports = dbClient.Table(schema);
+    module.exports = dbClient.Table(tableSchema);
 })(Consumables = exports.Consumables || (exports.Consumables = {}));
 //# sourceMappingURL=Consumables.js.map

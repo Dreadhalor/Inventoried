@@ -1,8 +1,8 @@
 export module Consumables {
   const dbClient = require('@dreadhalor/sql-client');
 
-  const schema = {
-    tableName: 'consumables',
+  const tableSchema = {
+    name: 'consumables',
     columns: [
       {name: 'id', dataType: 'string', primary: true},
       {name: 'label', dataType: 'string'},
@@ -15,5 +15,5 @@ export module Consumables {
     ]
   }
 
-  module.exports = dbClient.Table(schema);
+  module.exports = dbClient.Table(tableSchema);
 }

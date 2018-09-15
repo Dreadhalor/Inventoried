@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var History;
 (function (History) {
     var dbClient = require('@dreadhalor/sql-client');
-    var schema = {
-        tableName: 'history',
+    var tableSchema = {
+        name: 'history',
         columns: [
             { name: 'id', dataType: 'string', primary: true },
             { name: 'timestamp', dataType: 'string' },
@@ -14,6 +14,6 @@ var History;
             { name: 'info', dataType: 'object' }
         ]
     };
-    module.exports = dbClient.Table(schema);
+    module.exports = dbClient.Table(tableSchema);
 })(History = exports.History || (exports.History = {}));
 //# sourceMappingURL=History.js.map

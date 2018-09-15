@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Durables;
 (function (Durables) {
     var dbClient = require('@dreadhalor/sql-client');
-    var schema = {
-        tableName: 'durables',
+    var tableSchema = {
+        name: 'durables',
         columns: [
             { name: 'id', dataType: 'string', primary: true },
             { name: 'serialNumber', dataType: 'string' },
@@ -16,6 +16,6 @@ var Durables;
             { name: 'active', dataType: 'bit' }
         ]
     };
-    module.exports = dbClient.Table(schema);
+    module.exports = dbClient.Table(tableSchema);
 })(Durables = exports.Durables || (exports.Durables = {}));
 //# sourceMappingURL=Durables.js.map

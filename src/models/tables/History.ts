@@ -1,8 +1,8 @@
 export module History {
   const dbClient = require('@dreadhalor/sql-client');
 
-  const schema = {
-    tableName: 'history',
+  const tableSchema = {
+    name: 'history',
     columns: [
       {name: 'id', dataType: 'string', primary: true},
       {name: 'timestamp', dataType: 'string'},
@@ -13,5 +13,5 @@ export module History {
     ]
   }
 
-  module.exports = dbClient.Table(schema);
+  module.exports = dbClient.Table(tableSchema);
 }

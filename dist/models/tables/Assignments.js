@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Assignments;
 (function (Assignments) {
     var dbClient = require('@dreadhalor/sql-client');
-    var schema = {
-        tableName: 'assignments',
+    var tableSchema = {
+        name: 'assignments',
         columns: [
             { name: 'id', dataType: 'string', primary: true },
             { name: 'userId', dataType: 'string' },
@@ -13,6 +13,6 @@ var Assignments;
             { name: 'dueDate', dataType: 'string' }
         ]
     };
-    module.exports = dbClient.Table(schema);
+    module.exports = dbClient.Table(tableSchema);
 })(Assignments = exports.Assignments || (exports.Assignments = {}));
 //# sourceMappingURL=Assignments.js.map
