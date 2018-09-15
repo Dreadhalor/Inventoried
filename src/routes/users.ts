@@ -8,7 +8,6 @@ const WindowsStrategy = require('passport-windowsauth');
 const ActiveDirectory = require('activedirectory2');
 const ADPromise = ActiveDirectory.promiseWrapper;
 const Users = require('../models/tables/Users');
-const History = require('./history');
 let ad = new ADPromise(config.activedirectory2);
 let jwt = require('jsonwebtoken');
 let promisify = require('util').promisify;

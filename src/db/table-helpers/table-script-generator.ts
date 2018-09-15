@@ -1,6 +1,7 @@
 export module TableScriptGenerator {
   const fse = require('fs-extra');
   const replace = require('replace-in-file');
+  const path = require('path');
 
   const templateStrings = {
     databaseName: /<database_name>/g,

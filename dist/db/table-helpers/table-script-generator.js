@@ -4,6 +4,7 @@ var TableScriptGenerator;
 (function (TableScriptGenerator) {
     var fse = require('fs-extra');
     var replace = require('replace-in-file');
+    var path = require('path');
     var templateStrings = {
         databaseName: /<database_name>/g,
         tableName: /<table_name>/g,

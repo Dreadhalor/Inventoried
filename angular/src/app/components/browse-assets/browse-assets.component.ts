@@ -13,7 +13,7 @@ import { ModalService } from "../../services/modal.service";
 export class BrowseAssetsComponent implements OnInit {
 
   constructor(
-    private assets: AssetService,
+    public assets: AssetService,
     private is: InfoService,
     private assignments: AssignmentService,
     private ms: ModalService

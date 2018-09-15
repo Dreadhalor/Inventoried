@@ -4,9 +4,9 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as passport from 'passport';
 
+const fse = require('fs-extra');
 const dbConfig = require('./program-config');
-const serverConfig = require('./server-config');
-
+const config = require('./config');
 const dbClient = require('./db/db-client');
 dbClient.connect(dbConfig.mssql)
   .then(connected => console.log('Successfully connected to SQL server.'))
@@ -14,7 +14,7 @@ dbClient.connect(dbConfig.mssql)
     `SQL server connection error -> ${exception}`
   ));
 
-const port = serverConfig.port;
+const port = config.serverPort;
 const app = express();
 
 //CORS middleware
@@ -47,5 +47,7 @@ app.get('/*', function(req, res) {
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
+
+module.exports.config = config;
 
 //ngrok.io token: Z45rb28xmBXrrGc5komJ_6Z36ekSeUjBEQ8rZHvAn5

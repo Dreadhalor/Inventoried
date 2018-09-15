@@ -24,7 +24,7 @@ export class DirectoryComponent implements OnInit, OnDestroy {
   pageSizeOptions = [15, 25, 50];
 
   constructor(
-    private us: UserService,
+    public us: UserService,
     private assets: AssetService,
     private assignments: AssignmentService,
     private ms: ModalService

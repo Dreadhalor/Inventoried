@@ -1,5 +1,7 @@
 export class Globals {
 
+  private static config = require('../assets/config');
+
   public static dialogWidth = '500px';
   public static dialogConfig = {
     width: Globals.dialogWidth,
@@ -12,14 +14,12 @@ export class Globals {
     return this._title;
   }
 
-  private static _host = 'localhost:5000';
   static get host(){
-    return this._host;
+    return this.config.serverHost;
   }
 
-  private static _protocol = 'http';
   static get protocol(){
-    return this._protocol;
+    return this.config.serverProtocol;
   }
 
   static get request_prefix(){

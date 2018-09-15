@@ -17,7 +17,7 @@ export class AddConsumableComponent implements OnInit {
   tagIds: string[] = [];
 
   constructor(
-    private is: InfoService
+    public is: InfoService
   ) { }
 
   ngOnInit() {

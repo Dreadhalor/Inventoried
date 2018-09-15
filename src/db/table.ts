@@ -1,10 +1,11 @@
 import { Subject } from 'rxjs';
 import * as fse from 'fs-extra';
-import * as Promise from 'bluebird';
 const PromisePlus = require('../utilities/bluebird-plus');
 
 const scriptGenerator = require('./table-helpers/table-script-generator');
 import { TableProcessor } from './table-helpers/table-processor';
+
+const path = require("path");
 
 export class Table {
 
@@ -12,61 +13,80 @@ export class Table {
   columns: any[] = [];
   db: any;
   processor = new TableProcessor(this);
+  templateDirectory = path.resolve(__dirname,'scripts/templates/tables');
+  tablesDirectory = path.resolve(__dirname,'scripts/generated/tables');
 
   public update = new Subject<any>();
 
-  templateDirectory = 'src/db/scripts/templates';
-  templateFiles = {
-    createTable: {
-      file: 'create_table.template.sql',
-      runOrder: 0
-    },
-    createUpdateTrigger: {
-      file: 'update_trigger.template.sql',
-      runOrder: 1
-    },
-    createSaveQuery: {
-      file: 'save.template.sql',
-      runOrder: -1
-    },
-    pullAllQuery: {
-      file: 'pull_all.template.sql',
-      runOrder: -1
-    },
-    deleteByIdQuery: {
-      file: 'delete_by_id.template.sql',
-      runOrder: -1
+  getTemplateFiles(){
+    let names;
+    let files = {};
+    return fse.readdir(this.templateDirectory)
+      .then(filenames => {
+        names = filenames;
+        return Promise.all(filenames.map(filename => fse.readFile(`${this.templateDirectory}/${filename}`,'utf8')))
+      })
+      .then(fileContents => {
+        fileContents.forEach((content, index) => {
+          let name = names[index].substring(0,names[index].lastIndexOf('.template'));
+          files[name] = {
+            file: names[index],
+            runOrder: this.findRunOrder(content)
+          }
+        })
+        return files;
+      })
+  }
+
+  findRunOrder(singleFileContents){
+    let runOrderKey = 'RUN-ORDER '
+    try {
+      let trimmed: any = singleFileContents.substring(singleFileContents.indexOf(runOrderKey));
+      let carriageReturnIndex = trimmed.indexOf(`\r`);
+      let newlineIndex =  trimmed.indexOf(`\n`);
+      let cutIndex = carriageReturnIndex >= 0 ? carriageReturnIndex : newlineIndex;
+      trimmed = trimmed.substring(runOrderKey.length,cutIndex);
+      trimmed = Number.parseInt(trimmed);
+      return trimmed;
+    } catch {
+      return -1;
     }
   }
   get templateFilesMapped(){
-    let result: any = {};
-    let keys = Object.keys(this.templateFiles);
-    keys.forEach(key => result[key] = this.templateFiles[key].file);
-    return result;
+    return this.getTemplateFiles()
+      .then(files => {
+        let result: any = {};
+        let keys = Object.keys(files);
+        keys.forEach(key => result[key] = files[key].file);
+        return result;
+      })
   }
   get templateFilesInRunOrder(){
     let queue = [];
-    let files: any = Object.entries(this.templateFiles);
-    files = files.map(file => {
-      return {
-        name: file[0],
-        runOrder: file[1].runOrder
-      };
-    })
-    files.sort((a, b) => a.runOrder - b.runOrder);
-    files = files.filter(a => a.runOrder >= 0);
-    while (files.length > 0){
-      let group = [], indexes = [], turn = files[0].runOrder;
-      for (let i = 0; i < files.length; i++)
-        if (files[i].runOrder == turn) indexes.push(i);
-      for (let i = indexes.length - 1; i >= 0; i--)
-        group = group.concat(files.splice(i,1).map(file => file.name));
-      queue.push(group);
-    }
-    return queue;
+    return this.getTemplateFiles()
+      .then((files: any) => {
+        files = Object.entries(files);
+        files = files.map(file => {
+          return {
+            name: file[0],
+            runOrder: file[1].runOrder
+          };
+        })
+        files.sort((a, b) => a.runOrder - b.runOrder);
+        files = files.filter(a => a.runOrder >= 0);
+        while (files.length > 0){
+          let group = [], indexes = [], turn = files[0].runOrder;
+          for (let i = 0; i < files.length; i++)
+            if (files[i].runOrder == turn) indexes.push(i);
+          for (let i = indexes.length - 1; i >= 0; i--)
+            group = group.concat(files.splice(i,1).map(file => file.name));
+          queue.push(group);
+        }
+        return queue;
+      })
   }
   get destDirectory(){
-    return `src/db/scripts/generated/tables/${this.tableName}`;
+    return `${this.tablesDirectory}/${this.tableName}`;
   }
 
   constructor(db: any, schema: any){
@@ -80,26 +100,34 @@ export class Table {
       });
     });
     this.columns = this.singularizePrimaryKey(this.columns);
-
+    this.constructTable();
+  }
+  
+  async constructTable(){
     let scripts;
+    let scriptFiles;
     scriptGenerator.generateScripts({
-      database: db,
+      database: this.db,
       tableName: this.tableName,
       columns: this.columns,
-      templateDirectory: 'src/db/scripts/templates',
-      templateFiles: this.templateFilesMapped,
-      tablesDirectory: 'src/db/scripts/generated/tables',
+      templateDirectory: this.templateDirectory,
+      templateFiles: await this.templateFilesMapped,
+      tablesDirectory: this.tablesDirectory,
     })
-    .then(scriptFiles => {
-      scripts = this.templateFilesInRunOrder.map(
+    .then(scriptFilesVariable => {
+      scriptFiles = scriptFilesVariable;
+      return this.templateFilesInRunOrder;
+    })
+    .then(filesInRunOrder => {
+      scripts = filesInRunOrder.map(
         group => group.map(name => scriptFiles[name])
       );
       return new Promise((resolve) => {
-        db.onConnected((result) => resolve(result))
+        this.db.onConnected((result) => resolve(result))
       })
     })
     .then(databaseExists => PromisePlus.nestedPromiseAll(scripts, (file) => fse.readFile(file,'utf8')))
-    .then(result => PromisePlus.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement))
+    .then(result => PromisePlus.sequentialPromiseAll(result, this.db.executeQueryAsPreparedStatement))
     .catch(exception => console.log(exception));
   }
 
@@ -114,14 +142,7 @@ export class Table {
     return columns;
   }
   primaryKey(){
-    let pk = this.columns.find(match => match.primary);
-    return pk;
-  }
-  primaryKeyWithValue(id){
-    let pk = this.columns.find(match => match.primary);
-    if (pk){
-      pk.value = id;
-    }
+    let pk = Table.deepCopy(this.columns.find(match => match.primary));
     return pk;
   }
 
@@ -165,7 +186,7 @@ export class Table {
         tableName: this.tableName,
         columns: this.formatRow(formattedItem)
       };
-      return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/save_${this.tableName}.sql`,'utf8')
+      return fse.readFile(`${this.tablesDirectory}/${this.tableName}/save_${this.tableName}.sql`,'utf8')
       .then(file => this.db.prepareQueryAndExecute(file,info))
       .then(executed => this.processor.processRecordsets(executed))
       .then(processed => {
@@ -237,42 +258,26 @@ export class Table {
       })
   }
   findById(id: string){
+    let columns = [];
     let pk = this.primaryKey();
     pk.value = id;
-    return this.db.findByColumn(this.tableName, pk)
+    columns.push(pk);
+    return fse.readFile(`${this.tablesDirectory}/${this.tableName}/find_by_id_${this.tableName}.sql`,'utf8')
+      .then(query => this.db.prepareQueryFromColumnsAndExecute(query,columns))
       .then(found => this.processor.processRecordsets(found)[0]);
   }
   pullAll(){
-    return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/pull_all_${this.tableName}.sql`,'utf8')
+    return fse.readFile(`${this.tablesDirectory}/${this.tableName}/pull_all_${this.tableName}.sql`,'utf8')
       .then(query => this.db.executeQueryAsPreparedStatement(query))
       .then(pulled => this.processor.processRecordsets(pulled));
-    //return this.db.pullAll(this.tableName)
-    //  .then(pulled => this.processor.processRecordsets(pulled));
   }
   deleteById(id: string, agent?){
     let columns = [];
-    columns.push(this.primaryKeyWithValue(id))
-    return fse.readFile(`src/db/scripts/generated/tables/${this.tableName}/delete_by_id_${this.tableName}.sql`,'utf8')
-      .then(query => this.db.prepareQueryFromColumnsAndExecute(query,columns))
-      .then(deleted => {
-        console.log(deleted);
-        return this.processor.processRecordsets(deleted);
-      })
-      .then(processed => {
-        let array = [];
-        array.push(processed[0]);
-        let result: any = {
-          table: this.tableName,
-          operation: 'delete',
-          deleted: array
-        };
-        if (agent) result.agent = agent;
-        this.update.next(result);
-        return result;
-      })
-    /*let pk = this.primaryKey();
+    let pk = this.primaryKey();
     pk.value = id;
-    return this.db.deleteByColumn(this.tableName, pk)
+    columns.push(pk);
+    return fse.readFile(`${this.tablesDirectory}/${this.tableName}/delete_by_id_${this.tableName}.sql`,'utf8')
+      .then(query => this.db.prepareQueryFromColumnsAndExecute(query,columns))
       .then(deleted => this.processor.processRecordsets(deleted))
       .then(processed => {
         let array = [];
@@ -285,12 +290,15 @@ export class Table {
         if (agent) result.agent = agent;
         this.update.next(result);
         return result;
-      })*/
+      })
   }
-  deleteSingularById(id: string, agent?){
+  deleteSingularById(id: string){
+    let columns = [];
     let pk = this.primaryKey();
     pk.value = id;
-    return this.db.deleteByColumn(this.tableName, pk)
+    columns.push(pk);
+    return fse.readFile(`${this.tablesDirectory}/${this.tableName}/delete_by_id_${this.tableName}.sql`,'utf8')
+      .then(query => this.db.prepareQueryFromColumnsAndExecute(query,columns))
       .then(deleted => this.processor.processRecordsets(deleted))
       .then(processed => {
         let result: any = {

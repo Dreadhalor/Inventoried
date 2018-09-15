@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var router = express.Router();
-var dbClient = require('../db/db-client');
 var users = require('./users');
 var DurablesCategories = require('../models/tables/DurablesCategories');
 var ConsumablesCategories = require('../models/tables/ConsumablesCategories');

@@ -1,40 +1,54 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var rxjs_1 = require("rxjs");
 var fse = require("fs-extra");
-var Promise = require("bluebird");
 var PromisePlus = require('../utilities/bluebird-plus');
 var scriptGenerator = require('./table-helpers/table-script-generator');
 var table_processor_1 = require("./table-helpers/table-processor");
+var path = require("path");
 var Table = /** @class */ (function () {
     function Table(db, schema) {
         var _this = this;
         this.columns = [];
         this.processor = new table_processor_1.TableProcessor(this);
+        this.templateDirectory = path.resolve(__dirname, 'scripts/templates/tables');
+        this.tablesDirectory = path.resolve(__dirname, 'scripts/generated/tables');
         this.update = new rxjs_1.Subject();
-        this.templateDirectory = 'src/db/scripts/templates';
-        this.templateFiles = {
-            createTable: {
-                file: 'create_table.template.sql',
-                runOrder: 0
-            },
-            createUpdateTrigger: {
-                file: 'update_trigger.template.sql',
-                runOrder: 1
-            },
-            createSaveQuery: {
-                file: 'save.template.sql',
-                runOrder: -1
-            },
-            pullAllQuery: {
-                file: 'pull_all.template.sql',
-                runOrder: -1
-            },
-            deleteByIdQuery: {
-                file: 'delete_by_id.template.sql',
-                runOrder: -1
-            }
-        };
         this.db = db;
         this.tableName = schema.tableName;
         schema.columns.forEach(function (column) {
@@ -45,32 +59,52 @@ var Table = /** @class */ (function () {
             });
         });
         this.columns = this.singularizePrimaryKey(this.columns);
-        var scripts;
-        scriptGenerator.generateScripts({
-            database: db,
-            tableName: this.tableName,
-            columns: this.columns,
-            templateDirectory: 'src/db/scripts/templates',
-            templateFiles: this.templateFilesMapped,
-            tablesDirectory: 'src/db/scripts/generated/tables',
-        })
-            .then(function (scriptFiles) {
-            scripts = _this.templateFilesInRunOrder.map(function (group) { return group.map(function (name) { return scriptFiles[name]; }); });
-            return new Promise(function (resolve) {
-                db.onConnected(function (result) { return resolve(result); });
-            });
-        })
-            .then(function (databaseExists) { return PromisePlus.nestedPromiseAll(scripts, function (file) { return fse.readFile(file, 'utf8'); }); })
-            .then(function (result) { return PromisePlus.sequentialPromiseAll(result, db.executeQueryAsPreparedStatement); })
-            .catch(function (exception) { return console.log(exception); });
+        this.constructTable();
     }
+    Table.prototype.getTemplateFiles = function () {
+        var _this = this;
+        var names;
+        var files = {};
+        return fse.readdir(this.templateDirectory)
+            .then(function (filenames) {
+            names = filenames;
+            return Promise.all(filenames.map(function (filename) { return fse.readFile(_this.templateDirectory + "/" + filename, 'utf8'); }));
+        })
+            .then(function (fileContents) {
+            fileContents.forEach(function (content, index) {
+                var name = names[index].substring(0, names[index].lastIndexOf('.template'));
+                files[name] = {
+                    file: names[index],
+                    runOrder: _this.findRunOrder(content)
+                };
+            });
+            return files;
+        });
+    };
+    Table.prototype.findRunOrder = function (singleFileContents) {
+        var runOrderKey = 'RUN-ORDER ';
+        try {
+            var trimmed = singleFileContents.substring(singleFileContents.indexOf(runOrderKey));
+            var carriageReturnIndex = trimmed.indexOf("\r");
+            var newlineIndex = trimmed.indexOf("\n");
+            var cutIndex = carriageReturnIndex >= 0 ? carriageReturnIndex : newlineIndex;
+            trimmed = trimmed.substring(runOrderKey.length, cutIndex);
+            trimmed = Number.parseInt(trimmed);
+            return trimmed;
+        }
+        catch (_a) {
+            return -1;
+        }
+    };
     Object.defineProperty(Table.prototype, "templateFilesMapped", {
         get: function () {
-            var _this = this;
-            var result = {};
-            var keys = Object.keys(this.templateFiles);
-            keys.forEach(function (key) { return result[key] = _this.templateFiles[key].file; });
-            return result;
+            return this.getTemplateFiles()
+                .then(function (files) {
+                var result = {};
+                var keys = Object.keys(files);
+                keys.forEach(function (key) { return result[key] = files[key].file; });
+                return result;
+            });
         },
         enumerable: true,
         configurable: true
@@ -78,36 +112,76 @@ var Table = /** @class */ (function () {
     Object.defineProperty(Table.prototype, "templateFilesInRunOrder", {
         get: function () {
             var queue = [];
-            var files = Object.entries(this.templateFiles);
-            files = files.map(function (file) {
-                return {
-                    name: file[0],
-                    runOrder: file[1].runOrder
-                };
+            return this.getTemplateFiles()
+                .then(function (files) {
+                files = Object.entries(files);
+                files = files.map(function (file) {
+                    return {
+                        name: file[0],
+                        runOrder: file[1].runOrder
+                    };
+                });
+                files.sort(function (a, b) { return a.runOrder - b.runOrder; });
+                files = files.filter(function (a) { return a.runOrder >= 0; });
+                while (files.length > 0) {
+                    var group = [], indexes = [], turn = files[0].runOrder;
+                    for (var i = 0; i < files.length; i++)
+                        if (files[i].runOrder == turn)
+                            indexes.push(i);
+                    for (var i = indexes.length - 1; i >= 0; i--)
+                        group = group.concat(files.splice(i, 1).map(function (file) { return file.name; }));
+                    queue.push(group);
+                }
+                return queue;
             });
-            files.sort(function (a, b) { return a.runOrder - b.runOrder; });
-            files = files.filter(function (a) { return a.runOrder >= 0; });
-            while (files.length > 0) {
-                var group = [], indexes = [], turn = files[0].runOrder;
-                for (var i = 0; i < files.length; i++)
-                    if (files[i].runOrder == turn)
-                        indexes.push(i);
-                for (var i = indexes.length - 1; i >= 0; i--)
-                    group = group.concat(files.splice(i, 1).map(function (file) { return file.name; }));
-                queue.push(group);
-            }
-            return queue;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Table.prototype, "destDirectory", {
         get: function () {
-            return "src/db/scripts/generated/tables/" + this.tableName;
+            return this.tablesDirectory + "/" + this.tableName;
         },
         enumerable: true,
         configurable: true
     });
+    Table.prototype.constructTable = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var scripts, scriptFiles, _a, _b, _c;
+            var _this = this;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        _b = (_a = scriptGenerator).generateScripts;
+                        _c = {
+                            database: this.db,
+                            tableName: this.tableName,
+                            columns: this.columns,
+                            templateDirectory: this.templateDirectory
+                        };
+                        return [4 /*yield*/, this.templateFilesMapped];
+                    case 1:
+                        _b.apply(_a, [(_c.templateFiles = _d.sent(),
+                                _c.tablesDirectory = this.tablesDirectory,
+                                _c)])
+                            .then(function (scriptFilesVariable) {
+                            scriptFiles = scriptFilesVariable;
+                            return _this.templateFilesInRunOrder;
+                        })
+                            .then(function (filesInRunOrder) {
+                            scripts = filesInRunOrder.map(function (group) { return group.map(function (name) { return scriptFiles[name]; }); });
+                            return new Promise(function (resolve) {
+                                _this.db.onConnected(function (result) { return resolve(result); });
+                            });
+                        })
+                            .then(function (databaseExists) { return PromisePlus.nestedPromiseAll(scripts, function (file) { return fse.readFile(file, 'utf8'); }); })
+                            .then(function (result) { return PromisePlus.sequentialPromiseAll(result, _this.db.executeQueryAsPreparedStatement); })
+                            .catch(function (exception) { return console.log(exception); });
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     Table.prototype.singularizePrimaryKey = function (columns) {
         var primary = false;
         for (var i = 0; i < columns.length; i++) {
@@ -120,14 +194,7 @@ var Table = /** @class */ (function () {
         return columns;
     };
     Table.prototype.primaryKey = function () {
-        var pk = this.columns.find(function (match) { return match.primary; });
-        return pk;
-    };
-    Table.prototype.primaryKeyWithValue = function (id) {
-        var pk = this.columns.find(function (match) { return match.primary; });
-        if (pk) {
-            pk.value = id;
-        }
+        var pk = Table.deepCopy(this.columns.find(function (match) { return match.primary; }));
         return pk;
     };
     Table.prototype.fields = function () {
@@ -172,7 +239,7 @@ var Table = /** @class */ (function () {
                 tableName: this.tableName,
                 columns: this.formatRow(formattedItem)
             };
-            return fse.readFile("src/db/scripts/generated/tables/" + this.tableName + "/save_" + this.tableName + ".sql", 'utf8')
+            return fse.readFile(this.tablesDirectory + "/" + this.tableName + "/save_" + this.tableName + ".sql", 'utf8')
                 .then(function (file) { return _this.db.prepareQueryAndExecute(file, info_1); })
                 .then(function (executed) { return _this.processor.processRecordsets(executed); })
                 .then(function (processed) {
@@ -260,22 +327,19 @@ var Table = /** @class */ (function () {
     };
     Table.prototype.pullAll = function () {
         var _this = this;
-        return fse.readFile("src/db/scripts/generated/tables/" + this.tableName + "/pull_all_" + this.tableName + ".sql", 'utf8')
+        return fse.readFile(this.tablesDirectory + "/" + this.tableName + "/pull_all_" + this.tableName + ".sql", 'utf8')
             .then(function (query) { return _this.db.executeQueryAsPreparedStatement(query); })
             .then(function (pulled) { return _this.processor.processRecordsets(pulled); });
-        //return this.db.pullAll(this.tableName)
-        //  .then(pulled => this.processor.processRecordsets(pulled));
     };
     Table.prototype.deleteById = function (id, agent) {
         var _this = this;
         var columns = [];
-        columns.push(this.primaryKeyWithValue(id));
-        return fse.readFile("src/db/scripts/generated/tables/" + this.tableName + "/delete_by_id_" + this.tableName + ".sql", 'utf8')
+        var pk = this.primaryKey();
+        pk.value = id;
+        columns.push(pk);
+        return fse.readFile(this.tablesDirectory + "/" + this.tableName + "/delete_by_id_" + this.tableName + ".sql", 'utf8')
             .then(function (query) { return _this.db.prepareQueryFromColumnsAndExecute(query, columns); })
-            .then(function (deleted) {
-            console.log(deleted);
-            return _this.processor.processRecordsets(deleted);
-        })
+            .then(function (deleted) { return _this.processor.processRecordsets(deleted); })
             .then(function (processed) {
             var array = [];
             array.push(processed[0]);
@@ -289,28 +353,15 @@ var Table = /** @class */ (function () {
             _this.update.next(result);
             return result;
         });
-        /*let pk = this.primaryKey();
-        pk.value = id;
-        return this.db.deleteByColumn(this.tableName, pk)
-          .then(deleted => this.processor.processRecordsets(deleted))
-          .then(processed => {
-            let array = [];
-            array.push(processed[0]);
-            let result: any = {
-              table: this.tableName,
-              operation: 'delete',
-              deleted: array
-            };
-            if (agent) result.agent = agent;
-            this.update.next(result);
-            return result;
-          })*/
     };
-    Table.prototype.deleteSingularById = function (id, agent) {
+    Table.prototype.deleteSingularById = function (id) {
         var _this = this;
+        var columns = [];
         var pk = this.primaryKey();
         pk.value = id;
-        return this.db.deleteByColumn(this.tableName, pk)
+        columns.push(pk);
+        return fse.readFile(this.tablesDirectory + "/" + this.tableName + "/delete_by_id_" + this.tableName + ".sql", 'utf8')
+            .then(function (query) { return _this.db.prepareQueryFromColumnsAndExecute(query, columns); })
             .then(function (deleted) { return _this.processor.processRecordsets(deleted); })
             .then(function (processed) {
             var result = {

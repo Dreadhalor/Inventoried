@@ -12,8 +12,8 @@ import { AddDurableComponent } from './add-durable/add-durable.component';
 export class AddAssetComponent implements OnInit {
   
   constructor(
-    private is: InfoService,
-    private assets: AssetService
+    public is: InfoService,
+    public assets: AssetService
   ) { }
 
   ngOnInit() {

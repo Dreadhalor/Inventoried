@@ -5,13 +5,14 @@ var path = require("path");
 var bodyParser = require("body-parser");
 var cors = require("cors");
 var passport = require("passport");
+var fse = require('fs-extra');
 var dbConfig = require('./program-config');
-var serverConfig = require('./server-config');
+var config = require('./config');
 var dbClient = require('./db/db-client');
 dbClient.connect(dbConfig.mssql)
     .then(function (connected) { return console.log('Successfully connected to SQL server.'); })
     .catch(function (exception) { return console.log("SQL server connection error -> " + exception); });
-var port = serverConfig.port;
+var port = config.serverPort;
 var app = express();
 //CORS middleware
 app.use(cors());
@@ -39,5 +40,6 @@ app.get('/*', function (req, res) {
 app.listen(port, function () {
     console.log("Server started on port " + port);
 });
+module.exports.config = config;
 //ngrok.io token: Z45rb28xmBXrrGc5komJ_6Z36ekSeUjBEQ8rZHvAn5
 //# sourceMappingURL=index.js.map

@@ -18,7 +18,7 @@ export class AddDurableComponent implements OnInit {
   active: boolean = true;
 
   constructor(
-    private is: InfoService
+    public is: InfoService
   ) { }
 
   ngOnInit() {

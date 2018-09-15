@@ -18,7 +18,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   pageSizeOptions = [15, 25, 50];
 
   constructor(
-    private hs: HistoryService
+    public hs: HistoryService
   ) { }
 
   ngOnInit() {

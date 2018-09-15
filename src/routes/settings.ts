@@ -1,7 +1,6 @@
 import * as express from 'express';
 const router = express.Router();
 
-const dbClient = require('../db/db-client');
 const users = require('./users');
 
 const DurablesCategories = require('../models/tables/DurablesCategories');

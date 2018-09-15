@@ -15,6 +15,7 @@ export class UserSelectComponent implements OnInit {
   panelWidth = '275px';
 
   filteredDictionary = [];
+  viewPortItems;
 
   _userId = null;
   @Input() get userId(){ return this._userId; }
