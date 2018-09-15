@@ -1,5 +1,5 @@
 export module Assignments {
-  const dbClient = require('../../db/db-client');
+  const dbClient = require('@dreadhalor/sql-client');
 
   const schema = {
     tableName: 'assignments',

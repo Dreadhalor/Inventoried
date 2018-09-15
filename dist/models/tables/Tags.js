@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var Tags;
 (function (Tags) {
-    var dbClient = require('../../db/db-client');
+    var dbClient = require('@dreadhalor/sql-client');
     var schema = {
         tableName: 'tags',
         columns: [

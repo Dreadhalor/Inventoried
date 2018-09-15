@@ -7,7 +7,7 @@ import * as passport from 'passport';
 const fse = require('fs-extra');
 const dbConfig = require('./program-config');
 const config = require('./config');
-const dbClient = require('./db/db-client');
+const dbClient = require('@dreadhalor/sql-client');
 dbClient.connect(dbConfig.mssql)
   .then(connected => console.log('Successfully connected to SQL server.'))
   .catch(exception => console.log(

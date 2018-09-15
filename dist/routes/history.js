@@ -6,7 +6,7 @@ var express = require("express");
 var router = express.Router();
 var config = require('../program-config');
 var History = require('../models/tables/History');
-var dbClient = require('../db/db-client');
+var dbClient = require('@dreadhalor/sql-client');
 var subscription = dbClient.history.subscribe(function (next) {
     if (next.table != 'history')
         record(next);

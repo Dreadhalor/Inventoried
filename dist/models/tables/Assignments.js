@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var Assignments;
 (function (Assignments) {
-    var dbClient = require('../../db/db-client');
+    var dbClient = require('@dreadhalor/sql-client');
     var schema = {
         tableName: 'assignments',
         columns: [

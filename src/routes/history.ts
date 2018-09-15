@@ -4,7 +4,7 @@ import * as express from 'express';
 const router = express.Router();
 const config = require('../program-config');
 const History = require('../models/tables/History');
-const dbClient = require('../db/db-client');
+const dbClient = require('@dreadhalor/sql-client');
 
 let subscription = dbClient.history.subscribe(
   next => {

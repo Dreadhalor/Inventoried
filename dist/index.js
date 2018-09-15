@@ -8,7 +8,7 @@ var passport = require("passport");
 var fse = require('fs-extra');
 var dbConfig = require('./program-config');
 var config = require('./config');
-var dbClient = require('./db/db-client');
+var dbClient = require('@dreadhalor/sql-client');
 dbClient.connect(dbConfig.mssql)
     .then(function (connected) { return console.log('Successfully connected to SQL server.'); })
     .catch(function (exception) { return console.log("SQL server connection error -> " + exception); });
