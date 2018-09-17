@@ -1,4 +1,4 @@
 {
-  "serverHost": "localhost:5000'",
+  "serverHost": "localhost:5000",
   "serverProtocol": "http"
 }

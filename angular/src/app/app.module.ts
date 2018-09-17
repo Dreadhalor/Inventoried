@@ -18,6 +18,7 @@ import { EditDurableComponent } from './components/modals/edit-durable/edit-dura
 
 import { MaterialsModule } from './modules/materials.module';
 import { VirtualScrollModule } from 'angular2-virtual-scroll';
+import { SyntheticsModule } from '@dreadhalor/synthetics';
 
 import { BrowseDurablesComponent } from './components/browse-assets/browse-durables/browse-durables.component';
 import { BrowseConsumablesComponent } from './components/browse-assets/browse-consumables/browse-consumables.component';
@@ -29,10 +30,7 @@ import { DurableSelectComponent } from './components/utilities/durable-select/du
 import { RangeDatepickerComponent } from './components/utilities/range-datepicker/range-datepicker.component';
 import { InputTextComponent } from './components/utilities/input-text/input-text.component';
 import { UserSelectComponent } from './components/utilities/user-select/user-select.component';
-import { MultipleInputTextComponent } from './components/utilities/multiple-input-text/multiple-input-text.component';
 
-import { NgSelectModule } from '@ng-select/ng-select';
-import { CustomSelectComponent } from './components/utilities/custom-select/custom-select.component';
 import { EditConsumableComponent } from './components/modals/edit-consumable/edit-consumable.component';
 import { ConsumableSelectComponent } from './components/utilities/consumable-select/consumable-select.component';
 import { AssetSelectComponent } from './components/utilities/asset-select/asset-select.component';
@@ -82,8 +80,6 @@ var routes: Routes = [
     RangeDatepickerComponent,
     InputTextComponent,
     UserSelectComponent,
-    MultipleInputTextComponent,
-    CustomSelectComponent,
     EditConsumableComponent,
     ConsumableSelectComponent,
     AssetSelectComponent,
@@ -104,8 +100,8 @@ var routes: Routes = [
     HttpClientModule,
     BrowserAnimationsModule,
     MaterialsModule, //Angular Material modules,
-    NgSelectModule,
-    VirtualScrollModule
+    VirtualScrollModule,
+    SyntheticsModule
   ],
   bootstrap: [AppComponent]
 })

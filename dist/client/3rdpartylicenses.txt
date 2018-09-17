@@ -23,10 +23,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-@ng-select/ng-select@2.3.6
-MIT
-MIT
-
 core-js@2.5.7
 MIT
 Copyright (c) 2014-2018 Denis Pushkarev
@@ -156,11 +152,11 @@ If the Work includes a "NOTICE" text file as part of its distribution, then any 
 
 END OF TERMS AND CONDITIONS
 
-@angular/common@6.1.0
+@angular/common@6.1.7
 MIT
 MIT
 
-rxjs@6.2.2
+rxjs@6.3.2
 Apache-2.0
 Apache License
                          Version 2.0, January 2004
@@ -437,7 +433,7 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-@angular/core@6.1.0
+@angular/core@6.1.7
 MIT
 MIT
 

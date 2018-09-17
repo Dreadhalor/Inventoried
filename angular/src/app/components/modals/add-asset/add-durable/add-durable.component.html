@@ -1,10 +1,10 @@
   <div class="mt-2 mb-1 border-0">
-    <multiple-input-text
+    <syn-multi-textfield
       placeholder="Serial Number"
       [uppercase]="true"
       [rowMinimum]="1"
       [(entries)]="serialNumbers">
-    </multiple-input-text>
+    </syn-multi-textfield>
   </div>
 
   <mat-form-field appearance="outline"
@@ -20,22 +20,6 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-
-  <!--custom-select [items]="is.durablesCategories"
-    placeholder="Category"
-    bindLabel="value"
-    bindValue="id"
-    [(value)]="categoryId"
-    appearance="outline">
-  </custom-select>
-
-  <custom-select [items]="is.manufacturers"
-    placeholder="Manufacturer"
-    bindLabel="value"
-    bindValue="id"
-    [(value)]="manufacturerId"
-    appearance="outline">
-  </custom-select-->
 
   <mat-form-field appearance="outline"
     class="w-100 mat-form-field-no-padding">

@@ -1,6 +1,6 @@
 export class Globals {
 
-  private static config = require('../assets/config');
+  private static config = require('../assets/config.json');
 
   public static dialogWidth = '500px';
   public static dialogConfig = {
