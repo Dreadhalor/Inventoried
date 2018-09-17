@@ -8,8 +8,8 @@ export module ProgramConfig {
     activedirectory2: {
       url: 'ldap://la-archdiocese.org',
       baseDN: 'dc=la-archdiocese,dc=org',
-      username: config.dbUser,
-      password: config.dbUserPassword,
+      username: config.ldapUser,
+      password: config.ldapUserPassword,
       entryParser: GUIDtoString,
       attributes: {
         user: [
@@ -44,8 +44,8 @@ export module ProgramConfig {
       ldap: {
         url:             'ldap://la-archdiocese.org/"DC=la-archdiocese,DC=org',
         base:            'DC=la-archdiocese,DC=org',
-        bindDN:          config.dbUser,
-        bindCredentials: config.dbUserPassword
+        bindDN:          config.ldapUser,
+        bindCredentials: config.ldapUserPassword
       },
       integrated: false,
       usernameField: 'username',
