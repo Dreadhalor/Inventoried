@@ -34,10 +34,12 @@ var checkoutFxn = function (req, res) {
         assetId = req.body.assetId;
         checkoutDate = req.body.checkoutDate;
         dueDate = req.body.dueDate;
-        if (userId && assetId && checkoutDate && dueDate) { //All fields are present
+        var validDates = checkoutDate && (dueDate || dueDate == '');
+        if (userId && assetId && validDates) { //All fields are present
             checkoutDateParsed = parseDate(checkoutDate);
             dueDateParsed = parseDate(dueDate);
-            if (checkoutDateParsed && dueDateParsed) //Checkout date + due date are both valid
+            var validParsedDates = checkoutDateParsed && (dueDateParsed || dueDateParsed == '');
+            if (validParsedDates) //Checkout date + due date are both valid
                 return Promise.all([users.getUser(userId), assets.getAsset(assetId)]);
             else
                 throw 'Dates are not both valid.';
@@ -84,6 +86,8 @@ router.post('/checkin', function (req, res) {
 });
 module.exports = router;
 var parseDate = function (date) {
+    if (date == '')
+        return '';
     var parsed = moment(date, config.dateFormat, true);
     if (parsed.isValid()) {
         return parsed;
@@ -96,7 +100,7 @@ var checkout = function (assignmentId, user, asset, checkoutDate, dueDate, agent
         userId: user.id,
         assetId: asset.asset.id,
         checkoutDate: checkoutDate.format(config.dateFormat),
-        dueDate: dueDate.format(config.dateFormat)
+        dueDate: (dueDate) ? dueDate.format(config.dateFormat) : ''
     };
     //Implement error checking here for redundant assignments later
     user.assignmentIds.push(assignmentId);

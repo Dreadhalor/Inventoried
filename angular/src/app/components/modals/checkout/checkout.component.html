@@ -11,24 +11,11 @@
       class="ml-auto flex-1">
     </user-select>
   </div>
-  <div class="text-center">
-    <p>From: <ng-container *ngIf="pickedFromDate">{{ fromString }}</ng-container></p>
-    <p>To: <ng-container *ngIf="pickedToDate">{{ toString }}</ng-container></p>
-    <strong *ngIf="pickedFromDate && pickedToDate">Duration: {{duration}} day(s)</strong>
-  </div>
-  <input type="text"
-    class="w-100 text-center"
-      name="daterangeInput"
-      daterangepicker
-      [options]="options"
-      (selected)="selectedDate($event, daterange)"/>
-  <date-range>
+  <date-range [(startDate)]="checkoutDate"
+    [(endDate)]="dueDate"
+    [(isIndeterminate)]="isIndeterminate"
+    [(valid)]="validDates">
   </date-range>
-    
-    <!--range-datepicker
-      [(fromDate)]="pickedFromDate"
-      [(toDate)]="pickedToDate">
-    </range-datepicker-->
 
 </mat-dialog-content>
 

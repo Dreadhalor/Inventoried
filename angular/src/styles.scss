@@ -63,6 +63,9 @@ html, body {
     @extend .tight;
   }
 }
+.popover-wide {
+  max-width: inherit!important
+}
 .center-content {
   @extend .d-flex;
   @extend .align-items-center;

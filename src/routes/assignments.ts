@@ -37,10 +37,12 @@ const checkoutFxn = (req, res) => {
       assetId = req.body.assetId;
       checkoutDate = req.body.checkoutDate;
       dueDate = req.body.dueDate;
-      if (userId && assetId && checkoutDate && dueDate){ //All fields are present
+      let validDates = checkoutDate && (dueDate || dueDate == '');
+      if (userId && assetId && validDates){ //All fields are present
         checkoutDateParsed = parseDate(checkoutDate);
         dueDateParsed = parseDate(dueDate);
-        if (checkoutDateParsed && dueDateParsed)//Checkout date + due date are both valid
+        let validParsedDates = checkoutDateParsed && (dueDateParsed || dueDateParsed == '');
+        if (validParsedDates)//Checkout date + due date are both valid
           return Promise.all([users.getUser(userId), assets.getAsset(assetId)])
         else throw 'Dates are not both valid.';
       } else throw 'Not all fields are present.';
@@ -83,7 +85,8 @@ router.post('/checkin', (req, res) => {
 
 module.exports = router;
 
-const parseDate = (date: string): moment.Moment => {
+const parseDate = (date: string) => {
+  if (date == '') return '';
   let parsed = moment(date, config.dateFormat, true);
   if (parsed.isValid()){
     return parsed;
@@ -97,7 +100,7 @@ const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDat
     userId: user.id,
     assetId: asset.asset.id,
     checkoutDate: checkoutDate.format(config.dateFormat),
-    dueDate: dueDate.format(config.dateFormat)
+    dueDate: (dueDate) ? dueDate.format(config.dateFormat) : ''
   }
   //Implement error checking here for redundant assignments later
   user.assignmentIds.push(assignmentId);

@@ -36,16 +36,10 @@ export class EditAssignmentContentComponent implements OnInit {
   
   editedAssignment: Assignment;
 
-  pickedFromDate: NgbDateStruct;
-  pickedToDate: NgbDateStruct;
+  checkoutDate: moment.Moment;
+  dueDate: moment.Moment;
   dayStringFormat: string = 'dddd, MMMM Do YYYY';
-  dateStringFormat: string = 'MMMM Do YYYY';
-
-  get from(){ return moment(this.momentFormat(this.pickedFromDate)); }
-  get fromString(){ return this.from.format(this.dayStringFormat); }
-  get to(){ return moment(this.momentFormat(this.pickedToDate)); }
-  get toString(){ return this.to.format(this.dayStringFormat); }
-  get duration(){ return this.to.diff(this.from,'days'); }
+  dateStringFormat: string = 'MMM Do YYYY';
 
   constructor(
     private assets: AssetService,
@@ -58,19 +52,8 @@ export class EditAssignmentContentComponent implements OnInit {
   ngOnInit() {
   }
 
-  momentFormat(date: NgbDateStruct){
-    return {
-      year: date.year,
-      month: date.month - 1,
-      day: date.day
-    };
-  }
-
   formatDate(dateString, fromFormat, toFormat){
     return moment(dateString,fromFormat).format(toFormat);
-  }
-  getDuration(startDate,endDate){
-    return moment(endDate,this.dateStringFormat).diff(moment(startDate,this.dateStringFormat),'days');
   }
 
   refreshAssignments(id){

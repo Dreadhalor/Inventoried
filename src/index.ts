@@ -13,7 +13,7 @@ dbClient.connect(dbConfig.mssql)
     `SQL server connection error -> ${exception}`
   ));
 
-const port = config.serverPort;
+const port = process.env.PORT || 5000;
 const app = express();
 
 //CORS middleware

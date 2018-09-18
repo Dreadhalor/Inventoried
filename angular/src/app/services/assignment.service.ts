@@ -39,14 +39,14 @@ export class AssignmentService {
     );
   }
 
-  createNewAssignmentAndCheckout(userId, assetId, checkoutDate, dueDate){
+  createNewAssignmentAndCheckout(userId, assetId, checkoutDate, dueDate, isIndeterminate){
     this.checkout(
       new Assignment({
         id: undefined,
         userId: userId,
         assetId: assetId,
         checkoutDate: checkoutDate,
-        dueDate: dueDate
+        dueDate: (!isIndeterminate) ? '' : dueDate
       })
     );
   }

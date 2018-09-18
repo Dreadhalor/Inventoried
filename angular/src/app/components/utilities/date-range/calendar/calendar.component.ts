@@ -9,6 +9,8 @@ import * as moment from 'moment';
 })
 export class CalendarComponent implements OnInit {
 
+  @Input() isIndeterminate: boolean;
+
   _startDate = null;
   @Input() get startDate(){return this._startDate;}
   @Output() startDateChange = new EventEmitter<moment.Moment>();
@@ -83,15 +85,17 @@ export class CalendarComponent implements OnInit {
   }
   dateClicked(week, day){
     let date = this.getDate(week, day);
-    if (this.endDate){
-      this.startDate = date;
-      this.endDate = null;
-    }
-    else if (this.startDate){
-      if (date.isBefore(this.startDate)) this.startDate = date;
-      else this.endDate = date;
-    }
-    else this.startDate = date;
+    if (!this.isIndeterminate){
+      if (this.endDate){
+        this.startDate = date;
+        this.endDate = null;
+      }
+      else if (this.startDate){
+        if (date.isBefore(this.startDate)) this.startDate = date;
+        else this.endDate = date;
+      }
+      else this.startDate = date;
+    } else this.startDate = date;
   }
   hovering(week, day){
     this.mouseoverDate = this.getDate(week, day);
@@ -119,18 +123,23 @@ export class CalendarComponent implements OnInit {
     return 'currentDay';
   }
   inRange(date){
-    let definedRange = this.startDate && this.endDate;
-    let startToEnd = date.isBetween(this.startDate, this.endDate, 'day', '[]');
-    let startToHover = this.startDate && this.mouseoverDate && date.isBetween(this.startDate, this.mouseoverDate, 'day', '[]');
-    if (definedRange) return startToEnd;
-    else return startToHover;
+    if (!this.isIndeterminate){
+      let definedRange = this.startDate && this.endDate;
+      let startToEnd = date.isBetween(this.startDate, this.endDate, 'day', '[]');
+      let startToHover = this.startDate && this.mouseoverDate && date.isBetween(this.startDate, this.mouseoverDate, 'day', '[]');
+      if (definedRange) return startToEnd;
+      else return startToHover;
+    } return false;
   }
   dateBorderClass(week, day){
     let date = this.getDate(week, day);
-    if (this.startDate && date.isSame(this.startDate, 'day')) return 'start-border'
+    if (this.startDate && date.isSame(this.startDate, 'day')){
+      if (this.isIndeterminate) return 'default-border';
+      return 'start-border';
+    } 
     else if (this.endDate && date.isSame(this.endDate, 'day')) return 'end-border';
     else if (this.inRange(date)) return 'in-range-border';
-    else return 'default';
+    else return 'default-border';
   }
   dateBackgroundClass(week, day){
     let date = this.getDate(week, day);

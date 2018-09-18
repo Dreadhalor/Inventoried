@@ -8,12 +8,11 @@
     </p>
   </div>
   <div class="center-aligned-column">
-    <p>
-      From {{formatDate(assignment.checkoutDate,dateStringFormat,dayStringFormat)}}
-    </p>
-    <p>
-      to {{formatDate(assignment.dueDate,dateStringFormat,dayStringFormat)}}
-    </p>
-    <strong>Duration: {{getDuration(assignment.checkoutDate,assignment.dueDate)}} day(s)</strong>
+    <div>
+      Checkout date: {{assignment.checkoutDateText}}
+    </div>
+    <div>
+      Due date: {{assignment.dueDateText}}
+    </div>
   </div>
 </ng-container>

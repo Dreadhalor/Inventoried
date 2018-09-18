@@ -25,10 +25,12 @@ export class Assignment {
   private _checkoutDate: string;
   get checkoutDate(){ return this._checkoutDate; }
   set checkoutDate(v){ this._checkoutDate = v; }
+  get checkoutDateText(){ return this.checkoutDate; }
 
   private _dueDate: string;
   get dueDate(){ return this._dueDate; }
   set dueDate(v){ this._dueDate = v; }
+  get dueDateText(){ return (this.dueDate) ? this.dueDate : 'N/A';}
 
   getOther(maId: string){
     if (this.userId == maId) return this.assetId;

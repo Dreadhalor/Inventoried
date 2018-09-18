@@ -52,7 +52,7 @@ export module ProgramConfig {
       passwordField: 'password'
     },
     secret: 'secretOrPrivateKey',
-    dateFormat: 'MMMM Do YYYY',
+    dateFormat: 'MMM Do YYYY',
     historyFormat: 'dddd, MMMM Do YYYY, h:mm:ss a'
   }
 

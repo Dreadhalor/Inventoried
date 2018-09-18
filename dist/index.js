@@ -11,7 +11,7 @@ var dbClient = require('@dreadhalor/sql-client');
 dbClient.connect(dbConfig.mssql)
     .then(function (connected) { return console.log('Successfully connected to SQL server.'); })
     .catch(function (exception) { return console.log("SQL server connection error -> " + exception); });
-var port = config.serverPort;
+var port = process.env.PORT || 5000;
 var app = express();
 //CORS middleware
 app.use(cors());
