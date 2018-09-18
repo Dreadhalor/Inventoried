@@ -19,6 +19,7 @@ import { EditDurableComponent } from './components/modals/edit-durable/edit-dura
 import { MaterialsModule } from './modules/materials.module';
 import { VirtualScrollModule } from 'angular2-virtual-scroll';
 import { SyntheticsModule } from '@dreadhalor/synthetics';
+import { Daterangepicker } from 'ng2-daterangepicker';
 
 import { BrowseDurablesComponent } from './components/browse-assets/browse-durables/browse-durables.component';
 import { BrowseConsumablesComponent } from './components/browse-assets/browse-consumables/browse-consumables.component';
@@ -41,6 +42,8 @@ import { ButtonTightComponent } from './components/utilities/button-tight/button
 import { LoginComponent } from './components/login/login.component';
 import { HistoryComponent } from './components/history/history.component';
 import { HistoryPanelComponent } from './components/history/history-panel/history-panel.component';
+import { DateRangeComponent } from './components/utilities/date-range/date-range.component';
+import { CalendarComponent } from './components/utilities/date-range/calendar/calendar.component';
 
 var routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
@@ -89,7 +92,9 @@ var routes: Routes = [
     ButtonTightComponent,
     LoginComponent,
     HistoryComponent,
-    HistoryPanelComponent
+    HistoryPanelComponent,
+    DateRangeComponent,
+    CalendarComponent
   ],
   imports: [
     BrowserModule,
@@ -101,7 +106,8 @@ var routes: Routes = [
     BrowserAnimationsModule,
     MaterialsModule, //Angular Material modules,
     VirtualScrollModule,
-    SyntheticsModule
+    SyntheticsModule,
+    Daterangepicker
   ],
   bootstrap: [AppComponent]
 })

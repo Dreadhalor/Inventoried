@@ -16,12 +16,19 @@
     <p>To: <ng-container *ngIf="pickedToDate">{{ toString }}</ng-container></p>
     <strong *ngIf="pickedFromDate && pickedToDate">Duration: {{duration}} day(s)</strong>
   </div>
-  <div class="d-flex-row justify-content-center">
-    <range-datepicker
+  <input type="text"
+    class="w-100 text-center"
+      name="daterangeInput"
+      daterangepicker
+      [options]="options"
+      (selected)="selectedDate($event, daterange)"/>
+  <date-range>
+  </date-range>
+    
+    <!--range-datepicker
       [(fromDate)]="pickedFromDate"
       [(toDate)]="pickedToDate">
-    </range-datepicker>
-  </div>
+    </range-datepicker-->
 
 </mat-dialog-content>
 

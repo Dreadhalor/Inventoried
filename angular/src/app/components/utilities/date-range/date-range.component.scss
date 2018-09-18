@@ -1,0 +1,11 @@
+@import "~src/styles.scss";
+
+$border-radius: 4px;
+
+.dateField {
+  @extend .text-center;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  height: 30px;
+  width: 100%
+}

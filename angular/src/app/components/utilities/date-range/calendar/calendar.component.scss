@@ -1,0 +1,56 @@
+@import "~src/styles.scss";
+
+$border-radius: 4px;
+
+.calendar-table {
+  > * {
+    @extend .text-center;
+    @extend .no-select;
+  }
+  cursor: pointer;
+}
+.clickable {
+  &:hover {
+    background-color: #eee;
+  }
+}
+
+.date-panel {
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+}
+
+.previousDay, .nextDay {
+  color: #999;
+}
+.currentDay {
+  color: black;
+}
+
+
+.start-border {
+  border-radius: $border-radius 0px 0px $border-radius;
+}
+.end-border {
+  border-radius: 0px $border-radius $border-radius 0px;
+}
+.in-range-border {
+  border-radius: 0px;
+}
+.default-border {
+  border-radius: $border-radius;
+}
+
+.selected-bg {
+  background-color: lightskyblue;
+}
+.mouseover-bg {
+  background-color: #eee;
+}
+.in-range-bg {
+  background-color: #ebf4f8;
+}
+.default-bg {
+  background-color: white;
+}

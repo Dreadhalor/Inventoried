@@ -18,6 +18,7 @@ export class CheckoutComponent implements OnInit {
 
   pickedFromDate: NgbDateStruct;
   pickedToDate: NgbDateStruct;
+  dateRangePickerFormat: string = 'dddd, MMM Do YYYY';
   dayStringFormat: string = 'dddd, MMMM Do YYYY';
   dateStringFormat: string = 'MMMM Do YYYY';
 
@@ -43,6 +44,29 @@ export class CheckoutComponent implements OnInit {
     if (this.data.userId) this.userId = this.data.userId;
     if (this.data.assetId) this.assetIds.push(this.data.assetId);
   }
+
+
+  daterange: any = {};
+  options: any = {
+    locale: { format: this.dateRangePickerFormat },
+    alwaysShowCalendars: false,
+    linkedCalendars: false,
+    opens: 'center'
+  };
+
+  public selectedDate(value: any, datepicker?: any) {
+    // this is the date the iser selected
+    console.log(value);
+
+    // any object can be passed to the selected event and it will be passed back here
+    datepicker.start = value.start;
+    datepicker.end = value.end;
+
+    // or manupulat your own internal property
+    this.daterange.start = value.start;
+    this.daterange.end = value.end;
+    this.daterange.label = value.label;
+}
 
   momentFormat(date: NgbDateStruct){
     return {
