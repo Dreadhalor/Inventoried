@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule, Routes } from '@angular/router';
@@ -19,7 +19,8 @@ import { EditDurableComponent } from './components/modals/edit-durable/edit-dura
 import { MaterialsModule } from './modules/materials.module';
 import { VirtualScrollModule } from 'angular2-virtual-scroll';
 import { SyntheticsModule } from '@dreadhalor/synthetics';
-import { Daterangepicker } from 'ng2-daterangepicker';
+import { ToastrModule } from 'ngx-toastr';
+import { JwtModule } from '@auth0/angular-jwt';
 
 import { BrowseDurablesComponent } from './components/browse-assets/browse-durables/browse-durables.component';
 import { BrowseConsumablesComponent } from './components/browse-assets/browse-consumables/browse-consumables.component';
@@ -44,8 +45,9 @@ import { HistoryComponent } from './components/history/history.component';
 import { HistoryPanelComponent } from './components/history/history-panel/history-panel.component';
 import { DateRangeComponent } from './components/utilities/date-range/date-range.component';
 import { CalendarComponent } from './components/utilities/date-range/calendar/calendar.component';
+import { HttpService } from './services/http.service';
 
-var routes: Routes = [
+let routes: Routes = [
   { path: 'browse-assets', component: BrowseAssetsComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'directory', component: DirectoryComponent },
@@ -53,6 +55,12 @@ var routes: Routes = [
   { path: 'history', component: HistoryComponent },
   { path: '**', redirectTo: 'browse-assets', pathMatch: 'full' }
 ]
+
+function tokenGetter(){
+  let token = localStorage.getItem('authorization');
+  if (token) return token;
+  return '';
+}
 
 @NgModule({
   entryComponents: [
@@ -107,7 +115,24 @@ var routes: Routes = [
     MaterialsModule, //Angular Material modules,
     VirtualScrollModule,
     SyntheticsModule,
-    Daterangepicker
+    ToastrModule.forRoot(),
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: tokenGetter,
+        whitelistedDomains: ['localhost:5000'],
+        blacklistedRoutes: [
+          'localhost:5000/users/authenticate'
+        ],
+        authScheme: ''
+      }
+    })
+  ],
+  providers: [
+    {
+        provide: HTTP_INTERCEPTORS,
+        useClass: HttpService,
+        multi: true
+    },
   ],
   bootstrap: [AppComponent]
 })

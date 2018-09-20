@@ -7,19 +7,40 @@ var router = express.Router();
 var Durables = require('../models/tables').Durables;
 var Consumables = require('../models/tables').Consumables;
 var users = require('./users');
+var Promise = require('bluebird');
+Promise.config({
+    // Enable cancellation
+    cancellation: true,
+});
 router.post('/save_asset', function (req, res) {
     var authorization = req.headers.authorization;
     var asset = req.body.asset;
     saveAssets(asset, authorization)
-        .then(function (saved) { return res.json(saved); })
-        .catch(function (exception) { return res.json(exception); });
+        .then(function (saved) { return res.json({
+        error: null,
+        result: saved
+    }); })
+        .catch(function (exception) { return res.json({
+        error: {
+            title: 'Save error',
+            message: 'Unauthorized.'
+        }
+    }); });
 });
 router.post('/save_assets', function (req, res) {
     var authorization = req.headers.authorization;
     var assets = req.body.assets;
     saveAssets(assets, authorization)
-        .then(function (saved) { return res.json(saved); })
-        .catch(function (exception) { return res.json(exception); });
+        .then(function (saved) { return res.json({
+        error: null,
+        result: saved
+    }); })
+        .catch(function (exception) { return res.json({
+        error: {
+            title: 'Save error',
+            message: 'Unauthorized.'
+        }
+    }); });
 });
 router.post('/delete_asset', function (req, res) {
     var authorization = req.headers.authorization;
@@ -50,16 +71,45 @@ router.post('/delete_asset', function (req, res) {
 router.get('/get_durables', function (req, res) {
     var authorization = req.headers.authorization;
     users.checkAdminAuthorization(authorization)
+        .catch(function (unauthorized) { return res.json({
+        error: {
+            title: 'Fetch durables error',
+            message: 'Unauthorized.'
+        }
+    }); })
         .then(function (admin) { return Durables.pullAll(); })
-        .then(function (durables) { return res.json(durables); })
-        .catch(function (exception) { return res.json([]); });
+        .then(function (durables) { return res.json({
+        error: null,
+        result: durables
+    }); })
+        .catch(function (exception) { return res.json({
+        error: {
+            title: 'Fetch durables error',
+            message: JSON.stringify(exception)
+        }
+    }); });
 });
 router.get('/get_consumables', function (req, res) {
     var authorization = req.headers.authorization;
-    users.checkAdminAuthorization(authorization)
-        .then(function (admin) { return Consumables.pullAll(); })
-        .then(function (consumables) { return res.json(consumables); })
-        .catch(function (exception) { return res.json([]); });
+    Promise.resolve(users.checkAdminAuthorization(authorization)
+        .catch(function (unauthorized) {
+        console.log(unauthorized);
+        throw 'Unauthorized.';
+    }))
+        .then(Promise.resolve(Consumables.pullAll()
+        .then(function (consumables) { return res.json({
+        error: null,
+        result: consumables
+    }); })
+        .catch(function (exception) {
+        throw JSON.stringify(exception);
+    })))
+        .catch(function (error) { return res.json({
+        error: {
+            title: 'Fetch consumables error',
+            message: error
+        }
+    }); });
 });
 var getAsset = exports.getAsset = function (assetId) {
     return Promise.all([

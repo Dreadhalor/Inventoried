@@ -14,9 +14,17 @@ var config = require('../program-config');
 router.get('/get_assignments', function (req, res) {
     var authorization = req.headers.authorization;
     users.checkAdminAuthorization(authorization)
-        .catch(function (unauthorized) { return res.send('Unauthorized.'); })
+        .catch(function (unauthorized) { return res.json({
+        error: {
+            title: 'Fetch assignments error',
+            message: 'Unauthorized.'
+        }
+    }); })
         .then(function (admin) { return Assignments.pullAll(); })
-        .then(function (assignments) { return res.json(assignments); })
+        .then(function (assignments) { return res.json({
+        error: null,
+        result: assignments
+    }); })
         .catch(function (exception) { return res.json(exception); });
 });
 router.post('/create_assignment', function (req, res) {
@@ -26,7 +34,12 @@ var checkoutFxn = function (req, res) {
     var authorization = req.headers.authorization;
     var assignmentId, userId, assetId, checkoutDate, dueDate, checkoutDateParsed, dueDateParsed, agent;
     return users.checkAdminAuthorization(authorization)
-        .catch(function (unauthorized) { return res.send('Unauthorized.'); })
+        .catch(function (unauthorized) { return res.json({
+        error: {
+            title: 'Checkout error',
+            message: 'Unauthorized.'
+        }
+    }); })
         .then(function (admin) {
         agent = admin.result;
         assignmentId = req.body.id;

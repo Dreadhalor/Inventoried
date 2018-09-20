@@ -137,19 +137,66 @@ router.post('/login',
 );
 
 router.post('/authenticate', (req, res) => {
-  ad.authenticate(req.body.username, req.body.password).then(
-    authentication => {
-      let token = jwt.sign(req.body.username.toLowerCase(), config.secret);
+  let username = req.body.username;
+  let password = req.body.password;
+  ad.authenticate(username, password)
+    .then(authenticated => ad.getGroupMembershipForUser(username))
+    .catch(error => {
+      res.json({
+        error: {
+          title: 'Login error',
+          message: 'Invalid credentials'
+        }
+      })
+    })
+    .then(groups => {
+      let payload = {
+        username: req.body.username.toLowerCase(),
+        groups: groups.map(group => group.cn)
+      };
+      let token = jwt.sign(payload, config.secret);
       res.json({
         error: null,
         result: token
       });
-    }
-  ).catch(exception => {
+    })
+    .catch(error => res.json({
+      error: 'Login error',
+      message: JSON.stringify(error)
+    }))
+})
+
+router.post('/groups', (req, res) => {
+  /*ad.findGroups('CN=*').then(
+    yes => res.json(yes)
+  ).catch(error => res.json(error));*/
+
+  let username = req.body.username;
+  /*ad.isUserMemberOf(username, 'Employees at Applied Technology')
+  .then(result => {
+    res.json({
+      error: null,
+      result: (result) ? username : false
+    })
+  })
+  .catch(exception => {
     res.json({
       error: exception
-    });
-  });
+    })
+  })*/
+
+  ad.getGroupMembershipForUser(username)
+  .then(result => {
+    res.json({
+      error: null,
+      result: result.map(group => group.cn)
+    })
+  })
+  .catch(exception => {
+    res.json({
+      error: exception
+    })
+  })
 })
 
 exports.router = router;
@@ -176,7 +223,7 @@ const checkAuthorization = exports.checkAuthorization = (token: string) => {
 }
 const checkAdminAuthorization = exports.checkAdminAuthorization = (token: string) => {
   return checkAuthorization(token)
-    .then(username => isAdmin(username));
+    .then(payload => isAdmin(payload.username));
 }
 
 const saveUser = exports.saveUser = (user, authorization) => {

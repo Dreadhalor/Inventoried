@@ -26,15 +26,14 @@ export class AssignmentService {
     private http: HttpClient,
     private auth: AuthService
   ){
-    this.fetchAssignments();
+    //this.fetchAssignments();
   }
 
   fetchAssignments(){
     this.http.get(
       Globals.request_prefix + 'assignments/get_assignments',
-      {headers: this.auth.getHeaders()}
     ).subscribe(
-      (res: IAssignment[]) => this.assignments = res.map(iassignment => new Assignment(iassignment)),
+      (assignments: IAssignment[]) => this.assignments = assignments.map(iassignment => new Assignment(iassignment)),
       err => console.log(err)
     );
   }
@@ -61,8 +60,7 @@ export class AssignmentService {
     this.checkoutWithoutPost(assignment);
     this.http.post(
       Globals.request_prefix + 'assignments/create_assignment',
-      assignment.asInterface(),
-      {headers: this.auth.getHeaders()}
+      assignment.asInterface()
     ).subscribe(
       res => {},
       err => console.log(err)
@@ -91,8 +89,7 @@ export class AssignmentService {
     this.checkinWithoutPost(assignmentId);
     this.http.post(
       Globals.request_prefix + 'assignments/checkin',
-      {assignmentId: assignmentId},
-      {headers: this.auth.getHeaders()}
+      {assignmentId: assignmentId}
     ).subscribe(
       res => {},
       err => console.log(err)

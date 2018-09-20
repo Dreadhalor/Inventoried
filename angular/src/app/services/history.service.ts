@@ -22,17 +22,15 @@ export class HistoryService {
 
   pullHistory(){
     this.http.get<any[]>(
-      Globals.request_prefix + 'history/pull_all',
-      {headers: this.auth.getHeaders()})
+      Globals.request_prefix + 'history/pull_all'
+      )
     .subscribe(
-      history => {
+      (history: any[]) => {
         history.sort(this.sortHistoryFxn).reverse();
         this.history = history;
         this.dataChange.next();
       },
-      error => {
-        console.log(error);
-      }
+      error => console.log(error)
     )
   }
 

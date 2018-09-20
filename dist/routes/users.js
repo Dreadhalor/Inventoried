@@ -160,13 +160,59 @@ passport.use(new WindowsStrategy(config.windowsauth, function (user, done) {
 }));
 router.post('/login', passport.authenticate('WindowsAuthentication', { session: false }), function (req, res) { res.json({ user: req.user }); });
 router.post('/authenticate', function (req, res) {
-    ad.authenticate(req.body.username, req.body.password).then(function (authentication) {
-        var token = jwt.sign(req.body.username.toLowerCase(), config.secret);
+    var username = req.body.username;
+    var password = req.body.password;
+    ad.authenticate(username, password)
+        .then(function (authenticated) { return ad.getGroupMembershipForUser(username); })
+        .catch(function (error) {
+        res.json({
+            error: {
+                title: 'Login error',
+                message: 'Invalid credentials'
+            }
+        });
+    })
+        .then(function (groups) {
+        var payload = {
+            username: req.body.username.toLowerCase(),
+            groups: groups.map(function (group) { return group.cn; })
+        };
+        var token = jwt.sign(payload, config.secret);
         res.json({
             error: null,
             result: token
         });
-    }).catch(function (exception) {
+    })
+        .catch(function (error) { return res.json({
+        error: 'Login error',
+        message: JSON.stringify(error)
+    }); });
+});
+router.post('/groups', function (req, res) {
+    /*ad.findGroups('CN=*').then(
+      yes => res.json(yes)
+    ).catch(error => res.json(error));*/
+    var username = req.body.username;
+    /*ad.isUserMemberOf(username, 'Employees at Applied Technology')
+    .then(result => {
+      res.json({
+        error: null,
+        result: (result) ? username : false
+      })
+    })
+    .catch(exception => {
+      res.json({
+        error: exception
+      })
+    })*/
+    ad.getGroupMembershipForUser(username)
+        .then(function (result) {
+        res.json({
+            error: null,
+            result: result.map(function (group) { return group.cn; })
+        });
+    })
+        .catch(function (exception) {
         res.json({
             error: exception
         });
@@ -195,7 +241,7 @@ var checkAuthorization = exports.checkAuthorization = function (token) {
 };
 var checkAdminAuthorization = exports.checkAdminAuthorization = function (token) {
     return checkAuthorization(token)
-        .then(function (username) { return isAdmin(username); });
+        .then(function (payload) { return isAdmin(payload.username); });
 };
 var saveUser = exports.saveUser = function (user, authorization) {
     return checkAdminAuthorization(authorization)

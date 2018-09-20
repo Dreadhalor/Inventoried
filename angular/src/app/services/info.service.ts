@@ -10,43 +10,11 @@ import { AuthService } from "./auth.service";
 })
 export class InfoService {
 
-  static initDurablesCategories = [
-    "Monitor",
-    "Laptop",
-    "Projector",
-    "Desktop",
-    "Tablet"
-  ]
-
-  static initConsumablesCategories = [
-    "Cable",
-    "Mouse",
-    "Keyboard",
-    "Surge Protector",
-    "Extension Cord"
-  ]
-
-  static initManufacturers = [
-    "Lenovo",
-    "HP",
-    "Apple",
-    "Samsung",
-    "Duracell"
-  ]
-
-  static initTags = [
-    "Bluetooth",
-    "Fragile",
-    "New",
-    "Heavy",
-    "Wired"
-  ]
-
   constructor(
     private http: HttpClient,
     private auth: AuthService
   ) {
-    this.fetchSettings();
+    //this.fetchSettings();
     /*this.durablesCategories = InfoService.initDurablesCategories.map((val, index) => new KeyValuePair((index + 1).toString(), val));
     this.consumablesCategories = InfoService.initConsumablesCategories.map((val, index) => new KeyValuePair((index + 1).toString(), val));
     this.manufacturers = InfoService.initManufacturers.map((val, index) => new KeyValuePair((index + 1).toString(), val));
@@ -68,8 +36,7 @@ export class InfoService {
     let params = this.getMergeParams(currentVals, updateVals);
     this.http.post(
         Globals.request_prefix + suffix,
-        params,
-        {headers: this.auth.getHeaders()}
+        params
       )
       .subscribe(
         res => {},

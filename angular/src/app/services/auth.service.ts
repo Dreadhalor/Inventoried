@@ -1,7 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Globals } from './../globals';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import * as jwt from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
@@ -17,13 +18,6 @@ export class AuthService {
     this.setLoggedIn(false);
   }
 
-  getHeaders(){
-    let headers = new HttpHeaders({
-      authorization: localStorage.getItem('authorization')
-    })
-    return headers;
-  }
-
   setLoggedIn(redirect: boolean){
     this.loggedIn = !!localStorage.getItem('authorization');
     if (redirect){
@@ -34,13 +28,12 @@ export class AuthService {
 
   logIn(user: string, pass: string){
     return this.authenticate(user, pass)
-      .then((authenticated: any) => {
-        let token = authenticated.result;
-        localStorage.setItem('authorization',token);
+      .then((token: string) => {
+        localStorage.setItem('authorization', token);
         this.setLoggedIn(true);
-        return authenticated;
-      }
-    )
+        return token;
+      })
+      .catch(error => console.log(error))
   }
   logOut(){
     localStorage.removeItem('authorization');
@@ -53,13 +46,11 @@ export class AuthService {
       password: pass
     }
     return new Promise((resolve, reject) => {
-      this.http.post(Globals.request_prefix + 'users/authenticate', body).subscribe(
-        (authentication: any) => {
-          if (authentication.error) reject(authentication);
-          resolve(authentication)
-        },
-        (error) => reject({error: error})
-      )
+      this.http.post(Globals.request_prefix + 'users/authenticate', body)
+        .subscribe(
+          authenticated => resolve(authenticated),
+          error => reject(error)
+        )
     })
   }
 

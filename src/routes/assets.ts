@@ -8,19 +8,41 @@ const Durables = require('../models/tables').Durables;
 const Consumables = require('../models/tables').Consumables;
 const users = require('./users');
 
+var Promise = require('bluebird');
+Promise.config({
+    // Enable cancellation
+    cancellation: true,
+});
+
 router.post('/save_asset', (req, res) => {
   let authorization = req.headers.authorization;
   let asset = req.body.asset;
   saveAssets(asset,authorization)
-    .then(saved => res.json(saved))
-    .catch(exception => res.json(exception));
+    .then(saved => res.json({
+      error: null,
+      result: saved
+    }))
+    .catch(exception => res.json({
+      error: {
+        title: 'Save error',
+        message: 'Unauthorized.'
+      }
+    }));
 })
 router.post('/save_assets', (req, res) => {
   let authorization = req.headers.authorization;
   let assets = req.body.assets;
   saveAssets(assets,authorization)
-    .then(saved => res.json(saved))
-    .catch(exception => res.json(exception));
+    .then(saved => res.json({
+      error: null,
+      result: saved
+    }))
+    .catch(exception => res.json({
+      error: {
+        title: 'Save error',
+        message: 'Unauthorized.'
+      }
+    }));
 })
 router.post('/delete_asset', (req, res) => {
   let authorization = req.headers.authorization;
@@ -50,16 +72,49 @@ router.post('/delete_asset', (req, res) => {
 router.get('/get_durables', (req, res) => {
   let authorization = req.headers.authorization;
   users.checkAdminAuthorization(authorization)
+    .catch(unauthorized => res.json({
+      error: {
+        title: 'Fetch durables error',
+        message: 'Unauthorized.'
+      }
+    }))
     .then(admin => Durables.pullAll())
-    .then(durables => res.json(durables))
-    .catch(exception => res.json([]));
+    .then(durables => res.json({
+      error: null,
+      result: durables
+    }))
+    .catch(exception => res.json({
+      error: {
+        title: 'Fetch durables error',
+        message: JSON.stringify(exception)
+      }
+    }));
 })
 router.get('/get_consumables', (req, res) => {
   let authorization = req.headers.authorization;
-  users.checkAdminAuthorization(authorization)
-    .then(admin => Consumables.pullAll())
-    .then(consumables => res.json(consumables))
-    .catch(exception => res.json([]));
+  Promise.resolve(
+    users.checkAdminAuthorization(authorization)
+      .catch(unauthorized => {
+        console.log(unauthorized);
+        throw 'Unauthorized.';
+      })
+  )
+  .then(Promise.resolve(
+    Consumables.pullAll()
+    .then(consumables => res.json({
+      error: null,
+      result: consumables
+    }))
+    .catch(exception => {
+      throw JSON.stringify(exception)
+    })
+  ))
+  .catch(error => res.json({
+    error: {
+      title: 'Fetch consumables error',
+      message: error
+    }
+  }));
 })
 
 const getAsset = exports.getAsset = (assetId: string) => {

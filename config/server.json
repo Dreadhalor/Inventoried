@@ -1,4 +1,5 @@
 {
+  "adminGroup": "Employees at Applied Technology",
   "ldapUser": "scott.hetrick@la-archdiocese.org",
   "ldapUserPassword": "abc#123",
   "dbUser": "scott.hetrick@la-archdiocese.org",

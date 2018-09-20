@@ -30,8 +30,16 @@ const record = exports.record = (edit) => {
 
 router.get('/pull_all', (req, res) => {
   History.pullAll()
-    .then(history => res.json(history))
-    .catch(exception => res.json([]));
+    .then(history => res.json({
+      error: null,
+      result: history
+    }))
+    .catch(exception => res.json({
+      error: {
+        title: 'Fetch history error',
+        message: JSON.stringify(exception)
+      }
+    }));
 });
 
 module.exports.router = router;

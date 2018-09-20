@@ -9,23 +9,39 @@ const Manufacturers = require('../models/tables').Manufacturers;
 const Tags = require('../models/tables').Tags;
 
 router.get('/get_settings', (req, res) => {
-  let durablesCategories = DurablesCategories.pullAll();
-  let consumablesCategories = ConsumablesCategories.pullAll();
-  let manufacturers = Manufacturers.pullAll();
-  let tags = Tags.pullAll();
-  Promise.all([
-    durablesCategories,
-    consumablesCategories,
-    manufacturers,
-    tags
-  ])
-  .then(settings => res.json({
-    durablesCategories: settings[0],
-    consumablesCategories: settings[1],
-    manufacturers: settings[2],
-    tags: settings[3]
-  }))
-  .catch(exception => res.json(exception));
+  let authorization = req.headers.authorization;
+  users.checkAdminAuthorization(authorization)
+    .catch(unauthorized => res.json({
+      error: {
+        title: 'Fetch settings error',
+        message: 'Unauthorized.'
+      }
+    }))
+    .then(authorized => {
+      let durablesCategories = DurablesCategories.pullAll();
+      let consumablesCategories = ConsumablesCategories.pullAll();
+      let manufacturers = Manufacturers.pullAll();
+      let tags = Tags.pullAll();
+      return Promise.all([
+        durablesCategories,
+        consumablesCategories,
+        manufacturers,
+        tags
+      ])
+    })
+    .then(settings => res.json({
+      error: null,
+      result: {
+        durablesCategories: settings[0],
+        consumablesCategories: settings[1],
+        manufacturers: settings[2],
+        tags: settings[3]
+      }
+    }))
+    .catch(error => res.json({
+      error: 'Fetch settings error',
+      message: JSON.stringify(error)
+    }))
 })
 
 router.post('/set_durables_categories', (req, res) => {

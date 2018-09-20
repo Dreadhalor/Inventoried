@@ -28,8 +28,16 @@ var record = exports.record = function (edit) {
 };
 router.get('/pull_all', function (req, res) {
     History.pullAll()
-        .then(function (history) { return res.json(history); })
-        .catch(function (exception) { return res.json([]); });
+        .then(function (history) { return res.json({
+        error: null,
+        result: history
+    }); })
+        .catch(function (exception) { return res.json({
+        error: {
+            title: 'Fetch history error',
+            message: JSON.stringify(exception)
+        }
+    }); });
 });
 module.exports.router = router;
 //# sourceMappingURL=history.js.map

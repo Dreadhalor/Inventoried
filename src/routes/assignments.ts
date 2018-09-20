@@ -16,9 +16,17 @@ const config = require('../program-config');
 router.get('/get_assignments', (req, res) => {
   let authorization = req.headers.authorization;
   users.checkAdminAuthorization(authorization)
-    .catch(unauthorized => res.send('Unauthorized.'))
+    .catch(unauthorized => res.json({
+      error: {
+        title: 'Fetch assignments error',
+        message: 'Unauthorized.'
+      }
+    }))
     .then(admin => Assignments.pullAll())
-    .then(assignments => res.json(assignments))
+    .then(assignments => res.json({
+      error: null,
+      result: assignments
+    }))
     .catch(exception => res.json(exception));
 })
 
@@ -29,7 +37,12 @@ const checkoutFxn = (req, res) => {
   let authorization = req.headers.authorization;
   let assignmentId, userId, assetId, checkoutDate, dueDate, checkoutDateParsed, dueDateParsed, agent;
   return users.checkAdminAuthorization(authorization)
-    .catch(unauthorized => res.send('Unauthorized.'))
+  .catch(unauthorized => res.json({
+      error: {
+        title: 'Checkout error',
+        message: 'Unauthorized.'
+      }
+    }))
     .then(admin => {
       agent = admin.result;
       assignmentId = req.body.id;
