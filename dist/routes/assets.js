@@ -7,11 +7,7 @@ var router = express.Router();
 var Durables = require('../models/tables').Durables;
 var Consumables = require('../models/tables').Consumables;
 var users = require('./users');
-var Promise = require('bluebird');
-Promise.config({
-    // Enable cancellation
-    cancellation: true,
-});
+var PromisePlus = require('@dreadhalor/bluebird-plus');
 router.post('/save_asset', function (req, res) {
     var authorization = req.headers.authorization;
     var asset = req.body.asset;
@@ -91,23 +87,22 @@ router.get('/get_durables', function (req, res) {
 });
 router.get('/get_consumables', function (req, res) {
     var authorization = req.headers.authorization;
-    Promise.resolve(users.checkAdminAuthorization(authorization)
-        .catch(function (unauthorized) {
-        console.log(unauthorized);
-        throw 'Unauthorized.';
-    }))
-        .then(Promise.resolve(Consumables.pullAll()
+    PromisePlus.convertToBreakable(users.checkAdminAuthorization(authorization))
+        .break(function (unauthorized) { return res.json({
+        error: {
+            title: 'Fetch consumables error',
+            message: 'Unauthorized.'
+        }
+    }); })
+        .then(function (authorized) { return Consumables.pullAll(); })
         .then(function (consumables) { return res.json({
         error: null,
         result: consumables
     }); })
-        .catch(function (exception) {
-        throw JSON.stringify(exception);
-    })))
-        .catch(function (error) { return res.json({
+        .catch(function (exception) { return res.json({
         error: {
             title: 'Fetch consumables error',
-            message: error
+            message: JSON.stringify(exception)
         }
     }); });
 });
