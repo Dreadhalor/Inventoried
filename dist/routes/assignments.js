@@ -14,9 +14,9 @@ var config = require('../server-config');
 var auth = require('../utilities/auth');
 router.get('/get_assignments', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Fetch assignments error')
+    auth.authguard(authorization, 'admin', 'Fetch assignments error')
         .broken(function (error) { return res.json(error); })
-        .then(function (admin) { return Assignments.pullAll(); })
+        .then(function (agent) { return Assignments.pullAll(); })
         .then(function (assignments) { return res.json({
         error: null,
         result: assignments
@@ -29,7 +29,7 @@ router.post('/create_assignment', function (req, res) {
 var checkoutFxn = function (req, res) {
     var authorization = req.headers.authorization;
     var assignmentId, userId, assetId, checkoutDate, dueDate, checkoutDateParsed, dueDateParsed, agent;
-    return auth.checkAdminAuthorization(authorization, 'Check out error')
+    return auth.authguard(authorization, 'admin', 'Check out error')
         .broken(function (error) { return res.json(error); })
         .then(function (authorized) {
         agent = authorized;
@@ -63,6 +63,8 @@ var checkoutFxn = function (req, res) {
     })
         .then(function (checkedOut) { return res.json(checkedOut); })
         .catch(function (error) {
+        if (typeof error != 'string')
+            error = JSON.stringify(error);
         res.json({
             error: {
                 title: 'Check out error',
@@ -74,7 +76,7 @@ var checkoutFxn = function (req, res) {
 router.post('/checkin', function (req, res) {
     var authorization = req.headers.authorization;
     var agent;
-    auth.checkAdminAuthorization(authorization, 'Check in error')
+    auth.authguard(authorization, 'admin', 'Check in error')
         .broken(function (error) { return res.json(error); })
         .then(function (authorized) {
         agent = authorized;
@@ -89,8 +91,17 @@ router.post('/checkin', function (req, res) {
         ];
         return Promise.all(promises);
     })
-        .then(function (success) { return res.json('success!'); })
-        .catch(function (exception) { return res.json(exception); });
+        .catch(function (error) {
+        if (typeof error != 'string')
+            error = JSON.stringify(error);
+        var result = {
+            error: {
+                title: 'Check in error',
+                message: error
+            }
+        };
+        res.json(result);
+    });
 });
 module.exports = router;
 var parseDate = function (date) {

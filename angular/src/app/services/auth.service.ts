@@ -2,8 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Globals } from './../globals';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import * as jwt from '@auth0/angular-jwt';
 import { Subject } from 'rxjs';
+import { JwtHelperService } from '@auth0/angular-jwt';
+
+const roles = require('../../assets/config.json').roles;
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +19,8 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private jwt: JwtHelperService
   ) {
     this.setLoggedIn(false);
   }
@@ -57,6 +60,12 @@ export class AuthService {
           error => reject(error)
         )
     })
+  }
+
+  roleguard(token: string, role: string){
+    let payload = this.jwt.decodeToken(token);
+    let groups = payload.groups;
+    return groups.includes(roles[role]);
   }
 
 }

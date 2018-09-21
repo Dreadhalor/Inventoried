@@ -46,17 +46,35 @@ import { HistoryPanelComponent } from './components/history/history-panel/histor
 import { DateRangeComponent } from './components/utilities/date-range/date-range.component';
 import { CalendarComponent } from './components/utilities/date-range/calendar/calendar.component';
 import { HttpService } from './services/http.service';
+import { RoleGuard } from './guards/role.guard';
 
 let routes: Routes = [
-  { path: 'browse-assets', component: BrowseAssetsComponent },
-  { path: 'settings', component: SettingsComponent },
-  { path: 'directory', component: DirectoryComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'history', component: HistoryComponent },
-  { path: '**', redirectTo: 'browse-assets', pathMatch: 'full' }
+  { path: 'browse-assets',
+    component: BrowseAssetsComponent,
+    canActivate: [RoleGuard],
+    data: {role: 'admin'} },
+  { path: 'settings',
+    component: SettingsComponent,
+    canActivate: [RoleGuard],
+    data: {role: 'admin'} },
+  { path: 'directory',
+    component: DirectoryComponent,
+    canActivate: [RoleGuard],
+    data: {role: 'admin'} },
+  { path: 'login',
+    component: LoginComponent,
+    canActivate: [RoleGuard],
+    data: {role: 'admin'} },
+  { path: 'history',
+    component: HistoryComponent,
+    canActivate: [RoleGuard],
+    data: {role: 'admin'} },
+  { path: '**',
+    redirectTo: 'browse-assets',
+    pathMatch: 'full' }
 ]
 
-function tokenGetter(){
+const tokenGetter = () => {
   let token = localStorage.getItem('authorization');
   if (token) return token;
   return '';

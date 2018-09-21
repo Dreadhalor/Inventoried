@@ -18,7 +18,7 @@ import * as passport from 'passport';
 
 router.get('/get_all_users', (req, res) => {
   let authorization = req.headers.authorization;
-  auth.checkAdminAuthorization(authorization, 'Fetch users error')
+  auth.authguard(authorization, 'admin', 'Fetch users error')
     .broken(error => res.json(error))
     .then(authorized => {
       let promises = [
@@ -164,39 +164,6 @@ router.post('/authenticate', (req, res) => {
       error: 'Login error',
       message: JSON.stringify(error)
     }))
-})
-
-router.post('/groups', (req, res) => {
-  /*ad.findGroups('CN=*').then(
-    yes => res.json(yes)
-  ).catch(error => res.json(error));*/
-
-  let username = req.body.username;
-  /*ad.isUserMemberOf(username, 'Employees at Applied Technology')
-  .then(result => {
-    res.json({
-      error: null,
-      result: (result) ? username : false
-    })
-  })
-  .catch(exception => {
-    res.json({
-      error: exception
-    })
-  })*/
-
-  ad.getGroupMembershipForUser(username)
-  .then(result => {
-    res.json({
-      error: null,
-      result: result.map(group => group.cn)
-    })
-  })
-  .catch(exception => {
-    res.json({
-      error: exception
-    })
-  })
 })
 
 exports.router = router;

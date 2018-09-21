@@ -9,7 +9,7 @@ var Manufacturers = require('../models/tables').Manufacturers;
 var Tags = require('../models/tables').Tags;
 router.get('/get_settings', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Fetch settings error')
+    auth.authguard(authorization, 'admin', 'Fetch settings error')
         .broken(function (error) { return res.json(error); })
         .then(function (authorized) {
         var durablesCategories = DurablesCategories.pullAll();
@@ -51,7 +51,7 @@ router.post('/set_tags', function (req, res) {
 });
 var merge = function (table, req, res, title) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, title)
+    auth.authguard(authorization, 'admin', title)
         .broken(function (error) { return res.json(error); })
         .then(function (authorized) {
         var args = {

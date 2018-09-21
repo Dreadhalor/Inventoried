@@ -29,7 +29,7 @@ var record = exports.record = function (edit) {
 };
 router.get('/pull_all', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Fetch history error')
+    auth.authguard(authorization, 'admin', 'Fetch history error')
         .broken(function (error) { return res.json(error); })
         .then(function (authorized) { return History.pullAll(); })
         .then(function (history) { return res.json({

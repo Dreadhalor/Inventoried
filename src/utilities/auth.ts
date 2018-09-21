@@ -1,10 +1,12 @@
 const jwt = require('jsonwebtoken');
 const promisify = require('util').promisify;
 const PromisePlus = require('@dreadhalor/bluebird-plus');
+const UserRoles = require('../../config.json').shared.roles;
 const config = require('../server-config');
 const ActiveDirectory = require('activedirectory2');
 const ADPromise = ActiveDirectory.promiseWrapper;
 const ad = new ADPromise(config.activedirectory2);
+const err = require('./error');
 
 const getGroups = (username: string) => {
   return ad.getGroupMembershipForUser(username)
@@ -13,42 +15,30 @@ const getGroups = (username: string) => {
 
 const authenticate = exports.authenticate = (username, password) => {
   return PromisePlus.convertToBreakable(ad.authenticate(username, password))
-    .break(unauthorized => {
-      let error = {
-        error: {
-          title: 'Login error',
-          message: 'Invalid credentials'
-        }
-      }
-      return error;
-    })
+    .break(unauthorized => err.formatError('Invalid credentials.', 'Login error'))
 }
 
-const checkAuthorization = exports.checkAuthorization = (token: string) => {
+const decodeToken = exports.decodeToken = (token: string, role?: string) => {
   let result;
   if (!token) result = Promise.reject();
   else result = promisify(jwt.verify)(token, config.secret);
   return PromisePlus.convertToBreakable(result);
 }
-const checkAdminAuthorization = exports.checkAdminAuthorization = (token: string, title?: string) => {
-  let result = checkAuthorization(token)
-    .then(payload => isAdmin(payload.username));
-  if (title) {
-    let error = {
-      error: {
-        title: title,
-        message: 'Unauthorized.'
-      }
-    };
-    return result.break(unauthorized => error);
-  }
-  return result;
-}
 
-const isAdmin = (username: string) => {
-  return ad.isUserMemberOf(username, 'Applied technology')
-    .then(result => {
-      if (result) return username;
-      throw 'Unauthorized.'
+const authguard = exports.authguard = (token: string, role: string, title?: string) => {
+  let username;
+  let result = decodeToken(token)
+    .then(payload => {
+      username = payload.username;
+      return getGroups(payload.username)
     })
+    .break(invalid => 'Invalid login token.')
+    .then(groups => groups.includes(UserRoles[role]))
+    .then(rolecheck => {
+      if (!rolecheck) throw 'Unauthorized.';
+      return username;
+    })
+    .break(error => error)
+  if (title) return result.broken(errorMsg => err.formatError(errorMsg, title))
+  return result;
 }

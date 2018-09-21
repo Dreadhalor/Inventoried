@@ -13,6 +13,8 @@
     "dbName": "Inventoried"
   },
   "shared": {
-    "adminGroup": "Employees at Applied Technology"
+    "roles" : {
+      "admin": "Ewmployees at Applied Technology"
+    }
   }
 }

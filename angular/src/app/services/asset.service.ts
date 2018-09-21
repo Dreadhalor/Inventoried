@@ -119,7 +119,7 @@ export class AssetService {
       {asset: durable.asInterface()}
     ).subscribe(
       res => {
-        this.saveDurableWithoutPost;
+        this.saveDurableWithoutPost(durable);
         this.assetsEdited.next();
       },
       err => {}
@@ -172,7 +172,7 @@ export class AssetService {
       {asset: consumable.asInterface()}
     ).subscribe(
       res => {
-        this.saveConsumableWithoutPost;
+        this.saveConsumableWithoutPost(consumable);
         this.assetsEdited.next();
       },
       err => {}

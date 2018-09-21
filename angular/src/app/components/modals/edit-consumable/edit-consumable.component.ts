@@ -1,5 +1,5 @@
 import { UserService } from './../../../services/user.service';
-import { Component, OnInit, Inject } from "@angular/core";
+import { Component, OnInit, Inject, OnDestroy } from "@angular/core";
 import { Consumable } from "../../../models/classes/consumable";
 import { InfoService } from "../../../services/info.service";
 import { AssetService } from "../../../services/asset.service";
@@ -13,10 +13,11 @@ import { ICheckoutData } from "../../../models/interfaces/ICheckoutData";
   templateUrl: './edit-consumable.component.html',
   styleUrls: ['./edit-consumable.component.scss']
 })
-export class EditConsumableComponent implements OnInit {
+export class EditConsumableComponent implements OnInit, OnDestroy {
 
   consumable: Consumable;
   editedConsumable: Consumable;
+  subscription;
 
   constructor(
     private is: InfoService,
@@ -38,6 +39,12 @@ export class EditConsumableComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.subscription = this.assets.assetsEdited.asObservable().subscribe(
+      edited => this.refreshConsumables(this.consumable.id)
+    )
+  }
+  ngOnDestroy(){
+    if (this.subscription) this.subscription.unsubscribe();
   }
 
   save(){

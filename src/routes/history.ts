@@ -31,7 +31,7 @@ const record = exports.record = (edit) => {
 
 router.get('/pull_all', (req, res) => {
   let authorization = req.headers.authorization;
-  auth.checkAdminAuthorization(authorization, 'Fetch history error')
+  auth.authguard(authorization, 'admin', 'Fetch history error')
     .broken(error => res.json(error))
     .then(authorized => History.pullAll())
     .then(history => res.json({

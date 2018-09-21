@@ -15,7 +15,7 @@ var PromisePlus = require('@dreadhalor/bluebird-plus');
 var passport = require("passport");
 router.get('/get_all_users', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Fetch users error')
+    auth.authguard(authorization, 'admin', 'Fetch users error')
         .broken(function (error) { return res.json(error); })
         .then(function (authorized) {
         var promises = [
@@ -146,36 +146,6 @@ router.post('/authenticate', function (req, res) {
         error: 'Login error',
         message: JSON.stringify(error)
     }); });
-});
-router.post('/groups', function (req, res) {
-    /*ad.findGroups('CN=*').then(
-      yes => res.json(yes)
-    ).catch(error => res.json(error));*/
-    var username = req.body.username;
-    /*ad.isUserMemberOf(username, 'Employees at Applied Technology')
-    .then(result => {
-      res.json({
-        error: null,
-        result: (result) ? username : false
-      })
-    })
-    .catch(exception => {
-      res.json({
-        error: exception
-      })
-    })*/
-    ad.getGroupMembershipForUser(username)
-        .then(function (result) {
-        res.json({
-            error: null,
-            result: result.map(function (group) { return group.cn; })
-        });
-    })
-        .catch(function (exception) {
-        res.json({
-            error: exception
-        });
-    });
 });
 exports.router = router;
 exports.getUser = getUser;

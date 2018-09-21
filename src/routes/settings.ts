@@ -10,7 +10,7 @@ const Tags = require('../models/tables').Tags;
 
 router.get('/get_settings', (req, res) => {
   let authorization = req.headers.authorization;
-  auth.checkAdminAuthorization(authorization, 'Fetch settings error')
+  auth.authguard(authorization, 'admin', 'Fetch settings error')
     .broken(error => res.json(error))
     .then(authorized => {
       let durablesCategories = DurablesCategories.pullAll();
@@ -54,7 +54,7 @@ router.post('/set_tags', (req, res) => {
 
 const merge = (table, req, res, title) => {
   let authorization = req.headers.authorization;
-  auth.checkAdminAuthorization(authorization, title)
+  auth.authguard(authorization, 'admin', title)
     .broken(error => res.json(error))
     .then(authorized => {
       let args = {

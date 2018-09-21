@@ -16,9 +16,9 @@ const auth = require('../utilities/auth');
 
 router.get('/get_assignments', (req, res) => {
   let authorization = req.headers.authorization;
-  auth.checkAdminAuthorization(authorization, 'Fetch assignments error')
+  auth.authguard(authorization, 'admin', 'Fetch assignments error')
     .broken(error => res.json(error))
-    .then(admin => Assignments.pullAll())
+    .then(agent => Assignments.pullAll())
     .then(assignments => res.json({
       error: null,
       result: assignments
@@ -32,7 +32,7 @@ router.post('/create_assignment', (req, res) => {
 const checkoutFxn = (req, res) => {
   let authorization = req.headers.authorization;
   let assignmentId, userId, assetId, checkoutDate, dueDate, checkoutDateParsed, dueDateParsed, agent;
-  return auth.checkAdminAuthorization(authorization, 'Check out error')
+  return auth.authguard(authorization, 'admin', 'Check out error')
     .broken(error => res.json(error))
     .then(authorized => {
       agent = authorized;
@@ -61,6 +61,7 @@ const checkoutFxn = (req, res) => {
     })
     .then(checkedOut => res.json(checkedOut))
     .catch(error => {
+      if (typeof error != 'string') error = JSON.stringify(error);
       res.json({
         error: {
           title: 'Check out error',
@@ -72,7 +73,7 @@ const checkoutFxn = (req, res) => {
 router.post('/checkin', (req, res) => {
   let authorization = req.headers.authorization;
   let agent;
-  auth.checkAdminAuthorization(authorization, 'Check in error')
+  auth.authguard(authorization, 'admin', 'Check in error')
     .broken(error => res.json(error))
     .then(authorized => {
       agent = authorized;
@@ -87,8 +88,16 @@ router.post('/checkin', (req, res) => {
       ];
       return Promise.all(promises);
     })
-    .then(success => res.json('success!'))
-    .catch(exception => res.json(exception));
+    .catch(error => {
+      if (typeof error != 'string') error = JSON.stringify(error);
+      let result = {
+        error: {
+          title: 'Check in error',
+          message: error
+        }
+      };
+      res.json(result);
+    });
 })
 
 module.exports = router;

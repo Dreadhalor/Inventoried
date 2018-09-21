@@ -33,6 +33,7 @@ export class UserService {
       logout => this.logout()
     )
     if (auth.loggedIn) this.login();
+    else this.loaded = true;
   }
 
   login(){
@@ -43,14 +44,14 @@ export class UserService {
   }
 
   getAllUsers(){
-      this.http.get<IUser[]>(Globals.request_prefix + 'users/get_all_users').subscribe(
-        (users) => {
-          users.forEach(user => this.addUser(new User(user)));
-          this.dataChange.next();
-          this.loaded = true;
-        },
-        error => this.loaded = true
-      )
+    this.http.get<IUser[]>(Globals.request_prefix + 'users/get_all_users').subscribe(
+      (users) => {
+        users.forEach(user => this.addUser(new User(user)));
+        this.dataChange.next();
+        this.loaded = true;
+      },
+      error => this.loaded = true
+    )
   }
   flushUsers(){
     this.users = [];

@@ -1,5 +1,7 @@
 {
   "serverHost": "localhost:5000",
   "serverProtocol": "http",
-  "adminGroup": "Employees at Applied Technology"
+  "roles": {
+    "admin": "Ewmployees at Applied Technology"
+  }
 }

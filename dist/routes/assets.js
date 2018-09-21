@@ -7,22 +7,13 @@ var router = express.Router();
 var Durables = require('../models/tables').Durables;
 var Consumables = require('../models/tables').Consumables;
 var auth = require('../utilities/auth');
-/*const authguard = (req, res, next) => {
-  let authorization = req.headers.authorization;
-  auth.checkAdminAuthorization(authorization)
-    .then(authorized => {
-      res.locals.admin = true;
-      res.locals.agent = authorized;
-    })
-    .break(unauthorized => res.locals.admin = false)
-}*/
 router.post('/save_asset', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Save asset error')
+    auth.authguard(authorization, 'admin', 'Save asset error')
         .broken(function (error) { return res.json(error); })
-        .then(function (authorized) {
+        .then(function (agent) {
         var asset = req.body.asset;
-        return saveAssets(asset, authorized);
+        return saveAssets(asset, agent);
     })
         .then(function (saved) { return res.json({
         error: null,
@@ -37,7 +28,7 @@ router.post('/save_asset', function (req, res) {
 });
 router.post('/save_assets', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Save assets error')
+    auth.authguard(authorization, 'admin', 'Save assets error')
         .broken(function (error) { return res.json(error); })
         .then(function (authorized) {
         var assets = req.body.assets;
@@ -56,7 +47,7 @@ router.post('/save_assets', function (req, res) {
 });
 router.post('/delete_asset', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Delete asset error')
+    auth.authguard(authorization, 'admin', 'Delete asset error')
         .broken(function (error) { return res.json(error); })
         .then(function (admin) {
         var asset = req.body.asset;
@@ -82,7 +73,7 @@ router.post('/delete_asset', function (req, res) {
 });
 router.get('/get_durables', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Fetch durables error')
+    auth.authguard(authorization, 'admin', 'Fetch durables error')
         .broken(function (error) { return res.json(error); })
         .then(function (admin) { return Durables.pullAll(); })
         .then(function (durables) { return res.json({
@@ -98,7 +89,7 @@ router.get('/get_durables', function (req, res) {
 });
 router.get('/get_consumables', function (req, res) {
     var authorization = req.headers.authorization;
-    auth.checkAdminAuthorization(authorization, 'Fetch consumables error')
+    auth.authguard(authorization, 'admin', 'Fetch consumables error')
         .broken(function (error) { return res.json(error); })
         .then(function (authorized) { return Consumables.pullAll(); })
         .then(function (consumables) { return res.json({

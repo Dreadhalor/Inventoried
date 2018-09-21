@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from "@angular/core";
+import { Component, OnInit, Inject, OnDestroy } from "@angular/core";
 import { Durable } from "../../../models/classes/durable";
 import { InfoService } from "../../../services/info.service";
 import { AssetService } from "../../../services/asset.service";
@@ -13,10 +13,11 @@ import { UserService } from "../../../services/user.service";
   templateUrl: './edit-durable.component.html',
   styleUrls: ['./edit-durable.component.scss']
 })
-export class EditDurableComponent implements OnInit {
+export class EditDurableComponent implements OnInit, OnDestroy {
 
   durable: Durable;
   editedDurable: Durable;
+  subscription;
 
   constructor(
     private is: InfoService,
@@ -38,12 +39,17 @@ export class EditDurableComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.subscription = this.assets.assetsEdited.asObservable().subscribe(
+      edited => this.refreshDurables(this.durable.id)
+    )
+  }
+  ngOnDestroy(){
+    if (this.subscription) this.subscription.unsubscribe();
   }
 
   save(){
     this.editedDurable.repair();
     this.assets.saveDurable(this.editedDurable);
-    this.refreshDurables(this.durable.id);
   }
   refreshDurables(id){
     this.durable = this.assets.getDurable(id);

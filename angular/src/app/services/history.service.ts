@@ -37,9 +37,9 @@ export class HistoryService {
   pullHistory(){
     this.http.get<any[]>(
       Globals.request_prefix + 'history/pull_all'
-      )
+    )
     .subscribe(
-      (history: any[]) => {
+      history => {
         history.sort(this.sortHistoryFxn).reverse();
         this.history = history;
         this.dataChange.next();
