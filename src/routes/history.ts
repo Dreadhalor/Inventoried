@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import * as uuid from 'uuid/v4';
 import * as express from 'express';
 const router = express.Router();
-const config = require('../program-config');
+const config = require('../server-config');
 const History = require('../models/tables').History;
 const dbClient = require('@dreadhalor/sql-client');
 const auth = require('../utilities/auth');

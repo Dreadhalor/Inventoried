@@ -11,7 +11,7 @@ const Assignments = require('../models/tables').Assignments;
 
 const assets = require('./assets');
 const users = require('./users');
-const config = require('../program-config');
+const config = require('../server-config');
 const auth = require('../utilities/auth');
 
 router.get('/get_assignments', (req, res) => {

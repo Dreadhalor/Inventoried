@@ -4,14 +4,14 @@ var ProgramConfig;
 (function (ProgramConfig) {
     var path = require('path');
     var fse = require('fs-extra');
-    var config = require('./config');
+    var config = require('../config.json');
     var guidParser = require('./utilities/guid-parse');
     module.exports = {
         activedirectory2: {
             url: 'ldap://la-archdiocese.org',
             baseDN: 'dc=la-archdiocese,dc=org',
-            username: config.ldapUser,
-            password: config.ldapUserPassword,
+            username: config.server.ldapUser,
+            password: config.server.ldapUserPassword,
             entryParser: GUIDtoString,
             attributes: {
                 user: [
@@ -33,12 +33,12 @@ var ProgramConfig;
             }
         },
         mssql: {
-            user: config.dbUser,
-            password: config.dbUserPassword,
-            server: config.dbHost,
-            database: config.dbName,
+            user: config.server.dbUser,
+            password: config.server.dbUserPassword,
+            server: config.server.dbHost,
+            database: config.server.dbName,
             options: {
-                instanceName: config.dbInstance,
+                instanceName: config.server.dbInstance,
                 trustedConnection: true
             }
         },
@@ -46,8 +46,8 @@ var ProgramConfig;
             ldap: {
                 url: 'ldap://la-archdiocese.org/"DC=la-archdiocese,DC=org',
                 base: 'DC=la-archdiocese,DC=org',
-                bindDN: config.ldapUser,
-                bindCredentials: config.ldapUserPassword
+                bindDN: config.server.ldapUser,
+                bindCredentials: config.server.ldapUserPassword
             },
             integrated: false,
             usernameField: 'username',
@@ -64,4 +64,4 @@ var ProgramConfig;
         callback(entry);
     }
 })(ProgramConfig = exports.ProgramConfig || (exports.ProgramConfig = {}));
-//# sourceMappingURL=program-config.js.map
+//# sourceMappingURL=server-config.js.map

@@ -2,7 +2,7 @@ import { IUser } from "../models/interfaces/IUser";
 
 const express = require('express');
 const router = express.Router();
-const config = require('../program-config');
+const config = require('../server-config');
 const guidParser = require('../utilities/guid-parse');
 const WindowsStrategy = require('passport-windowsauth');
 const ActiveDirectory = require('activedirectory2');

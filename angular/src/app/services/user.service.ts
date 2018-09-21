@@ -3,9 +3,9 @@ import { Subject } from "rxjs";
 import { IUser } from "../models/interfaces/IUser";
 import { Globals } from "../globals";
 import { User } from "../models/classes/user";
-import { SeedValues } from "./seedvalues";
 import { Assignment } from "../models/classes/assignment";
 import { HttpClient } from "@angular/common/http";
+import { AuthService } from "./auth.service";
 
 
 @Injectable({
@@ -23,29 +23,38 @@ export class UserService {
   public loaded = false;
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private auth: AuthService
   ) {
-    this.getAllUsers()
-      .then(users =>{
-        this.dataChange.next();
-        this.loaded = true;
-      })
-      .catch(exception => this.getSeedUsers());
+    auth.login.asObservable().subscribe(
+      login => this.login()
+    )
+    auth.logout.asObservable().subscribe(
+      logout => this.logout()
+    )
+    if (auth.loggedIn) this.login();
+  }
+
+  login(){
+    this.getAllUsers();
+  }
+  logout(){
+    this.flushUsers();
   }
 
   getAllUsers(){
-    return new Promise((resolve, reject) => {
       this.http.get<IUser[]>(Globals.request_prefix + 'users/get_all_users').subscribe(
-        (iusers) => {
-          iusers.forEach(iuser => this.addUser(new User(iuser)));
-          resolve();
+        (users) => {
+          users.forEach(user => this.addUser(new User(user)));
+          this.dataChange.next();
+          this.loaded = true;
         },
-        (error) => reject()
+        error => this.loaded = true
       )
-    })
   }
-  getSeedUsers(){
-    SeedValues.initUsers.forEach(iuser => this.addUser(new User(iuser)));
+  flushUsers(){
+    this.users = [];
+    this.dataChange.next();
   }
 
   addUser(user: User){

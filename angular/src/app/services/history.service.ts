@@ -17,7 +17,21 @@ export class HistoryService {
     private http: HttpClient,
     private auth: AuthService
   ) {
+    auth.login.asObservable().subscribe(
+      login => this.login()
+    )
+    auth.logout.asObservable().subscribe(
+      logout => this.logout()
+    )
+    if (auth.loggedIn) this.login();
+  }
+
+  login(){
     this.pullHistory();
+  }
+  logout(){
+    this.history = [];
+    this.dataChange.next();
   }
 
   pullHistory(){

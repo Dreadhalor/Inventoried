@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require('express');
 var router = express.Router();
-var config = require('../program-config');
+var config = require('../server-config');
 var guidParser = require('../utilities/guid-parse');
 var WindowsStrategy = require('passport-windowsauth');
 var ActiveDirectory = require('activedirectory2');

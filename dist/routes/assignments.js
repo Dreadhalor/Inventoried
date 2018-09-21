@@ -10,7 +10,7 @@ var PromiseQueue = new PromisePlus.Queue();
 var Assignments = require('../models/tables').Assignments;
 var assets = require('./assets');
 var users = require('./users');
-var config = require('../program-config');
+var config = require('../server-config');
 var auth = require('../utilities/auth');
 router.get('/get_assignments', function (req, res) {
     var authorization = req.headers.authorization;

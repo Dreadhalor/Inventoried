@@ -1,5 +1,5 @@
 {
-  "adminGroup": "Employees at Applied Technology",
   "serverHost": "localhost:5000",
-  "serverProtocol": "http"
+  "serverProtocol": "http",
+  "adminGroup": "Employees at Applied Technology"
 }

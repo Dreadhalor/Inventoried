@@ -1,10 +1,15 @@
 const jwt = require('jsonwebtoken');
 const promisify = require('util').promisify;
 const PromisePlus = require('@dreadhalor/bluebird-plus');
-const config = require('../program-config');
+const config = require('../server-config');
 const ActiveDirectory = require('activedirectory2');
 const ADPromise = ActiveDirectory.promiseWrapper;
 const ad = new ADPromise(config.activedirectory2);
+
+const getGroups = (username: string) => {
+  return ad.getGroupMembershipForUser(username)
+    .then(result => result.map(group => group.cn));
+}
 
 const authenticate = exports.authenticate = (username, password) => {
   return PromisePlus.convertToBreakable(ad.authenticate(username, password))

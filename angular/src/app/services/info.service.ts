@@ -14,7 +14,23 @@ export class InfoService {
     private http: HttpClient,
     private auth: AuthService
   ) {
+    auth.login.asObservable().subscribe(
+      login => this.login()
+    )
+    auth.logout.asObservable().subscribe(
+      logout => this.logout()
+    )
+    if (auth.loggedIn) this.login();
+  }
+
+  login(){
     this.fetchSettings();
+  }
+  logout(){
+    this.durablesCategories = [];
+    this.consumablesCategories = [];
+    this.manufacturers = [];
+    this.tags = [];
   }
 
   //Shared

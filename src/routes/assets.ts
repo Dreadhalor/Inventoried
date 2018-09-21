@@ -8,6 +8,16 @@ const Durables = require('../models/tables').Durables;
 const Consumables = require('../models/tables').Consumables;
 const auth = require('../utilities/auth');
 
+/*const authguard = (req, res, next) => {
+  let authorization = req.headers.authorization;
+  auth.checkAdminAuthorization(authorization)
+    .then(authorized => {
+      res.locals.admin = true;
+      res.locals.agent = authorized;
+    })
+    .break(unauthorized => res.locals.admin = false)
+}*/
+
 router.post('/save_asset', (req, res) => {
   let authorization = req.headers.authorization;
   auth.checkAdminAuthorization(authorization, 'Save asset error')

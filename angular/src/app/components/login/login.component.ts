@@ -20,7 +20,7 @@ export class LoginComponent implements OnInit {
 
   loginSubmitted(){
     this.auth.logIn(this.user, this.pass)
-      .catch(exception => console.log(exception));
+      .catch(exception => {});
   }
 
 }

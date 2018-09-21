@@ -26,7 +26,20 @@ export class AssignmentService {
     private http: HttpClient,
     private auth: AuthService
   ){
+    auth.login.asObservable().subscribe(
+      login => this.login()
+    )
+    auth.logout.asObservable().subscribe(
+      logout => this.logout()
+    )
+    if (auth.loggedIn) this.login();
+  }
+
+  login(){
     this.fetchAssignments();
+  }
+  logout(){
+    this.assignments = [];
   }
 
   fetchAssignments(){

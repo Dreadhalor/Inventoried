@@ -1,15 +1,15 @@
 export module ProgramConfig {
   const path = require('path');
   const fse = require('fs-extra');
-  const config = require('./config');
+  const config = require('../config.json');
   const guidParser = require('./utilities/guid-parse');
 
   module.exports = {
     activedirectory2: {
       url: 'ldap://la-archdiocese.org',
       baseDN: 'dc=la-archdiocese,dc=org',
-      username: config.ldapUser,
-      password: config.ldapUserPassword,
+      username: config.server.ldapUser,
+      password: config.server.ldapUserPassword,
       entryParser: GUIDtoString,
       attributes: {
         user: [
@@ -31,12 +31,12 @@ export module ProgramConfig {
       }
     },
     mssql: {
-      user: config.dbUser,
-      password: config.dbUserPassword,
-      server: config.dbHost,
-      database: config.dbName,
+      user: config.server.dbUser,
+      password: config.server.dbUserPassword,
+      server: config.server.dbHost,
+      database: config.server.dbName,
       options: {
-        instanceName: config.dbInstance,
+        instanceName: config.server.dbInstance,
         trustedConnection: true
       }
     },
@@ -44,8 +44,8 @@ export module ProgramConfig {
       ldap: {
         url:             'ldap://la-archdiocese.org/"DC=la-archdiocese,DC=org',
         base:            'DC=la-archdiocese,DC=org',
-        bindDN:          config.ldapUser,
-        bindCredentials: config.ldapUserPassword
+        bindDN:          config.server.ldapUser,
+        bindCredentials: config.server.ldapUserPassword
       },
       integrated: false,
       usernameField: 'username',

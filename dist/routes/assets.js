@@ -7,6 +7,15 @@ var router = express.Router();
 var Durables = require('../models/tables').Durables;
 var Consumables = require('../models/tables').Consumables;
 var auth = require('../utilities/auth');
+/*const authguard = (req, res, next) => {
+  let authorization = req.headers.authorization;
+  auth.checkAdminAuthorization(authorization)
+    .then(authorized => {
+      res.locals.admin = true;
+      res.locals.agent = authorized;
+    })
+    .break(unauthorized => res.locals.admin = false)
+}*/
 router.post('/save_asset', function (req, res) {
     var authorization = req.headers.authorization;
     auth.checkAdminAuthorization(authorization, 'Save asset error')

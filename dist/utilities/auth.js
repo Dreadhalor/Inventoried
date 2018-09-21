@@ -1,10 +1,14 @@
 var jwt = require('jsonwebtoken');
 var promisify = require('util').promisify;
 var PromisePlus = require('@dreadhalor/bluebird-plus');
-var config = require('../program-config');
+var config = require('../server-config');
 var ActiveDirectory = require('activedirectory2');
 var ADPromise = ActiveDirectory.promiseWrapper;
 var ad = new ADPromise(config.activedirectory2);
+var getGroups = function (username) {
+    return ad.getGroupMembershipForUser(username)
+        .then(function (result) { return result.map(function (group) { return group.cn; }); });
+};
 var authenticate = exports.authenticate = function (username, password) {
     return PromisePlus.convertToBreakable(ad.authenticate(username, password))
         .break(function (unauthorized) {

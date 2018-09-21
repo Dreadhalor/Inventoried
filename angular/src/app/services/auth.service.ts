@@ -3,6 +3,7 @@ import { Globals } from './../globals';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import * as jwt from '@auth0/angular-jwt';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,9 @@ import * as jwt from '@auth0/angular-jwt';
 export class AuthService {
 
   loggedIn = false;
+
+  login = new Subject<void>();
+  logout = new Subject<void>();
 
   constructor(
     private http: HttpClient,
@@ -20,6 +24,8 @@ export class AuthService {
 
   setLoggedIn(redirect: boolean){
     this.loggedIn = !!localStorage.getItem('authorization');
+    if (this.loggedIn) this.login.next();
+    else this.logout.next();
     if (redirect){
       if (this.loggedIn) this.router.navigateByUrl('/browse-assets');
       else this.router.navigateByUrl('/login');
@@ -33,7 +39,6 @@ export class AuthService {
         this.setLoggedIn(true);
         return token;
       })
-      .catch(error => console.log(error))
   }
   logOut(){
     localStorage.removeItem('authorization');

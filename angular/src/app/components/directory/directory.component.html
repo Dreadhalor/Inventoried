@@ -4,7 +4,7 @@
     User Directory
   </h1>
 
-  <ng-container *ngIf="us.users.length == 0; else hasUsers">
+  <ng-container *ngIf="us.loaded == 0; else hasUsers">
     <h4 class="text-center">
       Loading users...
     </h4>

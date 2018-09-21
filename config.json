@@ -1,0 +1,18 @@
+{
+  "client": {
+    "serverHost": "localhost:5000",
+    "serverProtocol": "http"
+  },
+  "server": {
+    "ldapUser": "scott.hetrick@la-archdiocese.org",
+    "ldapUserPassword": "abc#123",
+    "dbUser": "scott.hetrick@la-archdiocese.org",
+    "dbUserPassword": "abc#123",
+    "dbHost": "localhost",
+    "dbInstance": "SQLEXPRESS",
+    "dbName": "Inventoried"
+  },
+  "shared": {
+    "adminGroup": "Employees at Applied Technology"
+  }
+}

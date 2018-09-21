@@ -42,8 +42,23 @@ export class AssetService {
     private infoService: InfoService,
     private http: HttpClient
   ) {
+    auth.login.asObservable().subscribe(
+      login => this.login()
+    )
+    auth.logout.asObservable().subscribe(
+      logout => this.logout()
+    )
+    if (auth.loggedIn) this.login();
+  }
+
+  login(){
     this.fetchDurables();
     this.fetchConsumables();
+  }
+  logout(){
+    this.durables = [];
+    this.consumables = [];
+    this.assetsEdited.next();
   }
 
   //Durables

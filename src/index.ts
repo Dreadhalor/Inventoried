@@ -4,8 +4,10 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as passport from 'passport';
 
-const config = require('./config');
-const dbConfig = require('./program-config');
+const jsonfile = require('jsonfile');
+const diff = require('deep-diff');
+const config = require('../config.json');
+const dbConfig = require('./server-config');
 const dbClient = require('@dreadhalor/sql-client');
 dbClient.connect(dbConfig.mssql)
   .then(connected => console.log('Successfully connected to SQL server.'))
@@ -13,8 +15,29 @@ dbClient.connect(dbConfig.mssql)
     `SQL server connection error -> ${exception}`
   ));
 
+//create client config.json
+let srcpath = path.resolve(__dirname, '../config.json');
+let destpath = path.resolve(__dirname,'../angular/src/assets/config.json');
+let destpathprod = path.resolve(__dirname,'../dist/client/assets/config.json');
+let srcobj, destobj;
+jsonfile.readFile(destpath)
+  .then(exists => destobj = exists)
+  .catch(notExists => destobj = {})
+  .then(objcreated => jsonfile.readFile(srcpath))
+  .then(exists => {
+    srcobj = exists;
+    let clientobj = srcobj.client;
+    let keys = Object.keys(srcobj.shared);
+    keys.forEach(key => clientobj[key] = srcobj.shared[key]);
+    let differences = diff(clientobj, destobj);
+    if (differences) return jsonfile.writeFile(destpath, clientobj, { spaces: 2 })
+  })
+  .catch(error => console.log(error));
+
+//define port & create express app
 const port = process.env.PORT || 5000;
 const app = express();
+
 
 //CORS middleware
 app.use(cors());
