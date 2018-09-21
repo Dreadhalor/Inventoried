@@ -11,15 +11,11 @@ var Assignments = require('../models/tables').Assignments;
 var assets = require('./assets');
 var users = require('./users');
 var config = require('../program-config');
+var auth = require('../utilities/auth');
 router.get('/get_assignments', function (req, res) {
     var authorization = req.headers.authorization;
-    users.checkAdminAuthorization(authorization)
-        .catch(function (unauthorized) { return res.json({
-        error: {
-            title: 'Fetch assignments error',
-            message: 'Unauthorized.'
-        }
-    }); })
+    auth.checkAdminAuthorization(authorization, 'Fetch assignments error')
+        .broken(function (error) { return res.json(error); })
         .then(function (admin) { return Assignments.pullAll(); })
         .then(function (assignments) { return res.json({
         error: null,
@@ -33,15 +29,10 @@ router.post('/create_assignment', function (req, res) {
 var checkoutFxn = function (req, res) {
     var authorization = req.headers.authorization;
     var assignmentId, userId, assetId, checkoutDate, dueDate, checkoutDateParsed, dueDateParsed, agent;
-    return users.checkAdminAuthorization(authorization)
-        .catch(function (unauthorized) { return res.json({
-        error: {
-            title: 'Checkout error',
-            message: 'Unauthorized.'
-        }
-    }); })
-        .then(function (admin) {
-        agent = admin.result;
+    return auth.checkAdminAuthorization(authorization, 'Check out error')
+        .broken(function (error) { return res.json(error); })
+        .then(function (authorized) {
+        agent = authorized;
         assignmentId = req.body.id;
         userId = req.body.userId;
         assetId = req.body.assetId;
@@ -65,31 +56,35 @@ var checkoutFxn = function (req, res) {
         var asset = result[1];
         if (user && asset) { //user & asset are both valid objects in the database
             //All inputs are valid
-            return checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, agent, authorization);
+            return checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, agent);
         }
         else
             throw 'User and asset are not both valid.';
     })
         .then(function (checkedOut) { return res.json(checkedOut); })
         .catch(function (error) {
-        console.log(error);
-        res.json(error);
+        res.json({
+            error: {
+                title: 'Check out error',
+                message: error
+            }
+        });
     });
 };
 router.post('/checkin', function (req, res) {
     var authorization = req.headers.authorization;
     var agent;
-    users.checkAdminAuthorization(authorization)
-        .catch(function (unauthorized) { return res.send('Unauthorized.'); })
-        .then(function (admin) {
-        agent = admin.result;
+    auth.checkAdminAuthorization(authorization, 'Check in error')
+        .broken(function (error) { return res.json(error); })
+        .then(function (authorized) {
+        agent = authorized;
         var id = req.body.assignmentId;
         return Assignments.findById(id);
     })
         .then(function (assignment) {
         var promises = [
             Assignments.deleteById(assignment.id, agent),
-            users.checkin(assignment.userId, assignment.id, agent),
+            auth.checkin(assignment.userId, assignment.id, agent),
             assets.checkin(assignment.assetId, assignment.id, agent)
         ];
         return Promise.all(promises);
@@ -107,7 +102,7 @@ var parseDate = function (date) {
     }
     return null;
 };
-var checkout = function (assignmentId, user, asset, checkoutDate, dueDate, agent, authorization) {
+var checkout = function (assignmentId, user, asset, checkoutDate, dueDate, agent) {
     var iassignment = {
         id: assignmentId,
         userId: user.id,
@@ -132,8 +127,8 @@ var checkout = function (assignmentId, user, asset, checkoutDate, dueDate, agent
     };
     return Promise.all([
         Assignments.save(assignment, agent),
-        assets.saveAsset(asset.asset, authorization),
-        users.saveUser(userToSave, authorization)
+        assets.saveAsset(asset.asset, agent),
+        users.saveUser(userToSave, agent)
     ]);
 };
 //# sourceMappingURL=assignments.js.map

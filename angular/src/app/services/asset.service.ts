@@ -42,13 +42,7 @@ export class AssetService {
     private infoService: InfoService,
     private http: HttpClient
   ) {
-    /*SeedValues.initDurables.forEach(idurable => {
-      this.addDurable(new Durable(idurable));
-    })*/
-    //this.fetchDurables();
-    /*SeedValues.initConsumables.forEach(iconsumable => {
-      this.addConsumable(new Consumable(iconsumable));
-    })*/
+    this.fetchDurables();
     this.fetchConsumables();
   }
 
@@ -64,7 +58,7 @@ export class AssetService {
     this.http.get(Globals.request_prefix + 'assets/get_durables')
       .subscribe(
         durables => this.setDurables(durables as IDurable[]),
-        error => console.log(error)
+        error => {}
       );
   }
   addDurableWithoutPost(durable: Durable){
@@ -77,34 +71,43 @@ export class AssetService {
     this.durables.push(durable);
   }
   addDurable(durable: Durable){
-    this.addDurableWithoutPost(durable);
     this.http.post(
       Globals.request_prefix + 'assets/save_asset',
       {asset: durable.asInterface()}
     ).subscribe(
-      res => this.assetsEdited.next(),
-      err => console.log(err)
+      res => {
+        this.addDurableWithoutPost(durable);
+        this.assetsEdited.next();
+      },
+      err => {}
     );
   }
   addDurables(durables: Durable[]){
-    durables.forEach(durable => this.addDurableWithoutPost(durable));
     this.http.post(
       Globals.request_prefix + 'assets/save_assets',
       {assets: durables.map(durable => durable.asInterface())}
     ).subscribe(
-      res => this.assetsEdited.next(),
-      err => console.log(err)
+      res => {
+        durables.forEach(durable => this.addDurableWithoutPost(durable));
+        this.assetsEdited.next();
+      },
+      err => {}
     );
   }
-  saveDurable(durable: Durable){
+  saveDurableWithoutPost(durable: Durable){
     let index = this.durables.findIndex(match => match.id == durable.id);
     if (index >= 0) this.durables[index] = durable;
+  }
+  saveDurable(durable: Durable){
     this.http.post(
       Globals.request_prefix + 'assets/save_asset',
       {asset: durable.asInterface()}
     ).subscribe(
-      res => this.assetsEdited.next(),
-      err => console.log(err)
+      res => {
+        this.saveDurableWithoutPost;
+        this.assetsEdited.next();
+      },
+      err => {}
     );
   }
 
@@ -120,7 +123,7 @@ export class AssetService {
     this.http.get(Globals.request_prefix + 'assets/get_consumables')
       .subscribe(
         consumables => this.setConsumables(consumables as IConsumable[]),
-        error => console.log(error)
+        error => {}
       );
   }
   addConsumableWithoutPost(consumable: Consumable){
@@ -133,24 +136,31 @@ export class AssetService {
     this.consumables.push(consumable);
   }
   addConsumable(consumable: Consumable){
-    this.addConsumableWithoutPost(consumable);
     this.http.post(
       Globals.request_prefix + 'assets/save_asset',
       {asset: consumable.asInterface()}
     ).subscribe(
-      res => this.assetsEdited.next(),
-      err => console.log(err)
+      res => {
+        this.addConsumableWithoutPost(consumable);
+        this.assetsEdited.next();
+      },
+      err => {}
     );
   }
-  saveConsumable(consumable: Consumable){
+  saveConsumableWithoutPost(consumable: Consumable){
     let index = this.consumables.findIndex(match => match.id == consumable.id);
     if (index >= 0) this.consumables[index] = consumable;
+  }
+  saveConsumable(consumable: Consumable){
     this.http.post(
       Globals.request_prefix + 'assets/save_asset',
       {asset: consumable.asInterface()}
     ).subscribe(
-      res => this.assetsEdited.next(),
-      err => console.log(err)
+      res => {
+        this.saveConsumableWithoutPost;
+        this.assetsEdited.next();
+      },
+      err => {}
     );
   }
 
@@ -169,13 +179,15 @@ export class AssetService {
     if (index >= 0) this.consumables.splice(index,1);
   }
   deleteAsset(asset: Asset){
-    this.deleteAssetWithoutPosting(asset);
     this.http.post(
       Globals.request_prefix + 'assets/delete_asset',
       {asset: asset.asInterface()}
     ).subscribe(
-      res => this.assetsEdited.next(),
-      err => console.log(err)
+      res => {
+        this.deleteAssetWithoutPosting(asset);
+        this.assetsEdited.next()
+      },
+      err => {}
     );
   }
   assign(assignment: Assignment){

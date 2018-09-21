@@ -30,7 +30,7 @@ export class HistoryService {
         this.history = history;
         this.dataChange.next();
       },
-      error => console.log(error)
+      error => {}
     )
   }
 

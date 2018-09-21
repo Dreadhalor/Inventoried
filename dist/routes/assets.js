@@ -6,42 +6,49 @@ var express = require('express');
 var router = express.Router();
 var Durables = require('../models/tables').Durables;
 var Consumables = require('../models/tables').Consumables;
-var users = require('./users');
-var PromisePlus = require('@dreadhalor/bluebird-plus');
+var auth = require('../utilities/auth');
 router.post('/save_asset', function (req, res) {
     var authorization = req.headers.authorization;
-    var asset = req.body.asset;
-    saveAssets(asset, authorization)
+    auth.checkAdminAuthorization(authorization, 'Save asset error')
+        .broken(function (error) { return res.json(error); })
+        .then(function (authorized) {
+        var asset = req.body.asset;
+        return saveAssets(asset, authorized);
+    })
         .then(function (saved) { return res.json({
         error: null,
         result: saved
     }); })
-        .catch(function (exception) { return res.json({
+        .catch(function (errorMessage) { return res.json({
         error: {
-            title: 'Save error',
-            message: 'Unauthorized.'
+            title: 'Save asset error',
+            message: errorMessage
         }
     }); });
 });
 router.post('/save_assets', function (req, res) {
     var authorization = req.headers.authorization;
-    var assets = req.body.assets;
-    saveAssets(assets, authorization)
+    auth.checkAdminAuthorization(authorization, 'Save assets error')
+        .broken(function (error) { return res.json(error); })
+        .then(function (authorized) {
+        var assets = req.body.assets;
+        return saveAssets(assets, authorized);
+    })
         .then(function (saved) { return res.json({
         error: null,
         result: saved
     }); })
-        .catch(function (exception) { return res.json({
+        .catch(function (errorMessage) { return res.json({
         error: {
-            title: 'Save error',
-            message: 'Unauthorized.'
+            title: 'Save assets error',
+            message: errorMessage
         }
     }); });
 });
 router.post('/delete_asset', function (req, res) {
     var authorization = req.headers.authorization;
-    users.checkAdminAuthorization(authorization)
-        .catch(function (exception) { return res.json('Unauthorized.'); })
+    auth.checkAdminAuthorization(authorization, 'Delete asset error')
+        .broken(function (error) { return res.json(error); })
         .then(function (admin) {
         var asset = req.body.asset;
         if (asset) {
@@ -66,13 +73,8 @@ router.post('/delete_asset', function (req, res) {
 });
 router.get('/get_durables', function (req, res) {
     var authorization = req.headers.authorization;
-    users.checkAdminAuthorization(authorization)
-        .catch(function (unauthorized) { return res.json({
-        error: {
-            title: 'Fetch durables error',
-            message: 'Unauthorized.'
-        }
-    }); })
+    auth.checkAdminAuthorization(authorization, 'Fetch durables error')
+        .broken(function (error) { return res.json(error); })
         .then(function (admin) { return Durables.pullAll(); })
         .then(function (durables) { return res.json({
         error: null,
@@ -87,13 +89,8 @@ router.get('/get_durables', function (req, res) {
 });
 router.get('/get_consumables', function (req, res) {
     var authorization = req.headers.authorization;
-    PromisePlus.convertToBreakable(users.checkAdminAuthorization(authorization))
-        .break(function (unauthorized) { return res.json({
-        error: {
-            title: 'Fetch consumables error',
-            message: 'Unauthorized.'
-        }
-    }); })
+    auth.checkAdminAuthorization(authorization, 'Fetch consumables error')
+        .broken(function (error) { return res.json(error); })
         .then(function (authorized) { return Consumables.pullAll(); })
         .then(function (consumables) { return res.json({
         error: null,
@@ -133,57 +130,36 @@ function typeCheck(asset) {
         return 'consumable';
     return '';
 }
-var saveAsset = exports.saveAsset = function (asset, authorization) {
-    return saveAssets(asset, authorization);
-    /*return users.checkAdminAuthorization(authorization)
-      .catch(exception => 'User is not authorized for this.')
-      .then(admin => {
-        if (asset){
-          switch(typeCheck(asset)){
-            case 'durable': return Durables.save(asset, admin.result);
-            case 'consumable': return Consumables.save(asset, admin.result);
-            default: throw 'Object to save must be an asset.'
-          }
-        } else throw 'No asset to save.';
-      })*/
+var saveAsset = exports.saveAsset = function (asset, agent) {
+    return saveAssets(asset, agent);
 };
-var saveAssets = exports.saveAssets = function (assets, authorization) {
-    return users.checkAdminAuthorization(authorization)
-        .catch(function (exception) { return 'User is not authorized for this.'; })
-        .then(function (admin) {
-        if (assets) {
-            if (!Array.isArray(assets)) {
-                var array = [];
-                array.push(assets);
-                assets = array;
-            }
-            var durables_1 = [];
-            var consumables_1 = [];
-            assets.forEach(function (asset) {
-                switch (typeCheck(asset)) {
-                    case 'durable':
-                        durables_1.push(asset);
-                        break;
-                    case 'consumable':
-                        consumables_1.push(asset);
-                        break;
-                    default: throw 'All objects to save must be assets.';
-                }
-            });
-            //CURRENTLY: if presented with durables + consumables, only saves the durables
-            if (durables_1.length > 0)
-                return Durables.save(durables_1, admin.result);
-            if (consumables_1.length > 0)
-                return Consumables.save(consumables_1, admin.result);
-            return Promise.resolve({});
-            //let promises = [];
-            //if (durables.length > 0) promises.push(Durables.save(durables, admin.result));
-            //if (consumables.length > 0) promises.push(Consumables.save(consumables, admin.result));
-            //return Promise.all(promises);
+var saveAssets = exports.saveAssets = function (assets, agent) {
+    if (assets) {
+        if (!Array.isArray(assets)) {
+            var array = [];
+            array.push(assets);
+            assets = array;
         }
-        else
-            throw 'No asset to save.';
-    });
+        var durables_1 = [];
+        var consumables_1 = [];
+        assets.forEach(function (asset) {
+            switch (typeCheck(asset)) {
+                case 'durable':
+                    durables_1.push(asset);
+                    break;
+                case 'consumable':
+                    consumables_1.push(asset);
+                    break;
+                default: throw 'All objects to save must be assets.';
+            }
+        });
+        //CURRENTLY: if presented with durables + consumables, only saves the durables
+        if (durables_1.length > 0)
+            return Durables.save(durables_1, agent);
+        if (consumables_1.length > 0)
+            return Consumables.save(consumables_1, agent);
+        return Promise.resolve({});
+    }
 };
 var checkin = exports.checkin = function (assetId, assignmentId, agent) {
     if (assetId)

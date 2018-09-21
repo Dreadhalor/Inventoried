@@ -5,6 +5,7 @@ const router = express.Router();
 const config = require('../program-config');
 const History = require('../models/tables').History;
 const dbClient = require('@dreadhalor/sql-client');
+const auth = require('../utilities/auth');
 
 let subscription = dbClient.history.subscribe(
   next => {
@@ -29,7 +30,10 @@ const record = exports.record = (edit) => {
 }
 
 router.get('/pull_all', (req, res) => {
-  History.pullAll()
+  let authorization = req.headers.authorization;
+  auth.checkAdminAuthorization(authorization, 'Fetch history error')
+    .broken(error => res.json(error))
+    .then(authorized => History.pullAll())
     .then(history => res.json({
       error: null,
       result: history

@@ -7,23 +7,30 @@ const guidParser = require('../utilities/guid-parse');
 const WindowsStrategy = require('passport-windowsauth');
 const ActiveDirectory = require('activedirectory2');
 const ADPromise = ActiveDirectory.promiseWrapper;
+const ad = new ADPromise(config.activedirectory2);
 const Users = require('../models/tables').Users;
-let ad = new ADPromise(config.activedirectory2);
-let jwt = require('jsonwebtoken');
-let promisify = require('util').promisify;
+const jwt = require('jsonwebtoken');
+const auth = require('../utilities/auth');
+const PromisePlus = require('@dreadhalor/bluebird-plus');
+
 
 import * as passport from 'passport';
 
-router.get('/get_all_users', async (req, res) => {
-  let promises = [
-    ad.findUsers({paged: true}),
-    Users.pullAll()
-  ]
-  Promise.all(promises)
+router.get('/get_all_users', (req, res) => {
+  let authorization = req.headers.authorization;
+  auth.checkAdminAuthorization(authorization, 'Fetch users error')
+    .broken(error => res.json(error))
+    .then(authorized => {
+      let promises = [
+        ad.findUsers({paged: true}),
+        Users.pullAll()
+      ]
+      return Promise.all(promises)
+    })
     .then(success => {
       let adUsers = success[0];
       let dbUsers = success[1];
-      if (adUsers.length == 0) res.json('No users found.');
+      if (adUsers.length == 0) throw 'No users found.';
       else {
         adUsers = adUsers.map(user => formatLDAPData(user))
           .map(user => {
@@ -139,16 +146,9 @@ router.post('/login',
 router.post('/authenticate', (req, res) => {
   let username = req.body.username;
   let password = req.body.password;
-  ad.authenticate(username, password)
+  auth.authenticate(username, password)
+    .broken(error => res.json(error))
     .then(authenticated => ad.getGroupMembershipForUser(username))
-    .catch(error => {
-      res.json({
-        error: {
-          title: 'Login error',
-          message: 'Invalid credentials'
-        }
-      })
-    })
     .then(groups => {
       let payload = {
         username: req.body.username.toLowerCase(),
@@ -202,37 +202,9 @@ router.post('/groups', (req, res) => {
 exports.router = router;
 exports.getUser = getUser;
 
-const isAdmin = (username: string) => {
-  return ad.isUserMemberOf(username, 'Applied Technology')
-  .then(result => {
-    return {
-      error: null,
-      result: (result) ? username : false
-    }
-  })
-  .catch(exception => {
-    return {
-      error: exception
-    }
-  })
-}
-
-const checkAuthorization = exports.checkAuthorization = (token: string) => {
-  if (!token) return Promise.reject();
-  return promisify(jwt.verify)(token, config.secret);
-}
-const checkAdminAuthorization = exports.checkAdminAuthorization = (token: string) => {
-  return checkAuthorization(token)
-    .then(payload => isAdmin(payload.username));
-}
-
-const saveUser = exports.saveUser = (user, authorization) => {
-  return checkAdminAuthorization(authorization)
-    .catch(exception => 'User is not authorized for this.')
-    .then(admin => {
-      if (user) return Users.save(user, admin.result);
-      throw 'No user to save.';
-    })
+const saveUser = exports.saveUser = (user, agent) => {
+  if (user) return Users.save(user, agent);
+  throw 'No user to save.';
 }
 const checkin = exports.checkin = (userId, assignmentId, agent) => {
   if (userId) return getUser(userId)

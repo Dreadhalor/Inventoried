@@ -6,44 +6,50 @@ const router = express.Router();
 
 const Durables = require('../models/tables').Durables;
 const Consumables = require('../models/tables').Consumables;
-const users = require('./users');
-
-let PromisePlus = require('@dreadhalor/bluebird-plus');
+const auth = require('../utilities/auth');
 
 router.post('/save_asset', (req, res) => {
   let authorization = req.headers.authorization;
-  let asset = req.body.asset;
-  saveAssets(asset,authorization)
+  auth.checkAdminAuthorization(authorization, 'Save asset error')
+    .broken(error => res.json(error))
+    .then(authorized => {
+      let asset = req.body.asset;
+      return saveAssets(asset, authorized)
+    })
     .then(saved => res.json({
       error: null,
       result: saved
     }))
-    .catch(exception => res.json({
+    .catch(errorMessage => res.json({
       error: {
-        title: 'Save error',
-        message: 'Unauthorized.'
+        title: 'Save asset error',
+        message: errorMessage
       }
     }));
 })
 router.post('/save_assets', (req, res) => {
   let authorization = req.headers.authorization;
-  let assets = req.body.assets;
-  saveAssets(assets,authorization)
+  auth.checkAdminAuthorization(authorization, 'Save assets error')
+    .broken(error => res.json(error))
+    .then(authorized => {
+      let assets = req.body.assets;
+      return saveAssets(assets, authorized)
+    })
     .then(saved => res.json({
       error: null,
       result: saved
     }))
-    .catch(exception => res.json({
+    .catch(errorMessage => res.json({
       error: {
-        title: 'Save error',
-        message: 'Unauthorized.'
+        title: 'Save assets error',
+        message: errorMessage
       }
     }));
 })
 router.post('/delete_asset', (req, res) => {
   let authorization = req.headers.authorization;
-  users.checkAdminAuthorization(authorization)
-    .catch(exception => res.json('Unauthorized.'))
+  auth.checkAdminAuthorization(authorization, 'Delete asset error')
+    .broken(error => res.json(error))
     .then(admin => {
       let asset = req.body.asset;
       if (asset){
@@ -67,13 +73,8 @@ router.post('/delete_asset', (req, res) => {
 
 router.get('/get_durables', (req, res) => {
   let authorization = req.headers.authorization;
-  users.checkAdminAuthorization(authorization)
-    .catch(unauthorized => res.json({
-      error: {
-        title: 'Fetch durables error',
-        message: 'Unauthorized.'
-      }
-    }))
+  auth.checkAdminAuthorization(authorization, 'Fetch durables error')
+    .broken(error => res.json(error))
     .then(admin => Durables.pullAll())
     .then(durables => res.json({
       error: null,
@@ -88,13 +89,8 @@ router.get('/get_durables', (req, res) => {
 })
 router.get('/get_consumables', (req, res) => {
   let authorization = req.headers.authorization;
-  PromisePlus.convertToBreakable(users.checkAdminAuthorization(authorization))
-    .break(unauthorized => res.json({
-      error: {
-        title: 'Fetch consumables error',
-        message: 'Unauthorized.'
-      }
-    }))
+  auth.checkAdminAuthorization(authorization, 'Fetch consumables error')
+    .broken(error => res.json(error))
     .then(authorized => Consumables.pullAll())
     .then(consumables => res.json({
       error: null,
@@ -134,53 +130,34 @@ function typeCheck(asset: any){
   if (is(asset, Consumable.sample())) return 'consumable';
   return '';
 }
-const saveAsset = exports.saveAsset = (asset, authorization) => {
-  return saveAssets(asset, authorization);
-  /*return users.checkAdminAuthorization(authorization)
-    .catch(exception => 'User is not authorized for this.')
-    .then(admin => {
-      if (asset){
-        switch(typeCheck(asset)){
-          case 'durable': return Durables.save(asset, admin.result);
-          case 'consumable': return Consumables.save(asset, admin.result);
-          default: throw 'Object to save must be an asset.'
-        }
-      } else throw 'No asset to save.';
-    })*/
+const saveAsset = exports.saveAsset = (asset, agent) => {
+  return saveAssets(asset, agent);
 }
-const saveAssets = exports.saveAssets = (assets, authorization) => {
-  return users.checkAdminAuthorization(authorization)
-    .catch(exception => 'User is not authorized for this.')
-    .then(admin => {
-      if (assets){
-        if (!Array.isArray(assets)){
-          let array = [];
-          array.push(assets);
-          assets = array;
-        }
-        let durables = [];
-        let consumables = [];
-        assets.forEach(asset => {
-          switch(typeCheck(asset)){
-            case 'durable':
-              durables.push(asset);
-              break;
-            case 'consumable':
-              consumables.push(asset);
-              break;
-            default: throw 'All objects to save must be assets.'
-          }
-        })
-        //CURRENTLY: if presented with durables + consumables, only saves the durables
-        if (durables.length > 0) return Durables.save(durables, admin.result);
-        if (consumables.length > 0) return Consumables.save(consumables, admin.result);
-        return Promise.resolve({});
-        //let promises = [];
-        //if (durables.length > 0) promises.push(Durables.save(durables, admin.result));
-        //if (consumables.length > 0) promises.push(Consumables.save(consumables, admin.result));
-        //return Promise.all(promises);
-      } else throw 'No asset to save.';
+const saveAssets = exports.saveAssets = (assets, agent) => {
+  if (assets){
+    if (!Array.isArray(assets)){
+      let array = [];
+      array.push(assets);
+      assets = array;
+    }
+    let durables = [];
+    let consumables = [];
+    assets.forEach(asset => {
+      switch(typeCheck(asset)){
+        case 'durable':
+          durables.push(asset);
+          break;
+        case 'consumable':
+          consumables.push(asset);
+          break;
+        default: throw 'All objects to save must be assets.'
+      }
     })
+    //CURRENTLY: if presented with durables + consumables, only saves the durables
+    if (durables.length > 0) return Durables.save(durables, agent);
+    if (consumables.length > 0) return Consumables.save(consumables, agent);
+    return Promise.resolve({});
+  }
 }
 
 const checkin = exports.checkin = (assetId, assignmentId, agent) => {

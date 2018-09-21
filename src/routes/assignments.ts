@@ -12,16 +12,12 @@ const Assignments = require('../models/tables').Assignments;
 const assets = require('./assets');
 const users = require('./users');
 const config = require('../program-config');
+const auth = require('../utilities/auth');
 
 router.get('/get_assignments', (req, res) => {
   let authorization = req.headers.authorization;
-  users.checkAdminAuthorization(authorization)
-    .catch(unauthorized => res.json({
-      error: {
-        title: 'Fetch assignments error',
-        message: 'Unauthorized.'
-      }
-    }))
+  auth.checkAdminAuthorization(authorization, 'Fetch assignments error')
+    .broken(error => res.json(error))
     .then(admin => Assignments.pullAll())
     .then(assignments => res.json({
       error: null,
@@ -36,15 +32,10 @@ router.post('/create_assignment', (req, res) => {
 const checkoutFxn = (req, res) => {
   let authorization = req.headers.authorization;
   let assignmentId, userId, assetId, checkoutDate, dueDate, checkoutDateParsed, dueDateParsed, agent;
-  return users.checkAdminAuthorization(authorization)
-  .catch(unauthorized => res.json({
-      error: {
-        title: 'Checkout error',
-        message: 'Unauthorized.'
-      }
-    }))
-    .then(admin => {
-      agent = admin.result;
+  return auth.checkAdminAuthorization(authorization, 'Check out error')
+    .broken(error => res.json(error))
+    .then(authorized => {
+      agent = authorized;
       assignmentId = req.body.id;
       userId = req.body.userId;
       assetId = req.body.assetId;
@@ -65,29 +56,33 @@ const checkoutFxn = (req, res) => {
       let asset = result[1];
       if (user && asset){ //user & asset are both valid objects in the database
         //All inputs are valid
-        return checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, agent, authorization)
+        return checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, agent)
       } else throw 'User and asset are not both valid.';
     })
     .then(checkedOut => res.json(checkedOut))
     .catch(error => {
-      console.log(error);
-      res.json(error);
+      res.json({
+        error: {
+          title: 'Check out error',
+          message: error
+        }
+      });
     })
 }
 router.post('/checkin', (req, res) => {
   let authorization = req.headers.authorization;
   let agent;
-  users.checkAdminAuthorization(authorization)
-    .catch(unauthorized => res.send('Unauthorized.'))
-    .then(admin => {
-      agent = admin.result;
+  auth.checkAdminAuthorization(authorization, 'Check in error')
+    .broken(error => res.json(error))
+    .then(authorized => {
+      agent = authorized;
       let id = req.body.assignmentId;
       return Assignments.findById(id)
     })
     .then(assignment => {
       let promises = [
         Assignments.deleteById(assignment.id, agent),
-        users.checkin(assignment.userId, assignment.id, agent),
+        auth.checkin(assignment.userId, assignment.id, agent),
         assets.checkin(assignment.assetId, assignment.id, agent)
       ];
       return Promise.all(promises);
@@ -107,7 +102,7 @@ const parseDate = (date: string) => {
   return null;
 }
 
-const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDate: moment.Moment, agent, authorization) => {
+const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDate: moment.Moment, agent) => {
   let iassignment: IAssignment = {
     id: assignmentId,
     userId: user.id,
@@ -132,8 +127,8 @@ const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDat
   };
   return Promise.all([
     Assignments.save(assignment, agent),
-    assets.saveAsset(asset.asset, authorization),
-    users.saveUser(userToSave, authorization)
+    assets.saveAsset(asset.asset, agent),
+    users.saveUser(userToSave, agent)
   ]);
 
 }

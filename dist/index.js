@@ -35,10 +35,8 @@ app.use(express.static(path.join(__dirname, '/client')));
 app.get('/*', function (req, res) {
     res.sendFile(path.join(__dirname, '/client/index.html'));
 });
-//app.get('*', (req, res) => {});
 app.listen(port, function () {
     console.log("Server started on port " + port);
 });
 module.exports.config = config;
-//ngrok.io token: Z45rb28xmBXrrGc5komJ_6Z36ekSeUjBEQ8rZHvAn5
 //# sourceMappingURL=index.js.map

@@ -26,7 +26,7 @@ export class AssignmentService {
     private http: HttpClient,
     private auth: AuthService
   ){
-    //this.fetchAssignments();
+    this.fetchAssignments();
   }
 
   fetchAssignments(){
@@ -34,7 +34,7 @@ export class AssignmentService {
       Globals.request_prefix + 'assignments/get_assignments',
     ).subscribe(
       (assignments: IAssignment[]) => this.assignments = assignments.map(iassignment => new Assignment(iassignment)),
-      err => console.log(err)
+      err => {}
     );
   }
 
@@ -57,12 +57,11 @@ export class AssignmentService {
     this.assignments.push(assignment);
   }
   checkout(assignment: Assignment){
-    this.checkoutWithoutPost(assignment);
     this.http.post(
       Globals.request_prefix + 'assignments/create_assignment',
       assignment.asInterface()
     ).subscribe(
-      res => {},
+      res => this.checkoutWithoutPost(assignment),
       err => console.log(err)
     );
   }
@@ -86,12 +85,11 @@ export class AssignmentService {
     }
   }
   checkin(assignmentId){
-    this.checkinWithoutPost(assignmentId);
     this.http.post(
       Globals.request_prefix + 'assignments/checkin',
       {assignmentId: assignmentId}
     ).subscribe(
-      res => {},
+      res => this.checkinWithoutPost(assignmentId),
       err => console.log(err)
     );
   }

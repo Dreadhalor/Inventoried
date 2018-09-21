@@ -14,11 +14,7 @@ export class InfoService {
     private http: HttpClient,
     private auth: AuthService
   ) {
-    //this.fetchSettings();
-    /*this.durablesCategories = InfoService.initDurablesCategories.map((val, index) => new KeyValuePair((index + 1).toString(), val));
-    this.consumablesCategories = InfoService.initConsumablesCategories.map((val, index) => new KeyValuePair((index + 1).toString(), val));
-    this.manufacturers = InfoService.initManufacturers.map((val, index) => new KeyValuePair((index + 1).toString(), val));
-    this.tags = InfoService.initTags.map((val, index) => new KeyValuePair((index + 1).toString(), val));*/
+    this.fetchSettings();
   }
 
   //Shared
@@ -34,14 +30,10 @@ export class InfoService {
   }
   merge(currentVals, updateVals, suffix){
     let params = this.getMergeParams(currentVals, updateVals);
-    this.http.post(
-        Globals.request_prefix + suffix,
-        params
-      )
-      .subscribe(
-        res => {},
-        err => console.log(err)
-      );
+    return this.http.post(
+      Globals.request_prefix + suffix,
+      params
+    );
   }
 
   //Durables categories
@@ -49,8 +41,13 @@ export class InfoService {
   get durablesCategories(){ return this._durablesCategories; }
   set durablesCategories(val: KeyValuePair[]){this._durablesCategories = val;}
   setDurablesCategories(val: KeyValuePair[]){
-    this.merge(this.durablesCategories, val, 'settings/set_durables_categories')
+    let current = this.durablesCategories;
     this.durablesCategories = val;
+    this.merge(current, val, 'settings/set_durables_categories')
+      .subscribe(
+        merged => {},
+        error => this.durablesCategories = current
+      )
   }
   getDurablesCategory(id){
     for (let i = 0; i < this.durablesCategories.length; i++){
@@ -64,8 +61,13 @@ export class InfoService {
   get consumablesCategories(){ return this._consumablesCategories; }
   set consumablesCategories(val: KeyValuePair[]){this._consumablesCategories = val;}
   setConsumablesCategories(val: KeyValuePair[]){
-    this.merge(this.consumablesCategories, val, 'settings/set_consumables_categories')
+    let current = this.consumablesCategories;
     this.consumablesCategories = val;
+    this.merge(current, val, 'settings/set_consumables_categories')
+      .subscribe(
+        merged => {},
+        error => this.consumablesCategories = current
+      )
   }
   getConsumablesCategory(id){
     for (let i = 0; i < this.consumablesCategories.length; i++){
@@ -79,8 +81,13 @@ export class InfoService {
   get manufacturers(){ return this._manufacturers; }
   set manufacturers(val: KeyValuePair[]){this._manufacturers = val;}
   setManufacturers(val: KeyValuePair[]){
-    this.merge(this._manufacturers, val, 'settings/set_manufacturers')
+    let current = this.manufacturers;
     this.manufacturers = val;
+    this.merge(current, val, 'settings/set_manufacturers')
+      .subscribe(
+        merged => {},
+        error => this.manufacturers = current
+      )
   }
   getManufacturer(id){
     for (let i = 0; i < this.manufacturers.length; i++){
@@ -94,8 +101,13 @@ export class InfoService {
   get tags(){ return this._tags; }
   set tags(val: KeyValuePair[]){this._tags = val;}
   setTags(val: KeyValuePair[]){
-    this.merge(this._tags, val, 'settings/set_tags')
+    let current = this.tags;
     this.tags = val;
+    this.merge(current, val, 'settings/set_tags')
+      .subscribe(
+        merged => {},
+        error => this.tags = current
+      )
   }
   getTag(id){
     for (let i = 0; i < this.tags.length; i++){
@@ -108,8 +120,9 @@ export class InfoService {
   fetchSettings(){
     this.http.get(Globals.request_prefix + 'settings/get_settings').
       subscribe(
-        (res) => this.overwriteSettings(res),
-        err => console.log(err));
+        res => this.overwriteSettings(res),
+        err => {}
+      );
   }
   overwriteSettings(settings){
     this.durablesCategories = settings.durablesCategories.map(entry => KeyValuePair.fromInterface(entry));

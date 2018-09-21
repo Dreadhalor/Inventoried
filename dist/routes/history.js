@@ -7,6 +7,7 @@ var router = express.Router();
 var config = require('../program-config');
 var History = require('../models/tables').History;
 var dbClient = require('@dreadhalor/sql-client');
+var auth = require('../utilities/auth');
 var subscription = dbClient.history.subscribe(function (next) {
     if (next.table != 'history')
         record(next);
@@ -27,7 +28,10 @@ var record = exports.record = function (edit) {
     History.save(entry);
 };
 router.get('/pull_all', function (req, res) {
-    History.pullAll()
+    var authorization = req.headers.authorization;
+    auth.checkAdminAuthorization(authorization, 'Fetch history error')
+        .broken(function (error) { return res.json(error); })
+        .then(function (authorized) { return History.pullAll(); })
         .then(function (history) { return res.json({
         error: null,
         result: history

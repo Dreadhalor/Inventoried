@@ -2,20 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var router = express.Router();
-var users = require('./users');
+var auth = require('../utilities/auth');
 var DurablesCategories = require('../models/tables').DurablesCategories;
 var ConsumablesCategories = require('../models/tables').ConsumablesCategories;
 var Manufacturers = require('../models/tables').Manufacturers;
 var Tags = require('../models/tables').Tags;
 router.get('/get_settings', function (req, res) {
     var authorization = req.headers.authorization;
-    users.checkAdminAuthorization(authorization)
-        .catch(function (unauthorized) { return res.json({
-        error: {
-            title: 'Fetch settings error',
-            message: 'Unauthorized.'
-        }
-    }); })
+    auth.checkAdminAuthorization(authorization, 'Fetch settings error')
+        .broken(function (error) { return res.json(error); })
         .then(function (authorized) {
         var durablesCategories = DurablesCategories.pullAll();
         var consumablesCategories = ConsumablesCategories.pullAll();
@@ -43,31 +38,41 @@ router.get('/get_settings', function (req, res) {
     }); });
 });
 router.post('/set_durables_categories', function (req, res) {
-    return merge(DurablesCategories, req, res);
+    merge(DurablesCategories, req, res, 'Edit durables categories error');
 });
 router.post('/set_consumables_categories', function (req, res) {
-    return merge(ConsumablesCategories, req, res);
+    merge(ConsumablesCategories, req, res, 'Edit consumables categories error');
 });
 router.post('/set_manufacturers', function (req, res) {
-    return merge(Manufacturers, req, res);
+    merge(Manufacturers, req, res, 'Edit manufacturers error');
 });
 router.post('/set_tags', function (req, res) {
-    return merge(Tags, req, res);
+    merge(Tags, req, res, 'Edit tags error');
 });
-var merge = function (table, req, res) {
+var merge = function (table, req, res, title) {
     var authorization = req.headers.authorization;
-    return users.checkAdminAuthorization(authorization)
-        .catch(function (exception) { return res.json('Unauthorized.'); })
-        .then(function (admin) {
-        var toSave = req.body.to_save;
-        var toDelete = req.body.to_delete;
-        return table.merge({
-            toSave: toSave,
-            toDelete: toDelete
-        }, admin.result);
+    auth.checkAdminAuthorization(authorization, title)
+        .broken(function (error) { return res.json(error); })
+        .then(function (authorized) {
+        var args = {
+            toSave: req.body.to_save,
+            toDelete: req.body.to_delete
+        };
+        return table.merge(args, authorized);
     })
-        .then(function (success) { return res.json(success); })
-        .catch(function (exception) { return res.json(exception); });
+        .then(function (merged) { return res.json({
+        error: null,
+        result: merged
+    }); })
+        .catch(function (error) {
+        var errorMessage = (typeof error == 'string') ? error : JSON.stringify(error);
+        res.json({
+            error: {
+                title: title,
+                message: errorMessage
+            }
+        });
+    });
 };
 module.exports = router;
 //# sourceMappingURL=settings.js.map

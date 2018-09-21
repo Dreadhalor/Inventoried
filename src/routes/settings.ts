@@ -1,7 +1,7 @@
 import * as express from 'express';
 const router = express.Router();
 
-const users = require('./users');
+const auth = require('../utilities/auth');
 
 const DurablesCategories = require('../models/tables').DurablesCategories;
 const ConsumablesCategories = require('../models/tables').ConsumablesCategories;
@@ -10,13 +10,8 @@ const Tags = require('../models/tables').Tags;
 
 router.get('/get_settings', (req, res) => {
   let authorization = req.headers.authorization;
-  users.checkAdminAuthorization(authorization)
-    .catch(unauthorized => res.json({
-      error: {
-        title: 'Fetch settings error',
-        message: 'Unauthorized.'
-      }
-    }))
+  auth.checkAdminAuthorization(authorization, 'Fetch settings error')
+    .broken(error => res.json(error))
     .then(authorized => {
       let durablesCategories = DurablesCategories.pullAll();
       let consumablesCategories = ConsumablesCategories.pullAll();
@@ -45,33 +40,42 @@ router.get('/get_settings', (req, res) => {
 })
 
 router.post('/set_durables_categories', (req, res) => {
-  return merge(DurablesCategories, req, res);
+  merge(DurablesCategories, req, res, 'Edit durables categories error');
 })
 router.post('/set_consumables_categories', (req, res) => {
-  return merge(ConsumablesCategories, req, res);
+  merge(ConsumablesCategories, req, res, 'Edit consumables categories error');
 })
 router.post('/set_manufacturers', (req, res) => {
-  return merge(Manufacturers, req, res);
+  merge(Manufacturers, req, res, 'Edit manufacturers error');
 })
 router.post('/set_tags', (req, res) => {
-  return merge(Tags, req, res);
+  merge(Tags, req, res, 'Edit tags error');
 })
 
-const merge = (table, req, res) => {
+const merge = (table, req, res, title) => {
   let authorization = req.headers.authorization;
-  return users.checkAdminAuthorization(authorization)
-    .catch(exception => res.json('Unauthorized.'))
-    .then(admin => {
-      let toSave = req.body.to_save;
-      let toDelete = req.body.to_delete;
-      return table.merge({
-        toSave: toSave,
-        toDelete: toDelete
-      },
-      admin.result);
+  auth.checkAdminAuthorization(authorization, title)
+    .broken(error => res.json(error))
+    .then(authorized => {
+      let args = {
+        toSave: req.body.to_save,
+        toDelete: req.body.to_delete
+      };
+      return table.merge(args, authorized);
     })
-    .then(success => res.json(success))
-    .catch(exception => res.json(exception));
+    .then(merged => res.json({
+      error: null,
+      result: merged
+    }))
+    .catch(error => {
+      let errorMessage = (typeof error == 'string') ? error : JSON.stringify(error);
+      res.json({
+        error: {
+          title: title,
+          message: errorMessage
+        }
+      });
+    })
 }
 
 module.exports = router;
