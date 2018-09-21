@@ -1,7 +1,6 @@
 import { AuthService } from './../../services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { Globals } from '../../globals';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'navbar',

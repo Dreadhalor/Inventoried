@@ -32,10 +32,7 @@ router.get('/get_settings', function (req, res) {
             tags: settings[3]
         }
     }); })
-        .catch(function (error) { return res.json({
-        error: 'Fetch settings error',
-        message: JSON.stringify(error)
-    }); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Fetch settings error')); });
 });
 router.post('/set_durables_categories', function (req, res) {
     merge(DurablesCategories, req, res, 'Edit durables categories error');
@@ -64,15 +61,7 @@ var merge = function (table, req, res, title) {
         error: null,
         result: merged
     }); })
-        .catch(function (error) {
-        var errorMessage = (typeof error == 'string') ? error : JSON.stringify(error);
-        res.json({
-            error: {
-                title: title,
-                message: errorMessage
-            }
-        });
-    });
+        .catch(function (error) { return res.json(err.formatError(error, title)); });
 };
 module.exports = router;
 //# sourceMappingURL=settings.js.map

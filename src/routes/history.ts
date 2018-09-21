@@ -38,12 +38,7 @@ router.get('/pull_all', (req, res) => {
       error: null,
       result: history
     }))
-    .catch(exception => res.json({
-      error: {
-        title: 'Fetch history error',
-        message: JSON.stringify(exception)
-      }
-    }));
+    .catch(error => res.json(err.formatError(error, 'Fetch history error')));
 });
 
 module.exports.router = router;

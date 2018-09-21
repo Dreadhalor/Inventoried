@@ -3,7 +3,7 @@
     href="#">
     {{title}}
   </a>
-  <div *ngIf="auth.loggedIn"
+  <div *ngIf="auth.hasRole('admin')"
     class="navbar-nav">
     <a class="nav-item nav-link"
       routerLink="/settings"
@@ -27,6 +27,12 @@
     </a>
   </div>
   <div class="navbar-nav ml-auto">
+    <a  *ngIf="auth.loggedIn"
+      class="nav-item nav-link"
+      routerLink="/dashboard"
+      routerLinkActive="active">
+      Dashboard
+    </a>
     <a *ngIf="!auth.loggedIn"
       class="nav-item nav-link"
       routerLink="/login"

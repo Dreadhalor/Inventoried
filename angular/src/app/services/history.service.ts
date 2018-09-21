@@ -27,7 +27,7 @@ export class HistoryService {
   }
 
   login(){
-    this.pullHistory();
+    if (this.auth.hasRole('admin')) this.pullHistory();
   }
   logout(){
     this.history = [];

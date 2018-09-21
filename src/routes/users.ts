@@ -41,7 +41,7 @@ router.get('/get_all_users', (req, res) => {
         res.json(adUsers);
       }
     })
-    .catch(exception => res.json(exception));
+    .catch(error => res.json(err.formatError(error, 'Fetch users error')));
 });
 
 const getUserAD = (userId: string) => {
@@ -160,10 +160,7 @@ router.post('/authenticate', (req, res) => {
         result: token
       });
     })
-    .catch(error => res.json({
-      error: 'Login error',
-      message: JSON.stringify(error)
-    }))
+    .catch(error => res.json(err.formatError(error, 'Login error')));
 })
 
 exports.router = router;

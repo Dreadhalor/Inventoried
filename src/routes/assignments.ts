@@ -13,6 +13,7 @@ const assets = require('./assets');
 const users = require('./users');
 const config = require('../server-config');
 const auth = require('../utilities/auth');
+const err = require('../utilities/error');
 
 router.get('/get_assignments', (req, res) => {
   let authorization = req.headers.authorization;
@@ -23,7 +24,7 @@ router.get('/get_assignments', (req, res) => {
       error: null,
       result: assignments
     }))
-    .catch(exception => res.json(exception));
+    .catch(error => res.json(err.formatError(error, 'Fetch assignments error')));
 })
 
 router.post('/create_assignment', (req, res) => {
@@ -59,16 +60,11 @@ const checkoutFxn = (req, res) => {
         return checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, agent)
       } else throw 'User and asset are not both valid.';
     })
-    .then(checkedOut => res.json(checkedOut))
-    .catch(error => {
-      if (typeof error != 'string') error = JSON.stringify(error);
-      res.json({
-        error: {
-          title: 'Check out error',
-          message: error
-        }
-      });
-    })
+    .then(checkedOut => res.json({
+      error: null,
+      result: checkedOut
+    }))
+    .catch(error => res.json(err.formatError(error, 'Check out error')))
 }
 router.post('/checkin', (req, res) => {
   let authorization = req.headers.authorization;
@@ -82,22 +78,17 @@ router.post('/checkin', (req, res) => {
     })
     .then(assignment => {
       let promises = [
-        Assignments.deleteById(assignment.id, agent),
-        auth.checkin(assignment.userId, assignment.id, agent),
-        assets.checkin(assignment.assetId, assignment.id, agent)
+        users.checkin(assignment.userId, assignment.id, agent),
+        assets.checkin(assignment.assetId, assignment.id, agent),
+        Assignments.deleteById(assignment.id, agent)
       ];
       return Promise.all(promises);
     })
-    .catch(error => {
-      if (typeof error != 'string') error = JSON.stringify(error);
-      let result = {
-        error: {
-          title: 'Check in error',
-          message: error
-        }
-      };
-      res.json(result);
-    });
+    .then(checkedIn => res.json({
+      error: null,
+      result: checkedIn
+    }))
+    .catch(error => res.json(err.formatError(error, 'Check in error')));
 })
 
 module.exports = router;

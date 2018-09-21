@@ -33,10 +33,7 @@ router.get('/get_settings', (req, res) => {
         tags: settings[3]
       }
     }))
-    .catch(error => res.json({
-      error: 'Fetch settings error',
-      message: JSON.stringify(error)
-    }))
+    .catch(error => res.json(err.formatError(error, 'Fetch settings error')));
 })
 
 router.post('/set_durables_categories', (req, res) => {
@@ -67,15 +64,7 @@ const merge = (table, req, res, title) => {
       error: null,
       result: merged
     }))
-    .catch(error => {
-      let errorMessage = (typeof error == 'string') ? error : JSON.stringify(error);
-      res.json({
-        error: {
-          title: title,
-          message: errorMessage
-        }
-      });
-    })
+    .catch(error => res.json(err.formatError(error, title)));
 }
 
 module.exports = router;

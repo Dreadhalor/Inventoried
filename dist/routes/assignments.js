@@ -12,6 +12,7 @@ var assets = require('./assets');
 var users = require('./users');
 var config = require('../server-config');
 var auth = require('../utilities/auth');
+var err = require('../utilities/error');
 router.get('/get_assignments', function (req, res) {
     var authorization = req.headers.authorization;
     auth.authguard(authorization, 'admin', 'Fetch assignments error')
@@ -21,7 +22,7 @@ router.get('/get_assignments', function (req, res) {
         error: null,
         result: assignments
     }); })
-        .catch(function (exception) { return res.json(exception); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Fetch assignments error')); });
 });
 router.post('/create_assignment', function (req, res) {
     PromiseQueue.push([req, res], function (args) { return checkoutFxn(args[0], args[1]); });
@@ -61,17 +62,11 @@ var checkoutFxn = function (req, res) {
         else
             throw 'User and asset are not both valid.';
     })
-        .then(function (checkedOut) { return res.json(checkedOut); })
-        .catch(function (error) {
-        if (typeof error != 'string')
-            error = JSON.stringify(error);
-        res.json({
-            error: {
-                title: 'Check out error',
-                message: error
-            }
-        });
-    });
+        .then(function (checkedOut) { return res.json({
+        error: null,
+        result: checkedOut
+    }); })
+        .catch(function (error) { return res.json(err.formatError(error, 'Check out error')); });
 };
 router.post('/checkin', function (req, res) {
     var authorization = req.headers.authorization;
@@ -85,23 +80,17 @@ router.post('/checkin', function (req, res) {
     })
         .then(function (assignment) {
         var promises = [
-            Assignments.deleteById(assignment.id, agent),
-            auth.checkin(assignment.userId, assignment.id, agent),
-            assets.checkin(assignment.assetId, assignment.id, agent)
+            users.checkin(assignment.userId, assignment.id, agent),
+            assets.checkin(assignment.assetId, assignment.id, agent),
+            Assignments.deleteById(assignment.id, agent)
         ];
         return Promise.all(promises);
     })
-        .catch(function (error) {
-        if (typeof error != 'string')
-            error = JSON.stringify(error);
-        var result = {
-            error: {
-                title: 'Check in error',
-                message: error
-            }
-        };
-        res.json(result);
-    });
+        .then(function (checkedIn) { return res.json({
+        error: null,
+        result: checkedIn
+    }); })
+        .catch(function (error) { return res.json(err.formatError(error, 'Check in error')); });
 });
 module.exports = router;
 var parseDate = function (date) {

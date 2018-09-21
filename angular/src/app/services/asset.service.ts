@@ -52,8 +52,10 @@ export class AssetService {
   }
 
   login(){
-    this.fetchDurables();
-    this.fetchConsumables();
+    if (this.auth.hasRole('admin')){
+      this.fetchDurables();
+      this.fetchConsumables();
+    }
   }
   logout(){
     this.durables = [];

@@ -36,12 +36,7 @@ router.get('/pull_all', function (req, res) {
         error: null,
         result: history
     }); })
-        .catch(function (exception) { return res.json({
-        error: {
-            title: 'Fetch history error',
-            message: JSON.stringify(exception)
-        }
-    }); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Fetch history error')); });
 });
 module.exports.router = router;
 //# sourceMappingURL=history.js.map

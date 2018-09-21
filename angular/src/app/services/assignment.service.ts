@@ -36,7 +36,7 @@ export class AssignmentService {
   }
 
   login(){
-    this.fetchAssignments();
+    if (this.auth.hasRole('admin')) this.fetchAssignments();
   }
   logout(){
     this.assignments = [];
@@ -75,7 +75,7 @@ export class AssignmentService {
       assignment.asInterface()
     ).subscribe(
       res => this.checkoutWithoutPost(assignment),
-      err => console.log(err)
+      err => {}
     );
   }
   checkinWithoutPost(assignmentId){
@@ -103,7 +103,7 @@ export class AssignmentService {
       {assignmentId: assignmentId}
     ).subscribe(
       res => this.checkinWithoutPost(assignmentId),
-      err => console.log(err)
+      err => {}
     );
   }
 

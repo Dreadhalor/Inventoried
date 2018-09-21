@@ -2,6 +2,6 @@
   "serverHost": "localhost:5000",
   "serverProtocol": "http",
   "roles": {
-    "admin": "Ewmployees at Applied Technology"
+    "admin": "Employees at Applied Technology"
   }
 }

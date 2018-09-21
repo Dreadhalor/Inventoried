@@ -7,6 +7,7 @@ var router = express.Router();
 var Durables = require('../models/tables').Durables;
 var Consumables = require('../models/tables').Consumables;
 var auth = require('../utilities/auth');
+var err = require('../utilities/error');
 router.post('/save_asset', function (req, res) {
     var authorization = req.headers.authorization;
     auth.authguard(authorization, 'admin', 'Save asset error')
@@ -19,12 +20,7 @@ router.post('/save_asset', function (req, res) {
         error: null,
         result: saved
     }); })
-        .catch(function (errorMessage) { return res.json({
-        error: {
-            title: 'Save asset error',
-            message: errorMessage
-        }
-    }); });
+        .catch(function (errorMessage) { return res.json(err.formatError(errorMessage, 'Save asset error')); });
 });
 router.post('/save_assets', function (req, res) {
     var authorization = req.headers.authorization;
@@ -38,12 +34,7 @@ router.post('/save_assets', function (req, res) {
         error: null,
         result: saved
     }); })
-        .catch(function (errorMessage) { return res.json({
-        error: {
-            title: 'Save assets error',
-            message: errorMessage
-        }
-    }); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Save assets error')); });
 });
 router.post('/delete_asset', function (req, res) {
     var authorization = req.headers.authorization;
@@ -69,7 +60,7 @@ router.post('/delete_asset', function (req, res) {
         else
             throw 'Not a valid asset to delete.';
     })
-        .catch(function (exception) { return res.json(exception); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Delete asset error')); });
 });
 router.get('/get_durables', function (req, res) {
     var authorization = req.headers.authorization;
@@ -80,12 +71,7 @@ router.get('/get_durables', function (req, res) {
         error: null,
         result: durables
     }); })
-        .catch(function (exception) { return res.json({
-        error: {
-            title: 'Fetch durables error',
-            message: JSON.stringify(exception)
-        }
-    }); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Fetch durables error')); });
 });
 router.get('/get_consumables', function (req, res) {
     var authorization = req.headers.authorization;
@@ -96,12 +82,7 @@ router.get('/get_consumables', function (req, res) {
         error: null,
         result: consumables
     }); })
-        .catch(function (exception) { return res.json({
-        error: {
-            title: 'Fetch consumables error',
-            message: JSON.stringify(exception)
-        }
-    }); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Fetch consumables error')); });
 });
 var getAsset = exports.getAsset = function (assetId) {
     return Promise.all([

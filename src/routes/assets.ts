@@ -7,6 +7,7 @@ const router = express.Router();
 const Durables = require('../models/tables').Durables;
 const Consumables = require('../models/tables').Consumables;
 const auth = require('../utilities/auth');
+const err = require('../utilities/error');
 
 router.post('/save_asset', (req, res) => {
   let authorization = req.headers.authorization;
@@ -20,12 +21,7 @@ router.post('/save_asset', (req, res) => {
       error: null,
       result: saved
     }))
-    .catch(errorMessage => res.json({
-      error: {
-        title: 'Save asset error',
-        message: errorMessage
-      }
-    }));
+    .catch(errorMessage => res.json(err.formatError(errorMessage, 'Save asset error')));
 })
 router.post('/save_assets', (req, res) => {
   let authorization = req.headers.authorization;
@@ -39,12 +35,7 @@ router.post('/save_assets', (req, res) => {
       error: null,
       result: saved
     }))
-    .catch(errorMessage => res.json({
-      error: {
-        title: 'Save assets error',
-        message: errorMessage
-      }
-    }));
+    .catch(error => res.json(err.formatError(error, 'Save assets error')));
 })
 router.post('/delete_asset', (req, res) => {
   let authorization = req.headers.authorization;
@@ -68,7 +59,7 @@ router.post('/delete_asset', (req, res) => {
         }
       } else throw 'Not a valid asset to delete.'
     })
-    .catch(exception => res.json(exception));
+    .catch(error => res.json(err.formatError(error, 'Delete asset error')));
 })
 
 router.get('/get_durables', (req, res) => {
@@ -80,12 +71,7 @@ router.get('/get_durables', (req, res) => {
       error: null,
       result: durables
     }))
-    .catch(exception => res.json({
-      error: {
-        title: 'Fetch durables error',
-        message: JSON.stringify(exception)
-      }
-    }));
+    .catch(error => res.json(err.formatError(error, 'Fetch durables error')));
 })
 router.get('/get_consumables', (req, res) => {
   let authorization = req.headers.authorization;
@@ -96,12 +82,7 @@ router.get('/get_consumables', (req, res) => {
       error: null,
       result: consumables
     }))
-    .catch(exception => res.json({
-      error: {
-        title: 'Fetch consumables error',
-        message: JSON.stringify(exception)
-      }
-    }));
+    .catch(error => res.json(err.formatError(error, 'Fetch consumables error')));
 })
 
 const getAsset = exports.getAsset = (assetId: string) => {

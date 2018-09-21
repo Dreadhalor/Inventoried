@@ -37,7 +37,7 @@ export class UserService {
   }
 
   login(){
-    this.getAllUsers();
+    if (this.auth.hasRole('admin')) this.getAllUsers();
   }
   logout(){
     this.flushUsers();

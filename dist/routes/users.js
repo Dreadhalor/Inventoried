@@ -40,7 +40,7 @@ router.get('/get_all_users', function (req, res) {
             res.json(adUsers);
         }
     })
-        .catch(function (exception) { return res.json(exception); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Fetch users error')); });
 });
 var getUserAD = function (userId) {
     var parsedGUID = [];
@@ -142,10 +142,7 @@ router.post('/authenticate', function (req, res) {
             result: token
         });
     })
-        .catch(function (error) { return res.json({
-        error: 'Login error',
-        message: JSON.stringify(error)
-    }); });
+        .catch(function (error) { return res.json(err.formatError(error, 'Login error')); });
 });
 exports.router = router;
 exports.getUser = getUser;

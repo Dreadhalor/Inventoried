@@ -1,3 +1,4 @@
+import { AuthGuard } from './guards/auth.guard';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
@@ -47,28 +48,29 @@ import { DateRangeComponent } from './components/utilities/date-range/date-range
 import { CalendarComponent } from './components/utilities/date-range/calendar/calendar.component';
 import { HttpService } from './services/http.service';
 import { RoleGuard } from './guards/role.guard';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 let routes: Routes = [
   { path: 'browse-assets',
     component: BrowseAssetsComponent,
-    canActivate: [RoleGuard],
-    data: {role: 'admin'} },
+    canActivate: [AuthGuard, RoleGuard],
+    data: {roles: ['admin']} },
   { path: 'settings',
     component: SettingsComponent,
-    canActivate: [RoleGuard],
-    data: {role: 'admin'} },
+    canActivate: [AuthGuard, RoleGuard],
+    data: {roles: ['admin']} },
   { path: 'directory',
     component: DirectoryComponent,
-    canActivate: [RoleGuard],
-    data: {role: 'admin'} },
+    canActivate: [AuthGuard, RoleGuard],
+    data: {roles: ['admin']} },
   { path: 'login',
-    component: LoginComponent,
-    canActivate: [RoleGuard],
-    data: {role: 'admin'} },
+    component: LoginComponent },
   { path: 'history',
     component: HistoryComponent,
-    canActivate: [RoleGuard],
-    data: {role: 'admin'} },
+    canActivate: [AuthGuard, RoleGuard],
+    data: {roles: ['admin']} },
+  { path: 'dashboard',
+    component: DashboardComponent },
   { path: '**',
     redirectTo: 'browse-assets',
     pathMatch: 'full' }
@@ -120,7 +122,8 @@ const tokenGetter = () => {
     HistoryComponent,
     HistoryPanelComponent,
     DateRangeComponent,
-    CalendarComponent
+    CalendarComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,

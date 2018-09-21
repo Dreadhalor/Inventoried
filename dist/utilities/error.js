@@ -4,7 +4,7 @@ var Error;
 (function (Error) {
     var formatError = exports.formatError = function (error, title) {
         if (typeof error != 'string')
-            error = JSON.stringify(error);
+            error = error.toString();
         var result = {
             error: {
                 title: title,

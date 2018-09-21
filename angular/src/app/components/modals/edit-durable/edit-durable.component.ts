@@ -40,7 +40,9 @@ export class EditDurableComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscription = this.assets.assetsEdited.asObservable().subscribe(
-      edited => this.refreshDurables(this.durable.id)
+      edited => {
+        if (this.assets.getDurable(this.durable.id)) this.refreshDurables(this.durable.id)
+      }
     )
   }
   ngOnDestroy(){

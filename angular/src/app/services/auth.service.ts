@@ -13,6 +13,7 @@ const roles = require('../../assets/config.json').roles;
 export class AuthService {
 
   loggedIn = false;
+  groups = [];
 
   login = new Subject<void>();
   logout = new Subject<void>();
@@ -27,7 +28,10 @@ export class AuthService {
 
   setLoggedIn(redirect: boolean){
     this.loggedIn = !!localStorage.getItem('authorization');
-    if (this.loggedIn) this.login.next();
+    if (this.loggedIn){
+      this.setGroups();
+      this.login.next();
+    }
     else this.logout.next();
     if (redirect){
       if (this.loggedIn) this.router.navigateByUrl('/browse-assets');
@@ -62,10 +66,36 @@ export class AuthService {
     })
   }
 
-  roleguard(token: string, role: string){
+  setGroups(){
+    let token = localStorage.getItem('authorization');
     let payload = this.jwt.decodeToken(token);
-    let groups = payload.groups;
-    return groups.includes(roles[role]);
+    if (payload){
+      this.groups = payload.groups;
+    }
+  }
+  hasRole(role: string){
+    let groupName = roles[role];
+    if (groupName) return this.groups.includes(groupName);
+    return false;
+  }
+
+  tokenguard(token: string): boolean {
+    let payload = this.jwt.decodeToken(token);
+    if (payload) return true;
+    return false;
+  }
+  roleguard(token: string, permittedRoles: string[]){
+    let payload = this.jwt.decodeToken(token);
+    let match = false;
+    if (payload){
+      let groups = payload.groups;
+      for (let i = 0; i < permittedRoles.length; i++){
+        if (match) break;
+        match = groups.includes(roles[permittedRoles[i]])
+      }
+      return match;
+    }
+    return false;
   }
 
 }
