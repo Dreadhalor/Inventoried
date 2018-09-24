@@ -148,7 +148,7 @@ const checkin = exports.checkin = (assetId, assignmentId, agent) => {
         case 'durable':
           let durable = asset.asset;
           if (durable.assignmentId == assignmentId){
-            durable.assignmentId = '0';
+            durable.assignmentId = '';
             return Durables.save(durable, agent);
           } else throw `Durable ${durable.serialNumber} does not belong to this assignment.`;
         case 'consumable':

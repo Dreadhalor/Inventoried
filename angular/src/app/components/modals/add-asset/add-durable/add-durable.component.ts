@@ -11,9 +11,9 @@ import { Globals } from '../../../../globals';
 export class AddDurableComponent implements OnInit {
 
   serialNumbers: string[] = [];
-  categoryId: string;
-  manufacturerId: string;
-  notes: string = "";
+  categoryId: string = '';
+  manufacturerId: string = '';
+  notes: string = '';
   tagIds: string[] = [];
   active: boolean = true;
 

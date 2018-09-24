@@ -45,7 +45,7 @@ export class Consumable extends Asset implements MultiAssigned {
     let result = null;
     if (this.categoryId){
       result = this.infoService.getConsumablesCategory(this.categoryId);
-      if (!result) return '0';
+      if (!result) return '';
     }
     return result;
   }
@@ -97,16 +97,6 @@ export class Consumable extends Asset implements MultiAssigned {
       tagIds: this.tagIds
     }
     return result;
-  }
-
-  static parseSQLIAssets(iconsumables: any[]): IConsumable[]{
-    let fields = ['id', 'label', 'quantity', 'categoryId', 'manufacturerId', 'notes', 'assignmentIds', 'tagIds'];
-    return iconsumables.map(entry => {
-      let result: any =  {};
-      fields.forEach(field => result[field] = entry[field]);
-      result.tagIds = entry.tagIds.split(',');
-      return result;
-    })
   }
 
   repair(){

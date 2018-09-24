@@ -9,11 +9,11 @@ import { Consumable } from '../../../../models/classes/consumable';
 })
 export class AddConsumableComponent implements OnInit {
 
-  label: string = "";
+  label: string = '';
   quantity: number = 0;
-  categoryId: string = '0';
-  manufacturerId: string = '0';
-  notes: string = "";
+  categoryId: string = '';
+  manufacturerId: string = '';
+  notes: string = '';
   tagIds: string[] = [];
 
   constructor(

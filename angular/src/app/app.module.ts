@@ -76,7 +76,7 @@ let routes: Routes = [
     pathMatch: 'full' }
 ]
 
-const tokenGetter = () => {
+ function tokenGetter(){
   let token = localStorage.getItem('authorization');
   if (token) return token;
   return '';

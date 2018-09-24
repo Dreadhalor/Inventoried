@@ -23,7 +23,7 @@ export abstract class Asset implements IAsset  {
     return this._id;
   }
   
-  private _categoryId : string = '0';
+  private _categoryId : string = '';
   public get categoryId() : string {
     return this._categoryId;
   }
@@ -32,7 +32,7 @@ export abstract class Asset implements IAsset  {
   }
   
   
-  private _manufacturerId : string = '0';
+  private _manufacturerId : string = '';
   public get manufacturerId() : string {
     return this._manufacturerId;
   }
@@ -43,7 +43,7 @@ export abstract class Asset implements IAsset  {
     let result = null;
     if (this.manufacturerId){
       result = this.infoService.getManufacturer(this.manufacturerId);
-      if (!result) return '0';//this.manufacturerId = '0';
+      if (!result) return '';
     }
     return result;
   }
@@ -83,7 +83,6 @@ export abstract class Asset implements IAsset  {
     } else this.repair();
     return result;
   }
-  static parseSQLIAssets(assets: any){};
 
   abstract get name(): string;
   abstract asInterface();
@@ -92,8 +91,8 @@ export abstract class Asset implements IAsset  {
 
   repair(){
     this._id = (this.id) ? this.id : UtilitiesService.uuid();
-    this.categoryId = (this.categoryId) ? this.categoryId : '0';
-    this.manufacturerId = (this.manufacturerId) ? this.manufacturerId : '0';
+    this.categoryId = (this.categoryId) ? this.categoryId : '';
+    this.manufacturerId = (this.manufacturerId) ? this.manufacturerId : '';
     this.notes = (this.notes) ? this.notes : '';
     this.tagIds = (this.tagIds) ? this.tagIds : [];
   }

@@ -3,8 +3,8 @@ import * as path from 'path';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as passport from 'passport';
+import * as fse from 'fs-extra';
 
-const jsonfile = require('jsonfile');
 const diff = require('deep-diff');
 const config = require('../config.json');
 const dbConfig = require('./server-config');
@@ -17,20 +17,31 @@ dbClient.connect(dbConfig.mssql)
 
 //create client config.json
 let srcpath = path.resolve(__dirname, '../config.json');
-let destpath = path.resolve(__dirname,'../angular/src/assets/config.json');
+let destdirdev = path.resolve(__dirname,'../angular/src/assets');
+let destpathdev = `${destdirdev}/config.json`;
 let destpathprod = path.resolve(__dirname,'../dist/client/assets/config.json');
-let srcobj, destobj;
-jsonfile.readFile(destpath)
-  .then(exists => destobj = exists)
-  .catch(notExists => destobj = {})
-  .then(objcreated => jsonfile.readFile(srcpath))
+let srcjson, destjson, destobj;
+fse.readJson(destpathdev)
+  .then(exists => destjson = exists)
+  .catch(notExists => destjson = {})
+  .then(objcreated => fse.readJson(srcpath))
   .then(exists => {
-    srcobj = exists;
-    let clientobj = srcobj.client;
-    let keys = Object.keys(srcobj.shared);
-    keys.forEach(key => clientobj[key] = srcobj.shared[key]);
-    let differences = diff(clientobj, destobj);
-    if (differences) return jsonfile.writeFile(destpath, clientobj, { spaces: 2 })
+    srcjson = exists;
+    destobj = srcjson.client;
+    let keys = Object.keys(srcjson.shared);
+    keys.forEach(key => destobj[key] = srcjson.shared[key]);
+    let differences = diff(destobj, destjson);
+    if (differences) return fse.writeJson(destpathprod, destobj, { spaces: 2 })
+  })
+  .then(prodfinished => fse.pathExists(destdirdev))
+  .then(devExists => {
+    if (devExists) fse.readJson(destpathdev)
+    .then(exists => destjson = exists)
+    .catch(notExists => destjson = {})
+    .then(objcreated => {
+      let differences = diff(destobj, destjson);
+      if (differences) return fse.writeJson(destpathdev, destobj, { spaces: 2 })
+    })
   })
   .catch(error => console.log(error));
 

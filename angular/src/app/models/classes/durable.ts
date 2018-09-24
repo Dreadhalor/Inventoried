@@ -5,7 +5,7 @@ import { Globals } from '../../globals';
 export class Durable extends Asset {
 
   private _serialNumber: string = '';
-  private _assignmentId: string = '0';
+  private _assignmentId: string = '';
   private _active: boolean = true;
   
   constructor(iDurable: IDurable){
@@ -28,8 +28,7 @@ export class Durable extends Asset {
     let result = null;
     if (this.categoryId){
       result = this.infoService.getDurablesCategory(this.categoryId);
-      if (!result) return '0';
-      //this.categoryId = '0';
+      if (!result) return '';
     }
     return result;
   }
@@ -41,8 +40,8 @@ export class Durable extends Asset {
 
   get assignmentId(){ return this._assignmentId; }
   set assignmentId(val){ this._assignmentId = val; }
-  get available(){ return !!(this.assignmentId && this.assignmentId != '0'); }
-  get availableVal(){ return (this.assignmentId && this.assignmentId != '0') ? 'Checked out' : 'Available'; }
+  get available(){ return !!(this.assignmentId && this.assignmentId != ''); }
+  get availableVal(){ return (this.assignmentId && this.assignmentId != '') ? 'Checked out' : 'Available'; }
 
   get active(){ return this._active; }
   get activeVal(){ return (this._active) ? 'Yes' : 'No'; }
@@ -69,7 +68,7 @@ export class Durable extends Asset {
     this.assignmentId = assignmentId;
   }
   unassign(assignmentId){
-    if (this.assignmentId == assignmentId) this.assignmentId = '0';
+    if (this.assignmentId == assignmentId) this.assignmentId = '';
   }
 
   asInterface(){
@@ -86,20 +85,10 @@ export class Durable extends Asset {
     return result;
   }
 
-  static parseSQLIAssets(idurables: any[]): IDurable[]{
-    let fields = ['id', 'serialNumber', 'categoryId', 'manufacturerId', 'notes', 'assignmentId', 'tagIds', 'active'];
-    return idurables.map(entry => {
-      let result: any =  {};
-      fields.forEach(field => result[field] = entry[field]);
-      result.tagIds = entry.tagIds.split(',');
-      return result;
-    })
-  }
-
   repair(){
     super.repair();
     this.serialNumber = (this.serialNumber) ? this.serialNumber : '';
-    this.assignmentId = (this.assignmentId) ? this.assignmentId : '0';
+    this.assignmentId = (this.assignmentId) ? this.assignmentId : '';
   }
 
 }
