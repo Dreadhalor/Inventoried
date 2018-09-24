@@ -20,28 +20,34 @@ let srcpath = path.resolve(__dirname, '../config.json');
 let destdirdev = path.resolve(__dirname,'../angular/src/assets');
 let destpathdev = `${destdirdev}/config.json`;
 let destpathprod = path.resolve(__dirname,'../dist/client/assets/config.json');
-let srcjson, destjson, destobj;
-fse.readJson(destpathdev)
-  .then(exists => destjson = exists)
-  .catch(notExists => destjson = {})
-  .then(objcreated => fse.readJson(srcpath))
-  .then(exists => {
-    srcjson = exists;
+let srcjson, destjsondev, destjsonprod, destobj;
+fse.readJson(srcpath)
+  .then(src => {
+    srcjson = src;
     destobj = srcjson.client;
-    let keys = Object.keys(srcjson.shared);
-    keys.forEach(key => destobj[key] = srcjson.shared[key]);
-    let differences = diff(destobj, destjson);
-    if (differences) return fse.writeJson(destpathprod, destobj, { spaces: 2 })
-  })
-  .then(prodfinished => fse.pathExists(destdirdev))
-  .then(devExists => {
-    if (devExists) fse.readJson(destpathdev)
-    .then(exists => destjson = exists)
-    .catch(notExists => destjson = {})
-    .then(objcreated => {
-      let differences = diff(destobj, destjson);
-      if (differences) return fse.writeJson(destpathdev, destobj, { spaces: 2 })
-    })
+
+    let prod = fse.readJson(destpathprod)
+      .then(exists => destjsonprod = exists)
+      .catch(notExists => destjsonprod = {})
+      .then(exists => {
+        let keys = Object.keys(srcjson.shared);
+        keys.forEach(key => destobj[key] = srcjson.shared[key]);
+        let differences = diff(destobj, destjsonprod);
+        if (differences) return fse.writeJson(destpathprod, destobj, { spaces: 2 })
+      })
+    
+    let dev = fse.pathExists(destdirdev)
+      .then(devExists => {
+        if (devExists) return fse.readJson(destpathdev)
+        .then(exists => destjsondev = exists)
+        .catch(notExists => destjsondev = {})
+        .then(objcreated => {
+          let differences = diff(destobj, destjsondev);
+          if (differences) return fse.writeJson(destpathdev, destobj, { spaces: 2 })
+        })
+      })
+
+    return Promise.all([prod, dev]);
   })
   .catch(error => console.log(error));
 
