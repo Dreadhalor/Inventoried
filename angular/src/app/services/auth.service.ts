@@ -68,10 +68,12 @@ export class AuthService {
 
   setGroups(){
     let token = localStorage.getItem('authorization');
-    let payload = this.jwt.decodeToken(token);
-    if (payload){
-      this.groups = payload.groups;
-    }
+    try {
+      let payload = this.jwt.decodeToken(token);
+      if (payload){
+        this.groups = payload.groups;
+      }
+    } catch {}
   }
   hasRole(role: string){
     let groupName = roles[role];
