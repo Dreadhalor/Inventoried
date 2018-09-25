@@ -1,7 +1,9 @@
+import * as moment from 'moment';
+
 export interface IAssignment {
   id: string,
   userId: string,
   assetId: string,
-  checkoutDate: string,
-  dueDate: string
+  checkoutDate: moment.Moment,
+  dueDate: moment.Moment
 }

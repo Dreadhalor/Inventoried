@@ -4,26 +4,34 @@ import { IUser } from "../interfaces/IUser";
 export class User implements MultiAssigned {
 
   private _id: string = '';
-  private _email: string = '';
-  private _fullName: string = '';
-  private _assignmentIds: string[] = [];
+  username: string = '';
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  jobTitle: string = '';
+  departmentName: string = '';
+  managerName: string;
+  email: string = '';
+  fullName: string = '';
+  distinguishedName: string;
+  assignmentIds: string[] = [];
 
   constructor(iUser: IUser){
     if (iUser.id) this._id = iUser.id;
+    if (iUser.username) this.username = iUser.username;
+    if (iUser.firstName) this.firstName = iUser.firstName;
+    if (iUser.middleName) this.middleName = iUser.middleName;
+    if (iUser.lastName) this.lastName = iUser.lastName;
+    if (iUser.jobTitle) this.jobTitle = iUser.jobTitle;
+    if (iUser.departmentName) this.departmentName = iUser.departmentName;
+    if (iUser.managerName) this.managerName = iUser.managerName;
     if (iUser.email) this.email = iUser.email;
     if (iUser.fullName) this.fullName = iUser.fullName;
+    if (iUser.distinguishedName) this.distinguishedName = iUser.distinguishedName;
     if (iUser.assignmentIds) this.assignmentIds = iUser.assignmentIds;
   }
   
   get id(){ return this._id; }
-  get email(){ return this._email; }
-  set email(v){ this._email = v; }
-  get fullName(){ return this._fullName; }
-  set fullName(v){ this._fullName = v; }
-  get assignmentIds(){ return this._assignmentIds; }
-  set assignmentIds(val: any[]){
-    this._assignmentIds = val;
-  }
 
   get name(){ return this.fullName; }
 

@@ -1,0 +1,43 @@
+<h4 class="mat-dialog-title">
+  User: {{user.fullName}}
+</h4>
+<mat-dialog-content>
+  <ul class="list-group">
+    <li class="list-group-item">
+      ID: {{user.id}}
+    </li>
+    <li class="list-group-item">
+      Email: {{user.email}}
+    </li>
+    <li class="list-group-item">
+      Username: {{user.username}}
+    </li>
+    <li class="list-group-item">
+      First name: {{user.firstName}}
+    </li>
+    <li class="list-group-item">
+      Middle name: {{user.middleName}}
+    </li>
+    <li class="list-group-item">
+      Last name: {{user.lastName}}
+    </li>
+    <li class="list-group-item">
+      Job title: {{user.jobTitle}}
+    </li>
+    <li class="list-group-item">
+      Department name: {{user.departmentName}}
+    </li>
+    <li class="list-group-item">
+      <span style="vertical-align: middle">Manager name:&nbsp;</span>
+      <button *ngIf="us.hasManager(user.id)"
+        class="btn btn-link p-0"
+        mat-dialog-close
+        (click)="openManager(user.managerName)">
+        {{user.managerName}}
+      </button>
+    </li>
+    <li class="list-group-item">
+      Distinguished name: {{user.distinguishedName}}
+    </li>
+  </ul>
+</mat-dialog-content>

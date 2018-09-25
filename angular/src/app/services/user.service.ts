@@ -45,7 +45,7 @@ export class UserService {
 
   getAllUsers(){
     this.http.get<IUser[]>(Globals.request_prefix + 'users/get_all_users').subscribe(
-      (users) => {
+      users => {
         users.forEach(user => this.addUser(new User(user)));
         this.dataChange.next();
         this.loaded = true;
@@ -72,6 +72,11 @@ export class UserService {
   }
   getUserByName(name: string): User {
     return this.users.find(match => match.name.toLowerCase() == name.toLowerCase());
+  }
+  hasManager(userId){
+    let user = this.getUser(userId);
+    if (user) return user.managerName;
+    return false;
   }
 
   assign(assignment: Assignment){

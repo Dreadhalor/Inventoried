@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { ToastrService } from 'ngx-toastr';
 
 const roles = require('../../assets/config.json').roles;
 
@@ -21,7 +22,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private jwt: JwtHelperService
+    private jwt: JwtHelperService,
+    private toast: ToastrService
   ) {
     this.setLoggedIn(false);
   }
@@ -73,7 +75,9 @@ export class AuthService {
       if (payload){
         this.groups = payload.groups;
       }
-    } catch {}
+    } catch {
+      this.toast.error('Please re-login to refresh your login token.', 'Token format error');
+    }
   }
   hasRole(role: string){
     let groupName = roles[role];

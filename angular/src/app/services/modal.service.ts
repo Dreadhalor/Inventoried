@@ -47,6 +47,13 @@ export class ModalService {
     };
     this.openModal.next(params);
   }
+  openViewUser(data){
+    let params: IModalDeployment = {
+      modalName: 'viewUser',
+      data: data
+    };
+    this.openModal.next(params);
+  }
   openAddAsset(){
     let params: IModalDeployment = {
       modalName: 'addAsset',

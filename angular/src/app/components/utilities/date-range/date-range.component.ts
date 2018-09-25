@@ -8,7 +8,6 @@ import * as moment from 'moment';
   styleUrls: ['./date-range.component.scss']
 })
 export class DateRangeComponent implements OnInit {
-
   
   private _startDate : moment.Moment;
   @Input() get startDate() : moment.Moment {

@@ -1,3 +1,4 @@
+import { ViewUserComponent } from './../components/modals/view-user/view-user.component';
 import { Injectable } from "@angular/core";
 import { ModalService } from "./modal.service";
 import { MatDialog } from "@angular/material";
@@ -38,6 +39,9 @@ export class ModalDeploymentService {
             break;
           case 'viewAssignments':
             this.open(ViewAssignmentsComponent,params.data);
+            break;
+          case 'viewUser':
+            this.open(ViewUserComponent,params.data);
             break;
           case 'editAssignment':
             this.open(EditAssignmentComponent,params.data);

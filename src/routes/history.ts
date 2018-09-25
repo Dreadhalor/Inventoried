@@ -6,6 +6,7 @@ const config = require('../server-config');
 const History = require('../models/tables').History;
 const dbClient = require('@dreadhalor/sql-client');
 const auth = require('../utilities/auth');
+const assignments = require('./assignments');
 
 let subscription = dbClient.history.subscribe(
   next => {
@@ -41,4 +42,25 @@ router.get('/pull_all', (req, res) => {
     .catch(error => res.json(err.formatError(error, 'Fetch history error')));
 });
 
+router.post('/condense', (req, res) => {
+  let uuid = req.body.uuid;
+    History.pullAll()
+      .then(entries => {
+        let filtered = filterEntriesIncludingId(entries, uuid);
+        //let created = filtered.filter(entry => entry.operation == 'create');
+        res.json(filtered);
+      })
+      .catch(error => res.json(error));
+})
+
 module.exports.router = router;
+
+const filterEntriesIncludingId = (entries: any[], id: string) => {
+  let stringified = entries.map(entry => JSON.stringify(entry))
+  let filtered = stringified.filter(entry => entry.includes(id));
+  return filtered.map(entry => JSON.parse(entry));
+}
+const filterEntriesForId = (entries: any[], id: string) => {
+  let filtered = filterEntriesIncludingId(entries, id);
+  
+}

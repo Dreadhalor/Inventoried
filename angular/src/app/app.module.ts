@@ -49,6 +49,7 @@ import { CalendarComponent } from './components/utilities/date-range/calendar/ca
 import { HttpService } from './services/http.service';
 import { RoleGuard } from './guards/role.guard';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ViewUserComponent } from './components/modals/view-user/view-user.component';
 
 let routes: Routes = [
   { path: 'browse-assets',
@@ -90,7 +91,8 @@ export function tokenGetter(){
     CheckoutComponent,
     EditConsumableComponent,
     EditAssignmentComponent,
-    ViewAssignmentsComponent
+    ViewAssignmentsComponent,
+    ViewUserComponent
   ],
   declarations: [
     AppComponent,
@@ -123,7 +125,8 @@ export function tokenGetter(){
     HistoryPanelComponent,
     DateRangeComponent,
     CalendarComponent,
-    DashboardComponent
+    DashboardComponent,
+    ViewUserComponent
   ],
   imports: [
     BrowserModule,

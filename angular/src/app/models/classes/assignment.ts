@@ -1,5 +1,7 @@
+import { Globals } from './../../globals';
 import { UtilitiesService } from "../../services/utilities.service";
 import { IAssignment } from "../interfaces/IAssignment";
+import * as moment from 'moment';
 
 export class Assignment {
 
@@ -7,8 +9,8 @@ export class Assignment {
     if (iAssignment.id) this._id = iAssignment.id;
     this.userId = iAssignment.userId;
     this.assetId = iAssignment.assetId;
-    this.checkoutDate = iAssignment.checkoutDate;
-    this.dueDate = iAssignment.dueDate;
+    this.checkoutDate = moment(iAssignment.checkoutDate, Globals.dateFormat);
+    this.dueDate = (iAssignment.dueDate) ? moment(iAssignment.dueDate, Globals.dateFormat) : null;
   }
 
   private _id = UtilitiesService.uuid();
@@ -22,12 +24,12 @@ export class Assignment {
   get assetId(){ return this._assetId; }
   set assetId(v){ this._assetId = v; }
 
-  private _checkoutDate: string;
+  private _checkoutDate: moment.Moment;
   get checkoutDate(){ return this._checkoutDate; }
   set checkoutDate(v){ this._checkoutDate = v; }
   get checkoutDateText(){ return this.checkoutDate; }
 
-  private _dueDate: string;
+  private _dueDate: moment.Moment;
   get dueDate(){ return this._dueDate; }
   set dueDate(v){ this._dueDate = v; }
   get dueDateText(){ return (this.dueDate) ? this.dueDate : 'N/A';}
@@ -45,6 +47,16 @@ export class Assignment {
       assetId: this.assetId,
       checkoutDate: this.checkoutDate,
       dueDate: this.dueDate
+    }
+    return result;
+  }
+  postFormat(){
+    let result = {
+      id: this.id,
+      userId: this.userId,
+      assetId: this.assetId,
+      checkoutDate: this.checkoutDate.format(Globals.dateFormat),
+      dueDate: (this.dueDate) ? this.dueDate.format(Globals.dateFormat) : ''
     }
     return result;
   }

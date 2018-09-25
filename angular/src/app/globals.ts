@@ -8,6 +8,7 @@ export class Globals {
     maxWidth: Globals.dialogWidth
   }
   public static historyFormat = 'dddd, MMMM Do YYYY, h:mm:ss a';
+  public static dateFormat = 'MMM Do YYYY';
 
   private static _title = 'Inventoried';
   static get title(){

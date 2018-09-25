@@ -170,6 +170,12 @@ const saveUser = exports.saveUser = (user, agent) => {
   if (user) return Users.save(user, agent);
   throw 'No user to save.';
 }
+const saveFormat = exports.saveFormat = (user) => {
+  return {
+    id: user.id,
+    assignmentIds: user.assignmentIds
+  };
+}
 const checkin = exports.checkin = (userId, assignmentId, agent) => {
   if (userId) return getUser(userId)
     .then(user => {
@@ -187,4 +193,12 @@ const checkin = exports.checkin = (userId, assignmentId, agent) => {
       return Users.save(userToSave, agent);
     })
   else throw 'No user to check in item from.';
+}
+const saveUsers = exports.saveUsers = (users, agent?: string) => {
+  if (!Array.isArray(users)){
+    let array = [];
+    array.push(users);
+    users = array;
+  }
+  return Users.save(users, agent);
 }

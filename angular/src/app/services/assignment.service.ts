@@ -51,30 +51,29 @@ export class AssignmentService {
     );
   }
 
-  createNewAssignmentAndCheckout(userId, assetId, checkoutDate, dueDate, isIndeterminate){
-    this.checkout(
-      new Assignment({
-        id: undefined,
-        userId: userId,
-        assetId: assetId,
-        checkoutDate: checkoutDate,
-        dueDate: (!isIndeterminate) ? '' : dueDate
-      })
-    );
-  }
-  checkoutWithoutPost(assignment: Assignment){
-    if (assignment){
+  checkoutWithoutPost(assignments: Assignment[]){
+    if (!Array.isArray(assignments)){
+      let array = [];
+      array.push(assignments);
+      assignments = array; 
+    };
+    assignments.forEach(assignment => {
       this.us.assign(assignment);
       this.assets.assign(assignment);
-    }
-    this.assignments.push(assignment);
+      this.assignments.push(assignment);
+    })
   }
-  checkout(assignment: Assignment){
+  checkout(assignments: Assignment[]){
+    if (!Array.isArray(assignments)){
+      let array = [];
+      array.push(assignments);
+      assignments = array; 
+    }
     this.http.post(
-      Globals.request_prefix + 'assignments/create_assignment',
-      assignment.asInterface()
+      Globals.request_prefix + 'assignments/checkout',
+      {assignments: assignments.map(assignment => assignment.postFormat())}
     ).subscribe(
-      res => this.checkoutWithoutPost(assignment),
+      res => this.checkoutWithoutPost(assignments),
       err => {}
     );
   }

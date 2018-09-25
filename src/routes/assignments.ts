@@ -26,46 +26,63 @@ router.get('/get_assignments', (req, res) => {
     }))
     .catch(error => res.json(err.formatError(error, 'Fetch assignments error')));
 })
-
-router.post('/create_assignment', (req, res) => {
-  PromiseQueue.push([req,res], (args) => checkoutFxn(args[0], args[1]));
-})
-const checkoutFxn = (req, res) => {
+router.post('/checkout', (req, res) => {
   let authorization = req.headers.authorization;
-  let assignmentId, userId, assetId, checkoutDate, dueDate, checkoutDateParsed, dueDateParsed, agent;
+  let assignments = req.body.assignments;
+  let agent;
+  let assignmentsToSave = [], usersToSave = [], assetsToSave = [];
   return auth.authguard(authorization, 'admin', 'Check out error')
     .broken(error => res.json(error))
     .then(authorized => {
       agent = authorized;
-      assignmentId = req.body.id;
-      userId = req.body.userId;
-      assetId = req.body.assetId;
-      checkoutDate = req.body.checkoutDate;
-      dueDate = req.body.dueDate;
-      let validDates = checkoutDate && (dueDate || dueDate == '');
-      if (userId && assetId && validDates){ //All fields are present
-        checkoutDateParsed = parseDate(checkoutDate);
-        dueDateParsed = parseDate(dueDate);
-        let validParsedDates = checkoutDateParsed && (dueDateParsed || dueDateParsed == '');
-        if (validParsedDates)//Checkout date + due date are both valid
-          return Promise.all([users.getUser(userId), assets.getAsset(assetId)])
-        else throw 'Dates are not both valid.';
-      } else throw 'Not all fields are present.';
+      let valid = !!assignments.map(assignment => verifyCheckoutInfo(assignment)).reduce((a,b) => a && b);
+      if (valid) return true;
+      throw 'Error with checkout dates.';
     })
-    .then(result => {
-      let user = result[0];
-      let asset = result[1];
-      if (user && asset){ //user & asset are both valid objects in the database
-        //All inputs are valid
-        return checkout(assignmentId, user, asset, checkoutDateParsed, dueDateParsed, agent)
-      } else throw 'User and asset are not both valid.';
+    .then(valid => Promise.all(assignments.map(assignment => Promise.all([users.getUser(assignment.userId), assets.getAsset(assignment.assetId)]))))
+    .then(results => {
+      let valid = results.map(pair => pair.reduce((a,b) => a && b)).reduce((a,b) => a && b);
+      if (valid){
+        for (let i = 0; i < results.length; i++){
+          let user = results[i][0];
+          let asset = results[i][1];
+          let assignment = assignments[i];
+
+          let userExists = usersToSave.find(match => match.id == user.id);
+          if (userExists) user = userExists;
+          else usersToSave.push(users.saveFormat(user));
+          user.assignmentIds.push(assignment.id);
+
+          let type = asset.type;
+          asset = asset.asset;
+          let assetExists = assetsToSave.find(match => match.id == asset.id);
+          if (assetExists) asset = assetExists;
+          else assetsToSave.push(asset);
+          switch(type){
+            case "durable":
+              asset.assignmentId = assignment.id;
+              break;
+            case "consumable":
+              asset.assignmentIds.push(assignment.id);
+              break;
+          }
+
+          assignmentsToSave.push(assignment);
+        }
+        let promises = [
+          users.saveUsers(usersToSave, agent),
+          assets.saveAssets(assetsToSave, agent),
+          Assignments.save(assignmentsToSave, agent)
+        ];
+        return Promise.all(promises);
+      } else throw 'Error with user or asset availability.';
     })
     .then(checkedOut => res.json({
       error: null,
       result: checkedOut
     }))
     .catch(error => res.json(err.formatError(error, 'Check out error')))
-}
+})
 router.post('/checkin', (req, res) => {
   let authorization = req.headers.authorization;
   let agent;
@@ -93,6 +110,10 @@ router.post('/checkin', (req, res) => {
 
 module.exports = router;
 
+const getAssignment = module.exports.getAssignment = (id: string) => {
+  return Assignments.findById(id);
+}
+
 const parseDate = (date: string) => {
   if (date == '') return '';
   let parsed = moment(date, config.dateFormat, true);
@@ -100,6 +121,18 @@ const parseDate = (date: string) => {
     return parsed;
   }
   return null;
+}
+const verifyCheckoutInfo = assignment => {
+  let id = assignment.id;
+  let userId = assignment.userId;
+  let assetId = assignment.assetId;
+  let checkoutDate = assignment.checkoutDate;
+  let dueDate = assignment.dueDate;
+  if (id && userId && assetId && checkoutDate && (dueDate || dueDate == '')){
+    let checkoutDateValid = parseDate(checkoutDate);
+    let dueDateValid = dueDate == '' || parseDate(dueDate);
+    return checkoutDateValid && dueDateValid;
+  } return false;
 }
 
 const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDate: moment.Moment, agent) => {

@@ -135,9 +135,10 @@ const saveAssets = exports.saveAssets = (assets, agent) => {
       }
     })
     //CURRENTLY: if presented with durables + consumables, only saves the durables
-    if (durables.length > 0) return Durables.save(durables, agent);
-    if (consumables.length > 0) return Consumables.save(consumables, agent);
-    return Promise.resolve({});
+    let promises = [];
+    if (durables.length > 0) promises.push(Durables.save(durables, agent));
+    if (consumables.length > 0) promises.push(Consumables.save(consumables, agent));
+    return Promise.all(promises);
   }
 }
 

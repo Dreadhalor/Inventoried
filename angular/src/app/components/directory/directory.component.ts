@@ -7,6 +7,7 @@ import { ModalService } from "../../services/modal.service";
 import { Asset } from "../../models/classes/asset";
 import { Durable } from "../../models/classes/durable";
 import { Consumable } from "../../models/classes/consumable";
+import { User } from "../../models/classes/user";
 
 
 @Component({
@@ -45,6 +46,16 @@ export class DirectoryComponent implements OnInit, OnDestroy {
 
   applyFilter(filterValue: string) {
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  assignmentClicked(event, assignmentId){
+    event.stopPropagation();
+    this.openEditAsset(this.assignments.getAssetFromAssignmentId(assignmentId));
+  }
+  
+  openViewUser(user: User){
+    let data = user.id;
+    this.ms.openViewUser(data);
   }
 
   openEditAsset(asset: Asset){

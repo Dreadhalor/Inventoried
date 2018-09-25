@@ -39,14 +39,18 @@
           <button *ngFor="let assignmentId of user.assignmentIds"
             type="button"
             class="btn btn-link btn-sm"
-            (click)="openEditAsset(assignments.getAssetFromAssignmentId(assignmentId))">
+            (click)="assignmentClicked($event, assignmentId)">
             {{assignments.getAssetText(assignmentId)}}
           </button>
         </td>
       </ng-container>
     
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-row
+        *matRowDef="let user; columns: displayedColumns;"
+        class="pointer"
+        (click)="openViewUser(user)">
+      </tr>
 
     </table>
   </ng-template>

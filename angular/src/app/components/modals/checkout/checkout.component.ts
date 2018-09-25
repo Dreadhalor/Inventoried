@@ -8,6 +8,7 @@ import * as moment from 'moment';
 
 import { ModalService } from '../../../services/modal.service';
 import { UserService } from '../../../services/user.service';
+import { Assignment } from '../../../models/classes/assignment';
 
 @Component({
   selector: 'checkout',
@@ -43,15 +44,16 @@ export class CheckoutComponent implements OnInit {
   }
 
   checkoutButtonClicked(){
-    this.assetIds.forEach(
-      assetId => this.assignments.createNewAssignmentAndCheckout(
-        this.userId,
-        assetId,
-        this.checkoutDate.format(this.dateStringFormat),
-        this.isIndeterminate ? '' : this.dueDate.format(this.dateStringFormat),
-        this.isIndeterminate
-      )
+    let toCheckout = this.assetIds.map(id =>
+      new Assignment({
+        id: undefined,
+        userId: this.userId,
+        assetId: id,
+        checkoutDate: this.checkoutDate,
+        dueDate: (this.isIndeterminate) ? null : this.dueDate
+      })
     )
+    this.assignments.checkout(toCheckout);
   }
 
   readyToCheckout(){
