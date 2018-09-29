@@ -23,7 +23,6 @@
   "homepage": "https://github.com/Dreadhalor/Inventoried#readme",
   "dependencies": {
     "@dreadhalor/bluebird-plus": "^1.2.1",
-    "@dreadhalor/sql-client": "^1.1.2",
     "@types/bluebird": "^3.5.24",
     "@types/cors": "^2.8.4",
     "@types/fs-extra": "^5.0.4",

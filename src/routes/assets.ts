@@ -6,6 +6,7 @@ const router = express.Router();
 
 const Durables = require('../models/tables').Durables;
 const Consumables = require('../models/tables').Consumables;
+const dbClient = require('@dreadhalor/sql-client');
 const auth = require('../utilities/auth');
 const err = require('../utilities/error');
 
@@ -29,7 +30,7 @@ router.post('/save_assets', (req, res) => {
     .broken(error => res.json(error))
     .then(authorized => {
       let assets = req.body.assets;
-      return saveAssets(assets, authorized)
+      return saveAssets(assets, {standalone: true});
     })
     .then(saved => res.json({
       error: null,
@@ -46,12 +47,12 @@ router.post('/delete_asset', (req, res) => {
       if (asset){
         switch(typeCheck(asset)){
           case 'durable':
-            Durables.deleteById(asset.id, admin.result)
+            Durables.delete(asset.id, {standalone: true})
               .then(resolved => res.json(resolved))
               .catch(exception => res.json(exception));
             break;
           case 'consumable':
-            Consumables.deleteById(asset.id, admin.result)
+            Consumables.delete(asset.id, admin.result)
               .then(resolved => res.json(resolved))
               .catch(exception => res.json(exception));
             break;
@@ -134,11 +135,10 @@ const saveAssets = exports.saveAssets = (assets, agent) => {
         default: throw 'All objects to save must be assets.'
       }
     })
-    //CURRENTLY: if presented with durables + consumables, only saves the durables
     let promises = [];
     if (durables.length > 0) promises.push(Durables.save(durables, agent));
     if (consumables.length > 0) promises.push(Consumables.save(consumables, agent));
-    return Promise.all(promises);
+    return dbClient.all(promises);
   }
 }
 

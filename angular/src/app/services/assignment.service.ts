@@ -73,7 +73,10 @@ export class AssignmentService {
       Globals.request_prefix + 'assignments/checkout',
       {assignments: assignments.map(assignment => assignment.postFormat())}
     ).subscribe(
-      res => this.checkoutWithoutPost(assignments),
+      res => {
+        console.log(res);
+        this.checkoutWithoutPost(assignments);
+      },
       err => {}
     );
   }

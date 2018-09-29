@@ -11,8 +11,7 @@ const ad = new ADPromise(config.activedirectory2);
 const Users = require('../models/tables').Users;
 const jwt = require('jsonwebtoken');
 const auth = require('../utilities/auth');
-const PromisePlus = require('@dreadhalor/bluebird-plus');
-
+const err = require('../utilities/error');
 
 import * as passport from 'passport';
 

@@ -4,16 +4,17 @@ import * as moment from 'moment';
 import * as express from 'express';
 const router = express.Router();
 import * as Promise from 'bluebird';
-const PromisePlus = require('@dreadhalor/bluebird-plus');
-const PromiseQueue = new PromisePlus.Queue();
 
 const Assignments = require('../models/tables').Assignments;
+const dbClient = require('@dreadhalor/sql-client');
 
 const assets = require('./assets');
 const users = require('./users');
 const config = require('../server-config');
 const auth = require('../utilities/auth');
 const err = require('../utilities/error');
+
+const util = require('util');
 
 router.get('/get_assignments', (req, res) => {
   let authorization = req.headers.authorization;
@@ -66,22 +67,22 @@ router.post('/checkout', (req, res) => {
               asset.assignmentIds.push(assignment.id);
               break;
           }
-
           assignmentsToSave.push(assignment);
         }
+        let assetPromises = assets.saveAssets(assetsToSave, {standalone: false});
         let promises = [
-          users.saveUsers(usersToSave, agent),
-          assets.saveAssets(assetsToSave, agent),
-          Assignments.save(assignmentsToSave, agent)
+          assetPromises,
+          users.saveUsers(usersToSave, {standalone: false}),
+          Assignments.save(assignmentsToSave, {standalone: false})
         ];
-        return Promise.all(promises);
+        return dbClient.all(promises, {standalone: true});
       } else throw 'Error with user or asset availability.';
     })
     .then(checkedOut => res.json({
       error: null,
       result: checkedOut
     }))
-    .catch(error => res.json(err.formatError(error, 'Check out error')))
+    .catch(error => res.json(err.formatError(error, 'Check out error')));
 })
 router.post('/checkin', (req, res) => {
   let authorization = req.headers.authorization;
@@ -97,7 +98,7 @@ router.post('/checkin', (req, res) => {
       let promises = [
         users.checkin(assignment.userId, assignment.id, agent),
         assets.checkin(assignment.assetId, assignment.id, agent),
-        Assignments.deleteById(assignment.id, agent)
+        Assignments.delete(assignment.id, agent)
       ];
       return Promise.all(promises);
     })
@@ -112,7 +113,7 @@ module.exports = router;
 
 const getAssignment = module.exports.getAssignment = (id: string) => {
   return Assignments.findById(id);
-}
+} 
 
 const parseDate = (date: string) => {
   if (date == '') return '';
@@ -159,7 +160,7 @@ const checkout = (assignmentId, user, asset, checkoutDate: moment.Moment, dueDat
     assignmentIds: user.assignmentIds
   };
   return Promise.all([
-    Assignments.save(assignment, agent),
+    Assignments.save(assignment, {standalone: true}),
     assets.saveAsset(asset.asset, agent),
     users.saveUser(userToSave, agent)
   ]);

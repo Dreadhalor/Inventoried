@@ -2,11 +2,14 @@ import * as express from 'express';
 const router = express.Router();
 
 const auth = require('../utilities/auth');
+const err = require('../utilities/error');
 
 const DurablesCategories = require('../models/tables').DurablesCategories;
 const ConsumablesCategories = require('../models/tables').ConsumablesCategories;
 const Manufacturers = require('../models/tables').Manufacturers;
 const Tags = require('../models/tables').Tags;
+
+const db = require('@dreadhalor/sql-client').db;
 
 router.get('/get_settings', (req, res) => {
   let authorization = req.headers.authorization;
@@ -54,17 +57,21 @@ const merge = (table, req, res, title) => {
   auth.authguard(authorization, 'admin', title)
     .broken(error => res.json(error))
     .then(authorized => {
-      let args = {
-        toSave: req.body.to_save,
-        toDelete: req.body.to_delete
-      };
-      return table.merge(args, authorized);
+      let toSave = table.save(req.body.to_save, {standalone: false});
+      let toDelete = table.delete(req.body.to_delete, {standalone: false});
+      let promises = [];
+      if (toSave) promises.push(table.save(req.body.to_save, {standalone: false}));
+      if (toDelete) promises.push(table.delete(req.body.to_delete, {standalone: false}));
+      return db.all(promises);
     })
     .then(merged => res.json({
       error: null,
       result: merged
     }))
-    .catch(error => res.json(err.formatError(error, title)));
+    .catch(error => {
+      console.log(error);
+      res.json(err.formatError(error, title))
+    });
 }
 
 module.exports = router;

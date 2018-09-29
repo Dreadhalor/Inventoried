@@ -93,14 +93,11 @@ export module Tables {
     History: {
       name: 'history',
       columns: [
-        'id',
+        'transactionId',
         'timestamp',
-        'agent',
-        'table',
-        'operation',
-        'info'
+        'tables',
       ],
-      primary: 'id'
+      primary: 'transactionId'
     }
   }
 

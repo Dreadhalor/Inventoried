@@ -36,12 +36,12 @@ export class InfoService {
   //Shared
   getMergeParams(currentVals, updateVals){
     let toSave = updateVals.filter(match => !currentVals.find(found => found.equals(match)))
-    .map(category => category.asInterface());
+      .map(category => category.asInterface());
     let toDelete = currentVals.filter(match => !updateVals.find(found => found.id == match.id));
-    let params = {
-      to_save: toSave,
-      to_delete: toDelete.map(category => category.id)
-    };
+    let params: any = {};
+    if (toSave.length > 0) params.to_save = toSave;
+    if (toDelete.length > 0) params.to_delete = toDelete.map(category => category.id);
+    if (Object.keys(params).length == 0) return null;
     return params;
   }
   merge(currentVals, updateVals, suffix){
