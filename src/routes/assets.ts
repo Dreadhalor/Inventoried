@@ -16,7 +16,11 @@ router.post('/save_asset', (req, res) => {
     .broken(error => res.json(error))
     .then(agent => {
       let asset = req.body.asset;
-      return saveAssets(asset, agent)
+      let options = {
+        agent: agent,
+        standalone: true
+      };
+      return saveAssets(asset, options)
     })
     .then(saved => res.json({
       error: null,
@@ -28,9 +32,13 @@ router.post('/save_assets', (req, res) => {
   let authorization = req.headers.authorization;
   auth.authguard(authorization, 'admin', 'Save assets error')
     .broken(error => res.json(error))
-    .then(authorized => {
+    .then(agent => {
       let assets = req.body.assets;
-      return saveAssets(assets, {standalone: true});
+      let options = {
+        agent: agent,
+        standalone: true
+      };
+      return saveAssets(assets, options);
     })
     .then(saved => res.json({
       error: null,
@@ -42,17 +50,21 @@ router.post('/delete_asset', (req, res) => {
   let authorization = req.headers.authorization;
   auth.authguard(authorization, 'admin', 'Delete asset error')
     .broken(error => res.json(error))
-    .then(admin => {
+    .then(agent => {
       let asset = req.body.asset;
+      let options = {
+        agent: agent,
+        standalone: true
+      };
       if (asset){
         switch(typeCheck(asset)){
           case 'durable':
-            Durables.delete(asset.id, {standalone: true})
+            Durables.delete(asset.id, options)
               .then(resolved => res.json(resolved))
               .catch(exception => res.json(exception));
             break;
           case 'consumable':
-            Consumables.delete(asset.id, admin.result)
+            Consumables.delete(asset.id, options)
               .then(resolved => res.json(resolved))
               .catch(exception => res.json(exception));
             break;
@@ -67,7 +79,7 @@ router.get('/get_durables', (req, res) => {
   let authorization = req.headers.authorization;
   auth.authguard(authorization, 'admin', 'Fetch durables error')
     .broken(error => res.json(error))
-    .then(admin => Durables.pullAll())
+    .then(agent => Durables.pullAll())
     .then(durables => res.json({
       error: null,
       result: durables
@@ -78,7 +90,7 @@ router.get('/get_consumables', (req, res) => {
   let authorization = req.headers.authorization;
   auth.authguard(authorization, 'admin', 'Fetch consumables error')
     .broken(error => res.json(error))
-    .then(authorized => Consumables.pullAll())
+    .then(agent => Consumables.pullAll())
     .then(consumables => res.json({
       error: null,
       result: consumables
@@ -107,15 +119,15 @@ const getAsset = exports.getAsset = (assetId: string) => {
 
 module.exports.router = router;
 
-function typeCheck(asset: any){
+const typeCheck = (asset: any) => {
   if (is(asset, Durable.sample())) return 'durable';
   if (is(asset, Consumable.sample())) return 'consumable';
   return '';
 }
-const saveAsset = exports.saveAsset = (asset, agent) => {
-  return saveAssets(asset, agent);
+const saveAsset = exports.saveAsset = (asset, options) => {
+  return saveAssets(asset, options);
 }
-const saveAssets = exports.saveAssets = (assets, agent) => {
+const saveAssets = exports.saveAssets = (assets, options) => {
   if (assets){
     if (!Array.isArray(assets)){
       let array = [];
@@ -136,13 +148,15 @@ const saveAssets = exports.saveAssets = (assets, agent) => {
       }
     })
     let promises = [];
-    if (durables.length > 0) promises.push(Durables.save(durables, agent));
-    if (consumables.length > 0) promises.push(Consumables.save(consumables, agent));
-    return dbClient.all(promises);
+    let options2 = options;
+    options2.standalone = false;
+    if (durables.length > 0) promises.push(Durables.save(durables, options2));
+    if (consumables.length > 0) promises.push(Consumables.save(consumables, options2));
+    return dbClient.all(promises, options);
   }
 }
 
-const checkin = exports.checkin = (assetId, assignmentId, agent) => {
+const checkin = exports.checkin = (assetId, assignmentId, options) => {
   if (assetId) return getAsset(assetId)
     .then(asset => {
       switch(asset.type){
@@ -150,7 +164,7 @@ const checkin = exports.checkin = (assetId, assignmentId, agent) => {
           let durable = asset.asset;
           if (durable.assignmentId == assignmentId){
             durable.assignmentId = '';
-            return Durables.save(durable, agent);
+            return Durables.save(durable, options);
           } else throw `Durable ${durable.serialNumber} does not belong to this assignment.`;
         case 'consumable':
           let consumable = asset.asset;
@@ -158,7 +172,7 @@ const checkin = exports.checkin = (assetId, assignmentId, agent) => {
             if (consumable.assignmentIds[i] == assignmentId)
               consumable.assignmentIds.splice(i,1);
           }
-          return Consumables.save(consumable, agent);
+          return Consumables.save(consumable, options);
         default: throw 'Error with asset formatting.';
       }
     })
